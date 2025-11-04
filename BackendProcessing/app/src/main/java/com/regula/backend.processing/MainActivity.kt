@@ -73,36 +73,11 @@ class MainActivity : AppCompatActivity() {
         val mnemonicUuid = generateMnemonicUUID()
         binding.mnemonicInput.setText(mnemonicUuid)
 
-        binding.showScannerBtn.setOnClickListener {
+        binding.scanDocumentBtn.setOnClickListener {
             binding.surnameTv.text = "Surname:"
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
             showScanner()
-        }
-
-        // Add iProov button logic
-        val buttons = listOf(binding.enrolGpaButton, binding.verifyLaButton, binding.verifyGpaButton)
-        buttons.forEach { btn ->
-            btn.setOnClickListener {
-                val mnemonic = binding.mnemonicInput.text.toString()
-                if (mnemonic.isEmpty()) {
-                    Toast.makeText(this, "Mnemonic cannot be empty", Toast.LENGTH_SHORT).show()
-                } else {
-                    val claimType = when (btn) {
-                        binding.enrolGpaButton -> "ENROL"
-                        binding.verifyGpaButton -> "VERIFY"
-                        binding.verifyLaButton -> "VERIFY"
-                        else -> throw NotImplementedError()
-                    }
-                    val assuranceType = when (btn) {
-                        binding.enrolGpaButton -> "GENUINE_PRESENCE"
-                        binding.verifyGpaButton -> "GENUINE_PRESENCE"
-                        binding.verifyLaButton -> "LIVENESS"
-                        else -> throw NotImplementedError()
-                    }
-                    launchIProov(claimType, mnemonic, assuranceType)
-                }
-            }
         }
     }
 
@@ -269,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                         "Available scenarios list is empty",
                         Toast.LENGTH_SHORT
                     ).show()
-                    binding.showScannerBtn.isEnabled = false
+                    binding.scanDocumentBtn.isEnabled = false
                 }
             } else {
                 Toast.makeText(this@MainActivity, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
@@ -282,7 +257,8 @@ class MainActivity : AppCompatActivity() {
             //processing is finished, all results are ready
 
             if (action == DocReaderAction.COMPLETE) {
-                if (binding.doRfidCb.isChecked && results != null && results.chipPage != 0){
+                //if (binding.doRfidCb.isChecked && results != null && results.chipPage != 0){
+                if (true) {
                     DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
                         override fun onCompleted(
                             rfidAction: Int,
@@ -376,15 +352,19 @@ class MainActivity : AppCompatActivity() {
         if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
             val surname = "Surname:" + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
+            binding.surnameTv.visibility = View.VISIBLE
         } else {
             binding.surnameTv.text = "Surname:"
+            binding.surnameTv.visibility = View.GONE
         }
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES) != null) {
             val name = "Name: " + results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES)
             binding.nameTv.text = name
+            binding.nameTv.visibility = View.VISIBLE
         } else {
             binding.nameTv.text = "Name:"
+            binding.nameTv.visibility = View.GONE
         }
     }
 

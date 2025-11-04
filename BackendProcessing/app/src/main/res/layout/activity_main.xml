@@ -15,14 +15,12 @@
         app:title="@string/app_name" />
 
     <ImageView
-        android:id="@+id/resultIv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/showScannerBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"  />
-
+    android:id="@+id/resultIv"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toBottomOf="@+id/surnameTv"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
         android:id="@+id/mnemonicInput"
@@ -39,7 +37,7 @@
         android:id="@+id/refreshMnemonicButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Refresh"
+        android:text="Regenerate ID"
         app:layout_constraintTop_toBottomOf="@+id/toolBar"
         app:layout_constraintStart_toEndOf="@+id/mnemonicInput"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -51,6 +49,7 @@
         android:layout_margin="4dp"
         android:text="Name:"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mnemonicInput" />
 
@@ -61,52 +60,25 @@
         android:layout_margin="4dp"
         android:text="Surname:"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameTv" />
 
-    <Button
-        android:id="@+id/enrolGpaButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Enrol GPA"
-        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/verifyLaButton"
-        app:layout_constraintHorizontal_chainStyle="spread" />
-
-    <Button
-        android:id="@+id/verifyLaButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Verify LA"
-        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
-        app:layout_constraintStart_toEndOf="@+id/enrolGpaButton"
-        app:layout_constraintEnd_toStartOf="@+id/verifyGpaButton" />
-
-    <Button
-        android:id="@+id/verifyGpaButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Verify GPA"
-        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
-        app:layout_constraintStart_toEndOf="@+id/verifyLaButton"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <CheckBox
+    <!--<CheckBox
         android:id="@+id/doRfidCb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Perform NFC chip reading"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/showScannerBtn"
+        app:layout_constraintBottom_toTopOf="@+id/scanDocumentBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />-->
 
     <Button
-        android:id="@+id/showScannerBtn"
+        android:id="@+id/scanDocumentBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="show Scanner"
+        android:text="Scan Official Document"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
