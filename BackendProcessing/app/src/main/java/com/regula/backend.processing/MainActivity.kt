@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
+import okhttp3.MediaType.Companion.toMediaType
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -206,10 +207,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onResult(title: String?, resultMessage: String?) {
-        Log.d(TAG, "onResult called: title=$title, resultMessage=$resultMessage")
-        // Optionally reset progress UI
-        // binding.progressBar.progress = 0
-        // binding.progressBar.visibility = View.GONE
+        Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
+        Toast.makeText(this@MainActivity, "Verification scan result: $title - $resultMessage", Toast.LENGTH_LONG).show()
         AlertDialog.Builder(this@MainActivity)
             .setTitle(title)
             .setMessage(resultMessage)
@@ -359,16 +358,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun displayImage(results: DocumentReaderResults?) {
         if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
-            var documentImage =
-                results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
+            var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             if (documentImage != null) {
-                val aspectRatio = documentImage.width.toDouble() / documentImage.height
-                    .toDouble()
+                val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
                 documentImage = Bitmap.createScaledBitmap(
                     documentImage,
                     (480 * aspectRatio).toInt(), 480, false
                 )
                 binding.resultIv.setImageBitmap(documentImage)
+                // Automatically enroll the photo with iProov
+                enrollDocumentPhotoWithIProov(documentImage)
             }
         }
     }
@@ -412,6 +411,104 @@ class MainActivity : AppCompatActivity() {
                 insets
             }
         }
+    }
+    
+    // Enroll document photo with iProov using mnemonic UUID as user_id
+    private fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
+        val userId = binding.mnemonicInput.text.toString()
+        val photoBytes = bitmapToJpegBytes(documentPhoto)
+        val client = okhttp3.OkHttpClient()
+
+        uiScope.launch(Dispatchers.IO) {
+            try {
+                // Step 1: Get token from iProov API
+                val apiKey = Constants.API_KEY
+                val secret = Constants.SECRET
+                val resource = Constants.IPROOV_SERVICE_PROVIDER
+                val apiBase = Constants.IPROOV_REST_API_BASE
+                val assuranceType = "genuine_presence"
+                val tokenPayload = org.json.JSONObject().apply {
+                    put("api_key", apiKey)
+                    put("secret", secret)
+                    put("resource", resource)
+                    put("assurance_type", assuranceType)
+                    put("user_id", userId)
+                }
+                val tokenRequest = okhttp3.Request.Builder()
+                    .url("$apiBase/v2/claim/enrol/token")
+                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
+                    .build()
+                client.newCall(tokenRequest).execute().use { tokenResponse ->
+                    val tokenResponseBody = tokenResponse.body!!.string()
+                    Log.d(TAG, "iProov API /v2/claim/enrol/token response: $tokenResponseBody")
+                    val token = org.json.JSONObject(tokenResponseBody).getString("token")
+                    // Step 2: Upload photo to iProov API
+                    val enrollRequestBody = okhttp3.MultipartBody.Builder()
+                        .setType(okhttp3.MultipartBody.FORM)
+                        .addFormDataPart("api_key", apiKey)
+                        .addFormDataPart("secret", secret)
+                        .addFormDataPart("rotation", "0")
+                        .addFormDataPart("image", "photo.jpg",
+                            okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes))
+                        .addFormDataPart("token", token)
+                        .build()
+                    val enrollRequest = okhttp3.Request.Builder()
+                        .url("$apiBase/v2/claim/enrol/image")
+                        .post(enrollRequestBody)
+                        .build()
+                    client.newCall(enrollRequest).execute().use { enrollResponse ->
+                        val result = enrollResponse.body!!.string()
+                        Log.d(TAG, "iProov API /v2/claim/enrol/image response: $result")
+                        // Check for success in result (assume JSON with success field or status)
+                        val enrollJson = org.json.JSONObject(result)
+                        val enrollSuccess = enrollJson.optBoolean("success", true) // fallback: treat as success if no field
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@MainActivity, "Photo enroll result: $result", Toast.LENGTH_LONG).show()
+                        }
+                        if (enrollSuccess) {
+                            // Step 3: Get verification token
+                            val verifyPayload = org.json.JSONObject().apply {
+                                put("api_key", apiKey)
+                                put("secret", secret)
+                                put("resource", resource)
+                                put("assurance_type", assuranceType)
+                                put("user_id", userId)
+                            }
+                            val verifyTokenRequest = okhttp3.Request.Builder()
+                                .url("$apiBase/v2/claim/verify/token")
+                                .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
+                                .build()
+                            client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
+                                val verifyTokenBody = verifyTokenResponse.body!!.string()
+                                Log.d(TAG, "iProov API /v2/claim/verify/token response: $verifyTokenBody")
+                                val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
+                                // Step 4: Launch verification scan
+                                withContext(Dispatchers.Main) {
+                                    Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
+                                    IProov.createSession(applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
+                                        observeSessionState(session) {
+                                            session.start()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "iProov API error: ${ex.localizedMessage}", ex)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    // Utility: Convert Bitmap to JPEG ByteArray
+    private fun bitmapToJpegBytes(bitmap: Bitmap): ByteArray {
+        val stream = java.io.ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+        return stream.toByteArray()
     }
 }
 
