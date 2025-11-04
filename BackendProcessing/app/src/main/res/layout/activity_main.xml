@@ -14,14 +14,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name" />
 
-    <ImageView
-    android:id="@+id/resultIv"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:layout_constraintTop_toBottomOf="@+id/surnameTv"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
-
     <EditText
         android:id="@+id/mnemonicInput"
         android:layout_width="0dp"
@@ -63,6 +55,36 @@
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameTv" />
+
+    <TextView
+        android:id="@+id/dobTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="Date of Birth:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/surnameTv" />
+
+    <TextView
+        android:id="@+id/sexTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="Sex:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dobTv" />
+
+    <ImageView
+        android:id="@+id/resultIv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/sexTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!--<CheckBox
         android:id="@+id/doRfidCb"

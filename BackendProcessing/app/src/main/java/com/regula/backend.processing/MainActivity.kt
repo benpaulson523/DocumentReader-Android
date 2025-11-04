@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     private var sessionStateJob: Job? = null
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
+    // Store the last scanned document results
+    private var lastDocumentResults: DocumentReaderResults? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         binding.scanDocumentBtn.setOnClickListener {
             binding.surnameTv.text = "Surname:"
             binding.nameTv.text = "Name:"
+            binding.dobTv?.text = "Date of Birth:"
             binding.resultIv.setImageBitmap(null)
             showScanner()
         }
@@ -126,7 +129,11 @@ class MainActivity : AppCompatActivity() {
             val userId = binding.mnemonicInput.text.toString()
             val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
             val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
-            val dateOfBirth = "" // TODO: Extract from document if available
+
+            // Extract and format date of birth from dobTv text field
+            val dateOfBirth = binding.dobTv?.text.toString().removePrefix("Date of Birth: ")
+            val sex = binding.sexTv?.text.toString().removePrefix("Sex: ")
+
             // Use the token passed to createSession instead of resultMessage
             val verifyToken = lastIProovToken ?: ""
             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
@@ -140,6 +147,7 @@ class MainActivity : AppCompatActivity() {
                         put("firstName", firstName)
                         put("lastName", lastName)
                         put("dateOfBirth", dateOfBirth)
+                        put("sex", sex)
                     }
                     val request = okhttp3.Request.Builder()
                         .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/validate-verification")
@@ -174,6 +182,51 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
                 .show()
         }
+    }
+
+    // Utility: Format date of birth as YYYY-MM-DD
+    private fun formatDateOfBirth(dob: String): String {
+        // Try to match common formats and convert to YYYY-MM-DD
+        val regexList = listOf(
+            // DD.MM.YYYY or D.M.YYYY
+            Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{4})$"),
+            // YYYY-MM-DD
+            Regex("^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"),
+            // YYYY/MM/DD
+            Regex("^(\\d{4})/(\\d{1,2})/(\\d{1,2})$"),
+            // MM/DD/YYYY or M/D/YYYY
+            Regex("^(\\d{1,2})/(\\d{1,2})/(\\d{4})$"),
+            // MM/DD/YY or M/D/YY
+            Regex("^(\\d{1,2})/(\\d{1,2})/(\\d{2})$"),
+            // DD.MM.YY or D.M.YY
+            Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{2})$")
+        )
+        for ((i, regex) in regexList.withIndex()) {
+            val match = regex.find(dob)
+            if (match != null) {
+                val groups = match.groupValues
+                return when (i) {
+                    0 -> "${groups[3]}-${groups[2].padStart(2,'0')}-${groups[1].padStart(2,'0')}" // DD.MM.YYYY
+                    1 -> "${groups[1]}-${groups[2].padStart(2,'0')}-${groups[3].padStart(2,'0')}" // YYYY-MM-DD
+                    2 -> "${groups[1]}-${groups[2].padStart(2,'0')}-${groups[3].padStart(2,'0')}" // YYYY/MM/DD
+                    3 -> "${groups[3]}-${groups[1].padStart(2,'0')}-${groups[2].padStart(2,'0')}" // MM/DD/YYYY
+                    4 -> {
+                        // MM/DD/YY, convert YY to YYYY
+                        val year = groups[3].toInt()
+                        val fullYear = if (year >= 26) 1900 + year else 2000 + year
+                        "${fullYear}-${groups[1].padStart(2,'0')}-${groups[2].padStart(2,'0')}"
+                    }
+                    5 -> {
+                        // DD.MM.YY, convert YY to YYYY
+                        val year = groups[3].toInt()
+                        val fullYear = if (year >= 26) 1900 + year else 2000 + year
+                        "${fullYear}-${groups[2].padStart(2,'0')}-${groups[1].padStart(2,'0')}"
+                    }
+                    else -> dob
+                }
+            }
+        }
+        return dob // fallback: return as is
     }
 
     override fun onDestroy() {
@@ -277,6 +330,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     )
                         .show()
+                    lastDocumentResults = results
                     displayImage(results)
                     displayTextFields(results)
                 } else if (documentReaderException != null) {
@@ -351,6 +405,29 @@ class MainActivity : AppCompatActivity() {
             binding.nameTv.text = "Name:"
             binding.nameTv.visibility = View.GONE
         }
+
+        // Display date of birth between last name and photo
+        if (results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH) != null) {
+            val rawDob = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
+            val formattedDob = formatDateOfBirth(rawDob.toString())
+            val dob = "Date of Birth: $formattedDob"
+            binding.dobTv?.text = dob
+            binding.dobTv?.visibility = View.VISIBLE
+        } else {
+            binding.dobTv?.text = "Date of Birth:"
+            binding.dobTv?.visibility = View.GONE
+        }
+        
+            // Display sex between date of birth and photo
+            if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
+                val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
+                val sexDisplay = "Sex: $sex"
+                binding.sexTv?.text = sexDisplay
+                binding.sexTv?.visibility = View.VISIBLE
+            } else {
+                binding.sexTv?.text = "Sex:"
+                binding.sexTv?.visibility = View.GONE
+            }
     }
 
     override fun setContentView(view: View?) {
