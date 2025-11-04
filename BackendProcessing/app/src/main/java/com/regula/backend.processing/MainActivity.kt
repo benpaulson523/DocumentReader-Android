@@ -46,6 +46,8 @@ import java.util.concurrent.Executors
 import okhttp3.MediaType.Companion.toMediaType
 
 class MainActivity : AppCompatActivity() {
+    // Store the last token used for iProov verification
+    private var lastIProovToken: String? = null
     companion object {
         private const val TAG = "MainActivity"
     }
@@ -78,72 +80,6 @@ class MainActivity : AppCompatActivity() {
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
             showScanner()
-        }
-    }
-
-    private fun launchIProov(claimType: String, username: String, assuranceType: String) {
-    Log.d(TAG, "launchIProov called with claimType=$claimType, mnemonic=$username, assuranceType=$assuranceType")
-        // Show a progress dialog or progress bar if you have one
-        // binding.progressBar.visibility = View.VISIBLE
-        // binding.progressBar.isIndeterminate = true
-
-        // Map string to enums
-        val claimTypeEnum = when (claimType) {
-            "ENROL" -> ClaimType.ENROL
-            "VERIFY" -> ClaimType.VERIFY
-            else -> throw NotImplementedError()
-        }
-        val assuranceTypeEnum = when (assuranceType) {
-            "GENUINE_PRESENCE" -> AssuranceType.GENUINE_PRESENCE
-            "LIVENESS" -> AssuranceType.LIVENESS
-            else -> throw NotImplementedError()
-        }
-
-        val apiClientFuel = ApiClientFuel(
-            this,
-            Constants.FUEL_URL,
-            Constants.API_KEY,
-            Constants.SECRET,
-        )
-
-        uiScope.launch(Dispatchers.IO) {
-            try {
-                Log.d(TAG, "Requesting token from API client")
-                val token = apiClientFuel.getToken(
-                    assuranceTypeEnum,
-                    claimTypeEnum,
-                    username, // now mnemonic
-                )
-                Log.d(TAG, "Received token: $token")
-                if (!job.isActive) {
-                    Log.w(TAG, "Job is not active after getting token")
-                    return@launch
-                }
-                startScan(token)
-            } catch (ex: Exception) {
-                Log.e(TAG, "Exception in launchIProov", ex)
-                withContext(Dispatchers.Main) {
-                    ex.printStackTrace()
-                    if (ex is FuelError) {
-                        val json = jsonDeserializer().deserialize(ex.response)
-                        val description = json.obj().getString("error_description")
-                        onResult("Error", description)
-                    } else {
-                        onResult("Error", "Failed to get token")
-                    }
-                }
-            }
-        }
-    }
-
-    private fun startScan(token: String) {
-        Log.d(TAG, "Starting scan with token: $token")
-        IProov.createSession(applicationContext, Constants.IPROOV_BASE_URL, token).let { session ->
-            Log.d(TAG, "Session created, observing state and starting session")
-            observeSessionState(session) {
-                Log.d(TAG, "Session start called")
-                session.start()
-            }
         }
     }
 
@@ -184,11 +120,60 @@ class MainActivity : AppCompatActivity() {
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
         Toast.makeText(this@MainActivity, "Verification scan result: $title - $resultMessage", Toast.LENGTH_LONG).show()
-        AlertDialog.Builder(this@MainActivity)
-            .setTitle(title)
-            .setMessage(resultMessage)
-            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-            .show()
+
+        // If verification is successful, call backend /validate-verification
+        if (title == "Success") {
+            val userId = binding.mnemonicInput.text.toString()
+            val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
+            val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
+            val dateOfBirth = "" // TODO: Extract from document if available
+            // Use the token passed to createSession instead of resultMessage
+            val verifyToken = lastIProovToken ?: ""
+            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
+            val client = okhttp3.OkHttpClient()
+
+            uiScope.launch(Dispatchers.IO) {
+                try {
+                    val payload = org.json.JSONObject().apply {
+                        put("token", verifyToken)
+                        put("userId", userId)
+                        put("firstName", firstName)
+                        put("lastName", lastName)
+                        put("dateOfBirth", dateOfBirth)
+                    }
+                    val request = okhttp3.Request.Builder()
+                        .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/validate-verification")
+                        .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
+                        .build()
+                    client.newCall(request).execute().use { response ->
+                        val responseBody = response.body!!.string()
+                        Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
+                        withContext(Dispatchers.Main) {
+                            AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Verification Result")
+                                .setMessage(responseBody)
+                                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                                .show()
+                        }
+                    }
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Backend validate-verification error: ${ex.localizedMessage}", ex)
+                    withContext(Dispatchers.Main) {
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Error")
+                            .setMessage("Verification validation failed: ${ex.localizedMessage}")
+                            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                            .show()
+                    }
+                }
+            }
+        } else {
+            AlertDialog.Builder(this@MainActivity)
+                .setTitle(title)
+                .setMessage(resultMessage)
+                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                .show()
+        }
     }
 
     override fun onDestroy() {
@@ -401,70 +386,54 @@ class MainActivity : AppCompatActivity() {
 
         uiScope.launch(Dispatchers.IO) {
             try {
-                // Step 1: Get token from iProov API
-                val apiKey = Constants.API_KEY
-                val secret = Constants.SECRET
-                val resource = Constants.IPROOV_SERVICE_PROVIDER
-                val apiBase = Constants.IPROOV_REST_API_BASE
-                val assuranceType = "genuine_presence"
+                // Step 1: Get enrollment token from backend
                 val tokenPayload = org.json.JSONObject().apply {
-                    put("api_key", apiKey)
-                    put("secret", secret)
-                    put("resource", resource)
-                    put("assurance_type", assuranceType)
-                    put("user_id", userId)
+                    put("userId", userId)
                 }
                 val tokenRequest = okhttp3.Request.Builder()
-                    .url("$apiBase/v2/claim/enrol/token")
+                    .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/create-enrollment-token")
                     .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
                     .build()
                 client.newCall(tokenRequest).execute().use { tokenResponse ->
                     val tokenResponseBody = tokenResponse.body!!.string()
-                    Log.d(TAG, "iProov API /v2/claim/enrol/token response: $tokenResponseBody")
+                    Log.d(TAG, "Backend /iproov/create-enrollment-token response: $tokenResponseBody")
                     val token = org.json.JSONObject(tokenResponseBody).getString("token")
-                    // Step 2: Upload photo to iProov API
+                    // Step 2: Upload photo to backend
                     val enrollRequestBody = okhttp3.MultipartBody.Builder()
                         .setType(okhttp3.MultipartBody.FORM)
-                        .addFormDataPart("api_key", apiKey)
-                        .addFormDataPart("secret", secret)
-                        .addFormDataPart("rotation", "0")
                         .addFormDataPart("image", "photo.jpg",
                             okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes))
                         .addFormDataPart("token", token)
                         .build()
                     val enrollRequest = okhttp3.Request.Builder()
-                        .url("$apiBase/v2/claim/enrol/image")
+                        .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/enroll-photo")
                         .post(enrollRequestBody)
                         .build()
                     client.newCall(enrollRequest).execute().use { enrollResponse ->
                         val result = enrollResponse.body!!.string()
-                        Log.d(TAG, "iProov API /v2/claim/enrol/image response: $result")
-                        // Check for success in result (assume JSON with success field or status)
+                        Log.d(TAG, "Backend /iproov/enroll-photo response: $result")
                         val enrollJson = org.json.JSONObject(result)
-                        val enrollSuccess = enrollJson.optBoolean("success", true) // fallback: treat as success if no field
+                        val enrollSuccess = enrollJson.optBoolean("success", true)
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@MainActivity, "Photo enroll result: $result", Toast.LENGTH_LONG).show()
                         }
                         if (enrollSuccess) {
-                            // Step 3: Get verification token
+                            // Step 3: Get verification token from backend
                             val verifyPayload = org.json.JSONObject().apply {
-                                put("api_key", apiKey)
-                                put("secret", secret)
-                                put("resource", resource)
-                                put("assurance_type", assuranceType)
-                                put("user_id", userId)
+                                put("userId", userId)
                             }
                             val verifyTokenRequest = okhttp3.Request.Builder()
-                                .url("$apiBase/v2/claim/verify/token")
+                                .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/create-verify-token")
                                 .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
                                 .build()
                             client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
                                 val verifyTokenBody = verifyTokenResponse.body!!.string()
-                                Log.d(TAG, "iProov API /v2/claim/verify/token response: $verifyTokenBody")
+                                Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                                 val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
                                 // Step 4: Launch verification scan
                                 withContext(Dispatchers.Main) {
                                     Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
+                                    lastIProovToken = verifyToken
                                     IProov.createSession(applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
                                         observeSessionState(session) {
                                             session.start()
@@ -476,7 +445,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } catch (ex: Exception) {
-                Log.e(TAG, "iProov API error: ${ex.localizedMessage}", ex)
+                Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
