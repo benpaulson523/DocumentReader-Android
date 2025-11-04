@@ -23,6 +23,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"  />
 
+
+    <EditText
+        android:id="@+id/mnemonicInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:inputType="text"
+        android:hint="Mnemonic UUID"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/refreshMnemonicButton" />
+
+    <Button
+        android:id="@+id/refreshMnemonicButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toEndOf="@+id/mnemonicInput"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <TextView
         android:id="@+id/nameTv"
         android:layout_width="wrap_content"
@@ -31,7 +52,7 @@
         android:text="Name:"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar" />
+        app:layout_constraintTop_toBottomOf="@+id/mnemonicInput" />
 
     <TextView
         android:id="@+id/surnameTv"
@@ -42,6 +63,34 @@
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameTv" />
+
+    <Button
+        android:id="@+id/enrolGpaButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Enrol GPA"
+        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/verifyLaButton"
+        app:layout_constraintHorizontal_chainStyle="spread" />
+
+    <Button
+        android:id="@+id/verifyLaButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Verify LA"
+        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
+        app:layout_constraintStart_toEndOf="@+id/enrolGpaButton"
+        app:layout_constraintEnd_toStartOf="@+id/verifyGpaButton" />
+
+    <Button
+        android:id="@+id/verifyGpaButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Verify GPA"
+        app:layout_constraintTop_toBottomOf="@+id/surnameTv"
+        app:layout_constraintStart_toEndOf="@+id/verifyLaButton"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <CheckBox
         android:id="@+id/doRfidCb"

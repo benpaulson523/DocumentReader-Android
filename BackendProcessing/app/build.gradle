@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.regula.backend.processing"
-        minSdk 21
+        minSdk 26
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -45,4 +45,13 @@ dependencies {
     implementation('com.regula.documentreader:api:8.3.+@aar') {
         transitive = true
     }
+
+    // iProov SDK dependencies (match example-app)
+    implementation 'com.iproov.sdk:iproov:10.4.0'
+    implementation group: "com.iproov.android-api-client", name: "kotlin-fuel", version: "3.0.0"
+    implementation group: "com.iproov.android-api-client", name: "kotlin-common", version: "3.0.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.2.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
 }

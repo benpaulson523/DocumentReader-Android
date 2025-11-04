@@ -25,26 +25,211 @@ import com.regula.documentreader.api.params.BackendProcessingConfig
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.TransactionInfo
+
+import android.util.Log
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.json.jsonDeserializer
+import com.iproov.androidapiclient.AssuranceType
+import com.iproov.androidapiclient.ClaimType
+import com.iproov.androidapiclient.kotlinfuel.ApiClientFuel
+import com.iproov.sdk.api.IProov
+import com.iproov.sdk.api.exception.SessionCannotBeStartedTwiceException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
+    private val job = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
+    private var sessionStateJob: Job? = null
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initializeReader()
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        binding.refreshMnemonicButton.setOnClickListener {
+            val newMnemonic = generateMnemonicUUID()
+            binding.mnemonicInput.setText(newMnemonic)
+        }
+
+        initializeReader()
+
+        // Generate mnemonic UUID and set to input field
+        val mnemonicUuid = generateMnemonicUUID()
+        binding.mnemonicInput.setText(mnemonicUuid)
 
         binding.showScannerBtn.setOnClickListener {
             binding.surnameTv.text = "Surname:"
             binding.nameTv.text = "Name:"
             binding.resultIv.setImageBitmap(null)
-
             showScanner()
         }
+
+        // Add iProov button logic
+        val buttons = listOf(binding.enrolGpaButton, binding.verifyLaButton, binding.verifyGpaButton)
+        buttons.forEach { btn ->
+            btn.setOnClickListener {
+                val mnemonic = binding.mnemonicInput.text.toString()
+                if (mnemonic.isEmpty()) {
+                    Toast.makeText(this, "Mnemonic cannot be empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    val claimType = when (btn) {
+                        binding.enrolGpaButton -> "ENROL"
+                        binding.verifyGpaButton -> "VERIFY"
+                        binding.verifyLaButton -> "VERIFY"
+                        else -> throw NotImplementedError()
+                    }
+                    val assuranceType = when (btn) {
+                        binding.enrolGpaButton -> "GENUINE_PRESENCE"
+                        binding.verifyGpaButton -> "GENUINE_PRESENCE"
+                        binding.verifyLaButton -> "LIVENESS"
+                        else -> throw NotImplementedError()
+                    }
+                    launchIProov(claimType, mnemonic, assuranceType)
+                }
+            }
+        }
+    }
+
+    private fun launchIProov(claimType: String, username: String, assuranceType: String) {
+    Log.d(TAG, "launchIProov called with claimType=$claimType, mnemonic=$username, assuranceType=$assuranceType")
+        // Show a progress dialog or progress bar if you have one
+        // binding.progressBar.visibility = View.VISIBLE
+        // binding.progressBar.isIndeterminate = true
+
+        // Map string to enums
+        val claimTypeEnum = when (claimType) {
+            "ENROL" -> ClaimType.ENROL
+            "VERIFY" -> ClaimType.VERIFY
+            else -> throw NotImplementedError()
+        }
+        val assuranceTypeEnum = when (assuranceType) {
+            "GENUINE_PRESENCE" -> AssuranceType.GENUINE_PRESENCE
+            "LIVENESS" -> AssuranceType.LIVENESS
+            else -> throw NotImplementedError()
+        }
+
+        val apiClientFuel = ApiClientFuel(
+            this,
+            Constants.FUEL_URL,
+            Constants.API_KEY,
+            Constants.SECRET,
+        )
+
+        uiScope.launch(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "Requesting token from API client")
+                val token = apiClientFuel.getToken(
+                    assuranceTypeEnum,
+                    claimTypeEnum,
+                    username, // now mnemonic
+                )
+                Log.d(TAG, "Received token: $token")
+                if (!job.isActive) {
+                    Log.w(TAG, "Job is not active after getting token")
+                    return@launch
+                }
+                startScan(token)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Exception in launchIProov", ex)
+                withContext(Dispatchers.Main) {
+                    ex.printStackTrace()
+                    if (ex is FuelError) {
+                        val json = jsonDeserializer().deserialize(ex.response)
+                        val description = json.obj().getString("error_description")
+                        onResult("Error", description)
+                    } else {
+                        onResult("Error", "Failed to get token")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startScan(token: String) {
+        Log.d(TAG, "Starting scan with token: $token")
+        IProov.createSession(applicationContext, Constants.IPROOV_BASE_URL, token).let { session ->
+            Log.d(TAG, "Session created, observing state and starting session")
+            observeSessionState(session) {
+                Log.d(TAG, "Session start called")
+                session.start()
+            }
+        }
+    }
+
+    private fun observeSessionState(session: IProov.Session, whenReady: (() -> Unit)? = null) {
+        Log.d(TAG, "Observing session state")
+        sessionStateJob?.cancel()
+        sessionStateJob = uiScope.launch(Dispatchers.IO) {
+            session.state
+                .onSubscription { whenReady?.invoke() }
+                .collect { state ->
+                    if (sessionStateJob?.isActive == true) {
+                        withContext(Dispatchers.Main) {
+                            Log.d(TAG, "Session state: ${state::class.java.simpleName}")
+                            when (state) {
+                                is IProov.State.Starting -> {
+                                    // Optionally show starting UI
+                                }
+                                is IProov.State.Connecting -> {
+                                    // Optionally show connecting UI
+                                }
+                                is IProov.State.Connected -> {
+                                    // Optionally show connected UI
+                                }
+                                is IProov.State.Processing -> {
+                                    // Optionally update progress UI
+                                }
+                                is IProov.State.Success -> onResult("Success", "")
+                                is IProov.State.Failure -> onResult(state.failureResult.reason.feedbackCode.toString(), getString(state.failureResult.reason.description))
+                                is IProov.State.Error -> onResult("Error", state.exception.localizedMessage)
+                                is IProov.State.Canceled -> onResult("Canceled", null)
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun onResult(title: String?, resultMessage: String?) {
+        Log.d(TAG, "onResult called: title=$title, resultMessage=$resultMessage")
+        // Optionally reset progress UI
+        // binding.progressBar.progress = 0
+        // binding.progressBar.visibility = View.GONE
+        AlertDialog.Builder(this@MainActivity)
+            .setTitle(title)
+            .setMessage(resultMessage)
+            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+            .show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    // Generate a mnemonic UUID (adjective-noun-uuid)
+    private fun generateMnemonicUUID(): String {
+        val adjectives = listOf("brave", "calm", "eager", "fancy", "gentle", "jolly", "kind", "lucky", "proud", "witty")
+        val nouns = listOf("lion", "tiger", "eagle", "panda", "shark", "wolf", "falcon", "otter", "fox", "bear")
+        val adj = adjectives.random()
+        val noun = nouns.random()
+        val uuid = java.util.UUID.randomUUID().toString().substring(0, 8)
+        return "$adj-$noun-$uuid"
     }
 
     private fun initializeReader() {
@@ -146,7 +331,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showScanner() {
-        val backendProcessingConfig = BackendProcessingConfig(Constants.BASE_URL)
+        val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
         DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
 
         DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
