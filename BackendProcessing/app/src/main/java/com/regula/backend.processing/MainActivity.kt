@@ -131,53 +131,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeReader() {
-        showDialog("initializing")
-        Executors.newSingleThreadExecutor().execute {
-            try {
-                val licInput = resources.openRawResource(R.raw.regula)
-                val available = licInput.available()
-                val license = ByteArray(available)
-                licInput.read(license)
-                licInput.close()
-                val handler = Handler(Looper.getMainLooper())
-                if (!isFinishing && !isDestroyed) {
-                    handler.post {
-                        val docReaderConfig = DocReaderConfig(license)
-                        DocumentReader.Instance()
-                            .initializeReader(this@MainActivity, docReaderConfig, initCompletion)
-                    }
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                Toast.makeText(
-                    this,
-                    "init error: " + ex.localizedMessage,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    private val initCompletion =
-        IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
-            dismissDialog()
-
-            if (result) {
-                if (DocumentReader.Instance().availableScenarios.size == 0) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Available scenarios list is empty",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    binding.scanDocumentBtn.isEnabled = false
-                }
-            } else {
-                Toast.makeText(this@MainActivity, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
-                return@IDocumentReaderInitCompletion
-            }
-        }
-
     private fun dismissDialog() {
         if (loadingDialog != null) {
             loadingDialog!!.dismiss()
@@ -270,23 +223,25 @@ class MainActivity : AppCompatActivity() {
 
         populateDefaultsForExtraFields();
 
-        val registerBtn = findViewById<View>(R.id.registerBtn)
-        registerBtn?.setOnClickListener {
-            completeRegistration()
+        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
+        verifyEmailBtn?.setOnClickListener {
+            val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
+            val mnemonicUuid = binding.mnemonicInput.text.toString()
+            Neuvote.sendVerificationEmail(this, email, mnemonicUuid)
         }
         // Add listeners to all extra input fields to check if all are non-empty
         for (inputId in inputIds) {
             val inputView = findViewById<EditText>(inputId)
             inputView?.addTextChangedListener(object : android.text.TextWatcher {
                 override fun afterTextChanged(s: android.text.Editable?) {
-                    checkRegisterButtonVisibility()
+                    checkVerifyEmailButtonVisibility()
                 }
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
         }
         // Initial check
-        checkRegisterButtonVisibility()
+        checkVerifyEmailButtonVisibility()
     }
 
     private fun populateDefaultsForExtraFields() {
@@ -298,7 +253,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.postalInput)?.setText("A1A 1A1")
     }
 
-    private fun checkRegisterButtonVisibility() {
+    private fun checkVerifyEmailButtonVisibility() {
         val inputIds = listOf(
             R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput
         )
@@ -306,8 +261,8 @@ class MainActivity : AppCompatActivity() {
             val inputView = findViewById<EditText>(id)
             inputView?.visibility == View.VISIBLE && !inputView.text.isNullOrBlank()
         }
-        val registerBtn = findViewById<View>(R.id.registerBtn)
-        registerBtn?.visibility = if (allFilled) View.VISIBLE else View.GONE
+        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
+        verifyEmailBtn?.visibility = if (allFilled) View.VISIBLE else View.GONE
     }
 
     override fun setContentView(view: View?) {
@@ -335,39 +290,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun completeRegistration() {
-        val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
-        val mnemonicUuid = binding.mnemonicInput.text.toString()
-        val url = Neuvote.getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
-
-        val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
-
-        val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
-        val request = okhttp3.Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Failed to send verification email", Toast.LENGTH_LONG).show()
-                }
-            }
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@MainActivity, "Verification email sent!", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        })
-    }
 }
 
