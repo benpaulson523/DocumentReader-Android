@@ -212,6 +212,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp" />
+        
     <EditText
         android:id="@+id/postalInput"
         android:layout_width="0dp"

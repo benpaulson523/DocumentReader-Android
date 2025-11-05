@@ -268,6 +268,8 @@ class MainActivity : AppCompatActivity() {
             inputView?.visibility = View.VISIBLE
         }
 
+        populateDefaultsForExtraFields();
+
         val registerBtn = findViewById<View>(R.id.registerBtn)
         registerBtn?.setOnClickListener {
             completeRegistration()
@@ -285,6 +287,15 @@ class MainActivity : AppCompatActivity() {
         }
         // Initial check
         checkRegisterButtonVisibility()
+    }
+
+    private fun populateDefaultsForExtraFields() {
+        findViewById<EditText>(R.id.emailInput)?.setText("test@example.com")
+        findViewById<EditText>(R.id.phoneInput)?.setText("555-123-4567")
+        findViewById<EditText>(R.id.streetInput)?.setText("123 Main St")
+        findViewById<EditText>(R.id.cityInput)?.setText("Toronto")
+        findViewById<EditText>(R.id.provinceInput)?.setText("ON")
+        findViewById<EditText>(R.id.postalInput)?.setText("A1A 1A1")
     }
 
     private fun checkRegisterButtonVisibility() {
@@ -325,37 +336,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun completeRegistration() {
-        val userId = binding.mnemonicInput.text.toString()
-        val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
-        val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
-        val dateOfBirth = binding.dobTv?.text.toString().removePrefix("Date of Birth: ")
-        val sex = binding.sexTv?.text.toString().removePrefix("Sex: ")
-        val verifyToken = iProovManager.getLastIProovToken() ?: ""
-        Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
-        iProovManager.validateVerification(
-            verifyToken,
-            userId,
-            firstName,
-            lastName,
-            dateOfBirth,
-            sex,
-            onResult = { responseBody ->
-                Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
-                /*AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Verification Result")
-                    .setMessage(responseBody)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                    .show()*/
-            },
-            onError = { errorMsg ->
-                Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                /*AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Error")
-                    .setMessage("Verification validation failed: $errorMsg")
-                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                    .show()*/
-            }
+        val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
+        val mnemonicUuid = binding.mnemonicInput.text.toString()
+        val url = Neuvote.getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
+
+        val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
+
+        val client = okhttp3.OkHttpClient()
+        val requestBody = okhttp3.RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            jsonBody
         )
+        val request = okhttp3.Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Failed to send verification email", Toast.LENGTH_LONG).show()
+                }
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@MainActivity, "Verification email sent!", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
     }
 }
 
