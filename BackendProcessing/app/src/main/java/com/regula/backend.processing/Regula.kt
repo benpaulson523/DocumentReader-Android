@@ -40,10 +40,12 @@ class RegulaScanner(
                 licInput.read(license)
                 licInput.close()
                 val handler = Handler(Looper.getMainLooper())
-                handler.post {
-                    val docReaderConfig = DocReaderConfig(license)
-                    DocumentReader.Instance()
-                        .initializeReader(context, docReaderConfig, initCompletion)
+                if (context is androidx.appcompat.app.AppCompatActivity && !context.isFinishing && !context.isDestroyed) {
+                    handler.post {
+                        val docReaderConfig = DocReaderConfig(license)
+                        DocumentReader.Instance()
+                            .initializeReader(context, docReaderConfig, initCompletion)
+                    }
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()

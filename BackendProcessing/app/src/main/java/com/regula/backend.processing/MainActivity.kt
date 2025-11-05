@@ -5,7 +5,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import android.widget.TextView
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -117,37 +120,8 @@ class MainActivity : AppCompatActivity() {
 
         // If verification is successful, call backend /validate-verification
         if (title == "Success") {
-            val userId = binding.mnemonicInput.text.toString()
-            val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
-            val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
-            val dateOfBirth = binding.dobTv?.text.toString().removePrefix("Date of Birth: ")
-            val sex = binding.sexTv?.text.toString().removePrefix("Sex: ")
-            val verifyToken = iProovManager.getLastIProovToken() ?: ""
-            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
-            iProovManager.validateVerification(
-                verifyToken,
-                userId,
-                firstName,
-                lastName,
-                dateOfBirth,
-                sex,
-                onResult = { responseBody ->
-                    Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Verification Result")
-                        .setMessage(responseBody)
-                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                        .show()
-                },
-                onError = { errorMsg ->
-                    Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle("Error")
-                        .setMessage("Verification validation failed: $errorMsg")
-                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                        .show()
-                }
-            )
+            // Show extra input fields after verification scan is successful
+            showExtraFields()
         } else {
             AlertDialog.Builder(this@MainActivity)
                 .setTitle(title)
@@ -167,11 +141,12 @@ class MainActivity : AppCompatActivity() {
                 licInput.read(license)
                 licInput.close()
                 val handler = Handler(Looper.getMainLooper())
-                handler.post {
-                    val docReaderConfig = DocReaderConfig(license)
-                    DocumentReader.Instance()
-                        .initializeReader(this@MainActivity, docReaderConfig, initCompletion)
-
+                if (!isFinishing && !isDestroyed) {
+                    handler.post {
+                        val docReaderConfig = DocReaderConfig(license)
+                        DocumentReader.Instance()
+                            .initializeReader(this@MainActivity, docReaderConfig, initCompletion)
+                    }
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -236,6 +211,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayTextFields(results: DocumentReaderResults?) {
+
         if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
             val surname = "Surname:" + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
@@ -266,16 +242,61 @@ class MainActivity : AppCompatActivity() {
             binding.dobTv?.visibility = View.GONE
         }
         
-            // Display sex between date of birth and photo
-            if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
-                val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
-                val sexDisplay = "Sex: $sex"
-                binding.sexTv?.text = sexDisplay
-                binding.sexTv?.visibility = View.VISIBLE
-            } else {
-                binding.sexTv?.text = "Sex:"
-                binding.sexTv?.visibility = View.GONE
-            }
+        // Display sex between date of birth and photo
+        if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
+            val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
+            val sexDisplay = "Sex: $sex"
+            binding.sexTv?.text = sexDisplay
+            binding.sexTv?.visibility = View.VISIBLE
+        } else {
+            binding.sexTv?.text = "Sex:"
+            binding.sexTv?.visibility = View.GONE
+        }
+    }
+
+    private fun showExtraFields() {
+        val labelIds = listOf(
+            R.id.emailLabel, R.id.phoneLabel, R.id.streetLabel, R.id.cityLabel, R.id.provinceLabel, R.id.postalLabel
+        )
+        val inputIds = listOf(
+            R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput
+        )
+        for (i in labelIds.indices) {
+            val labelView = findViewById<TextView>(labelIds[i])
+            val inputView = findViewById<EditText>(inputIds[i])
+            labelView?.visibility = View.VISIBLE
+            inputView?.visibility = View.VISIBLE
+        }
+
+        val registerBtn = findViewById<View>(R.id.registerBtn)
+        registerBtn?.setOnClickListener {
+            completeRegistration()
+        }
+        // Add listeners to all extra input fields to check if all are non-empty
+        for (inputId in inputIds) {
+            val inputView = findViewById<EditText>(inputId)
+            inputView?.addTextChangedListener(object : android.text.TextWatcher {
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    checkRegisterButtonVisibility()
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+        }
+        // Initial check
+        checkRegisterButtonVisibility()
+    }
+
+    private fun checkRegisterButtonVisibility() {
+        val inputIds = listOf(
+            R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput
+        )
+        val allFilled = inputIds.all { id ->
+            val inputView = findViewById<EditText>(id)
+            inputView?.visibility == View.VISIBLE && !inputView.text.isNullOrBlank()
+        }
+        val registerBtn = findViewById<View>(R.id.registerBtn)
+        registerBtn?.visibility = if (allFilled) View.VISIBLE else View.GONE
     }
 
     override fun setContentView(view: View?) {
@@ -301,6 +322,40 @@ class MainActivity : AppCompatActivity() {
                 insets
             }
         }
+    }
+
+    private fun completeRegistration() {
+        val userId = binding.mnemonicInput.text.toString()
+        val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
+        val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
+        val dateOfBirth = binding.dobTv?.text.toString().removePrefix("Date of Birth: ")
+        val sex = binding.sexTv?.text.toString().removePrefix("Sex: ")
+        val verifyToken = iProovManager.getLastIProovToken() ?: ""
+        Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
+        iProovManager.validateVerification(
+            verifyToken,
+            userId,
+            firstName,
+            lastName,
+            dateOfBirth,
+            sex,
+            onResult = { responseBody ->
+                Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
+                /*AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Verification Result")
+                    .setMessage(responseBody)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                    .show()*/
+            },
+            onError = { errorMsg ->
+                Log.e(TAG, "Backend validate-verification error: $errorMsg")
+                /*AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Error")
+                    .setMessage("Verification validation failed: $errorMsg")
+                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                    .show()*/
+            }
+        )
     }
 }
 

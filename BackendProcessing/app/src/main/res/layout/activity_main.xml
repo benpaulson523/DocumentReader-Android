@@ -86,6 +86,158 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Extra fields shown after document capture -->
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/resultIv"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter email"
+        android:inputType="textEmailAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/emailLabel"
+        app:layout_constraintStart_toEndOf="@+id/emailLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/phoneLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/emailLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/phoneInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter phone number"
+        android:inputType="phone"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/phoneLabel"
+        app:layout_constraintStart_toEndOf="@+id/phoneLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/streetLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Street Address:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/streetInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter street address"
+        android:inputType="textPostalAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/streetLabel"
+        app:layout_constraintStart_toEndOf="@+id/streetLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/cityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="City:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/streetLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/cityInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter city"
+        android:inputType="text"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/cityLabel"
+        app:layout_constraintStart_toEndOf="@+id/cityLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/provinceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Province:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/cityLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/provinceInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter province"
+        android:inputType="text"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/provinceLabel"
+        app:layout_constraintStart_toEndOf="@+id/provinceLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/postalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Postal Code:"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/postalInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter postal code"
+        android:inputType="textPostalAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/postalLabel"
+        app:layout_constraintStart_toEndOf="@+id/postalLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp" />
+
+    <Button
+        android:id="@+id/registerBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/postalInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
     <!--<CheckBox
         android:id="@+id/doRfidCb"
         android:layout_width="match_parent"
