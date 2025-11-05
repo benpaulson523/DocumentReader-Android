@@ -30,6 +30,8 @@ import android.util.Log
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.json.jsonDeserializer
 import com.regula.backend.processing.IProovManager
+import com.regula.backend.processing.formatDateOfBirth
+import com.regula.backend.processing.generateMnemonicUUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -149,67 +151,6 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
                 .show()
         }
-    }
-
-    // Utility: Format date of birth as YYYY-MM-DD
-    private fun formatDateOfBirth(dob: String): String {
-        // Try to match common formats and convert to YYYY-MM-DD
-        val regexList = listOf(
-            // DD.MM.YYYY or D.M.YYYY
-            Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{4})$"),
-            // YYYY-MM-DD
-            Regex("^(\\d{4})-(\\d{1,2})-(\\d{1,2})$"),
-            // YYYY/MM/DD
-            Regex("^(\\d{4})/(\\d{1,2})/(\\d{1,2})$"),
-            // MM/DD/YYYY or M/D/YYYY
-            Regex("^(\\d{1,2})/(\\d{1,2})/(\\d{4})$"),
-            // MM/DD/YY or M/D/YY
-            Regex("^(\\d{1,2})/(\\d{1,2})/(\\d{2})$"),
-            // DD.MM.YY or D.M.YY
-            Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{2})$")
-        )
-        for ((i, regex) in regexList.withIndex()) {
-            val match = regex.find(dob)
-            if (match != null) {
-                val groups = match.groupValues
-                return when (i) {
-                    0 -> "${groups[3]}-${groups[2].padStart(2,'0')}-${groups[1].padStart(2,'0')}" // DD.MM.YYYY
-                    1 -> "${groups[1]}-${groups[2].padStart(2,'0')}-${groups[3].padStart(2,'0')}" // YYYY-MM-DD
-                    2 -> "${groups[1]}-${groups[2].padStart(2,'0')}-${groups[3].padStart(2,'0')}" // YYYY/MM/DD
-                    3 -> "${groups[3]}-${groups[1].padStart(2,'0')}-${groups[2].padStart(2,'0')}" // MM/DD/YYYY
-                    4 -> {
-                        // MM/DD/YY, convert YY to YYYY
-                        val year = groups[3].toInt()
-                        val fullYear = if (year >= 26) 1900 + year else 2000 + year
-                        "${fullYear}-${groups[1].padStart(2,'0')}-${groups[2].padStart(2,'0')}"
-                    }
-                    5 -> {
-                        // DD.MM.YY, convert YY to YYYY
-                        val year = groups[3].toInt()
-                        val fullYear = if (year >= 26) 1900 + year else 2000 + year
-                        "${fullYear}-${groups[2].padStart(2,'0')}-${groups[1].padStart(2,'0')}"
-                    }
-                    else -> dob
-                }
-            }
-        }
-        return dob // fallback: return as is
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
-        iProovManager.destroy()
-    }
-
-    // Generate a mnemonic UUID (adjective-noun-uuid)
-    private fun generateMnemonicUUID(): String {
-        val adjectives = listOf("brave", "calm", "eager", "fancy", "gentle", "jolly", "kind", "lucky", "proud", "witty")
-        val nouns = listOf("lion", "tiger", "eagle", "panda", "shark", "wolf", "falcon", "otter", "fox", "bear")
-        val adj = adjectives.random()
-        val noun = nouns.random()
-        val uuid = java.util.UUID.randomUUID().toString().substring(0, 8)
-        return "$adj-$noun-$uuid"
     }
 
     private fun initializeReader() {
