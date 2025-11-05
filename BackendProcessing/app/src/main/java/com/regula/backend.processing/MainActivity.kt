@@ -112,52 +112,34 @@ class MainActivity : AppCompatActivity() {
             val userId = binding.mnemonicInput.text.toString()
             val firstName = binding.nameTv.text.toString().removePrefix("Name: ")
             val lastName = binding.surnameTv.text.toString().removePrefix("Surname:")
-
-            // Extract and format date of birth from dobTv text field
             val dateOfBirth = binding.dobTv?.text.toString().removePrefix("Date of Birth: ")
             val sex = binding.sexTv?.text.toString().removePrefix("Sex: ")
-
-            // Use the token passed to createSession instead of resultMessage
             val verifyToken = iProovManager.getLastIProovToken() ?: ""
             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
-            val client = okhttp3.OkHttpClient()
-
-            uiScope.launch(Dispatchers.IO) {
-                try {
-                    val payload = org.json.JSONObject().apply {
-                        put("token", verifyToken)
-                        put("userId", userId)
-                        put("firstName", firstName)
-                        put("lastName", lastName)
-                        put("dateOfBirth", dateOfBirth)
-                        put("sex", sex)
-                    }
-                    val request = okhttp3.Request.Builder()
-                        .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/validate-verification")
-                        .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
-                        .build()
-                    client.newCall(request).execute().use { response ->
-                        val responseBody = response.body!!.string()
-                        Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
-                        withContext(Dispatchers.Main) {
-                            AlertDialog.Builder(this@MainActivity)
-                                .setTitle("Verification Result")
-                                .setMessage(responseBody)
-                                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                                .show()
-                        }
-                    }
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Backend validate-verification error: ${ex.localizedMessage}", ex)
-                    withContext(Dispatchers.Main) {
-                        AlertDialog.Builder(this@MainActivity)
-                            .setTitle("Error")
-                            .setMessage("Verification validation failed: ${ex.localizedMessage}")
-                            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                            .show()
-                    }
+            iProovManager.validateVerification(
+                verifyToken,
+                userId,
+                firstName,
+                lastName,
+                dateOfBirth,
+                sex,
+                onResult = { responseBody ->
+                    Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Verification Result")
+                        .setMessage(responseBody)
+                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                        .show()
+                },
+                onError = { errorMsg ->
+                    Log.e(TAG, "Backend validate-verification error: $errorMsg")
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Error")
+                        .setMessage("Verification validation failed: $errorMsg")
+                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
+                        .show()
                 }
-            }
+            )
         } else {
             AlertDialog.Builder(this@MainActivity)
                 .setTitle(title)

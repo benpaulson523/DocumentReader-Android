@@ -151,4 +151,43 @@ class IProovManager(
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
         return stream.toByteArray()
     }
+    
+    fun validateVerification(
+        verifyToken: String,
+        userId: String,
+        firstName: String,
+        lastName: String,
+        dateOfBirth: String,
+        sex: String,
+        onResult: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val client = okhttp3.OkHttpClient()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val payload = org.json.JSONObject().apply {
+                    put("token", verifyToken)
+                    put("userId", userId)
+                    put("firstName", firstName)
+                    put("lastName", lastName)
+                    put("dateOfBirth", dateOfBirth)
+                    put("sex", sex)
+                }
+                val request = okhttp3.Request.Builder()
+                    .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/validate-verification")
+                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    val responseBody = response.body!!.string()
+                    withContext(Dispatchers.Main) {
+                        onResult(responseBody)
+                    }
+                }
+            } catch (ex: Exception) {
+                withContext(Dispatchers.Main) {
+                    onError(ex.localizedMessage ?: "Unknown error")
+                }
+            }
+        }
+    }
 }
