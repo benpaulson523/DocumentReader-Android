@@ -1,0 +1,154 @@
+package com.regula.backend.processing
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.onSubscription
+import okhttp3.MediaType.Companion.toMediaType
+import com.iproov.sdk.api.IProov
+import com.iproov.sdk.api.exception.SessionCannotBeStartedTwiceException
+
+class IProovManager(
+    private val context: Context,
+    private val mnemonicInputProvider: () -> String,
+    private val showResult: (title: String?, message: String?) -> Unit,
+    private val onVerificationSuccess: (token: String) -> Unit
+) {
+    companion object {
+        private const val TAG = "IProovManager"
+    }
+
+    private var lastIProovToken: String? = null
+    private val job = SupervisorJob()
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
+    private var sessionStateJob: Job? = null
+
+    fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
+        val userId = mnemonicInputProvider()
+        val photoBytes = bitmapToJpegBytes(documentPhoto)
+        val client = okhttp3.OkHttpClient()
+
+        uiScope.launch(Dispatchers.IO) {
+            try {
+                // Step 1: Get enrollment token from backend
+                val tokenPayload = org.json.JSONObject().apply {
+                    put("userId", userId)
+                }
+                val tokenRequest = okhttp3.Request.Builder()
+                    .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/create-enrollment-token")
+                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
+                    .build()
+                client.newCall(tokenRequest).execute().use { tokenResponse ->
+                    val tokenResponseBody = tokenResponse.body!!.string()
+                    Log.d(TAG, "Backend /iproov/create-enrollment-token response: $tokenResponseBody")
+                    val token = org.json.JSONObject(tokenResponseBody).getString("token")
+                    // Step 2: Upload photo to backend
+                    val enrollRequestBody = okhttp3.MultipartBody.Builder()
+                        .setType(okhttp3.MultipartBody.FORM)
+                        .addFormDataPart("image", "photo.jpg",
+                            okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes))
+                        .addFormDataPart("token", token)
+                        .build()
+                    val enrollRequest = okhttp3.Request.Builder()
+                        .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/enroll-photo")
+                        .post(enrollRequestBody)
+                        .build()
+                    client.newCall(enrollRequest).execute().use { enrollResponse ->
+                        val result = enrollResponse.body!!.string()
+                        Log.d(TAG, "Backend /iproov/enroll-photo response: $result")
+                        val enrollJson = org.json.JSONObject(result)
+                        val enrollSuccess = enrollJson.optBoolean("success", true)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Photo enroll result: $result", Toast.LENGTH_LONG).show()
+                        }
+                        if (enrollSuccess) {
+                            // Step 3: Get verification token from backend
+                            val verifyPayload = org.json.JSONObject().apply {
+                                put("userId", userId)
+                            }
+                            val verifyTokenRequest = okhttp3.Request.Builder()
+                                .url(Constants.NEUVOTE_BACKEND_URL + "/iproov/create-verify-token")
+                                .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
+                                .build()
+                            client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
+                                val verifyTokenBody = verifyTokenResponse.body!!.string()
+                                Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
+                                val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
+                                // Step 4: Launch verification scan
+                                withContext(Dispatchers.Main) {
+                                    Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
+                                    lastIProovToken = verifyToken
+                                    onVerificationSuccess(verifyToken)
+                                    IProov.createSession(context.applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
+                                        observeSessionState(session) {
+                                            session.start()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun observeSessionState(session: IProov.Session, whenReady: (() -> Unit)? = null) {
+        Log.d(TAG, "Observing session state")
+        sessionStateJob?.cancel()
+        sessionStateJob = uiScope.launch(Dispatchers.IO) {
+            session.state
+                .onSubscription { whenReady?.invoke() }
+                .collect { state ->
+                    if (sessionStateJob?.isActive == true) {
+                        withContext(Dispatchers.Main) {
+                            Log.d(TAG, "Session state: ${state::class.java.simpleName}")
+                            when (state) {
+                                is IProov.State.Starting -> {
+                                    // Optionally show starting UI
+                                }
+                                is IProov.State.Connecting -> {
+                                    // Optionally show connecting UI
+                                }
+                                is IProov.State.Connected -> {
+                                    // Optionally show connected UI
+                                }
+                                is IProov.State.Processing -> {
+                                    // Optionally update progress UI
+                                }
+                                is IProov.State.Success -> showResult("Success", "")
+                                is IProov.State.Failure -> showResult(state.failureResult.reason.feedbackCode.toString(), context.getString(state.failureResult.reason.description))
+                                is IProov.State.Error -> showResult("Error", state.exception.localizedMessage)
+                                is IProov.State.Canceled -> showResult("Canceled", null)
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    fun getLastIProovToken(): String? = lastIProovToken
+
+    fun destroy() {
+        job.cancel()
+    }
+
+    private fun bitmapToJpegBytes(bitmap: Bitmap): ByteArray {
+        val stream = java.io.ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+        return stream.toByteArray()
+    }
+}
