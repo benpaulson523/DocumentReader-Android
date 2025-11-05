@@ -30,6 +30,7 @@ import android.util.Log
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.json.jsonDeserializer
 import com.regula.backend.processing.IProovManager
+import com.regula.backend.processing.RegulaScanner
 import com.regula.backend.processing.formatDateOfBirth
 import com.regula.backend.processing.generateMnemonicUUID
 import kotlinx.coroutines.CoroutineScope
@@ -52,9 +53,8 @@ class MainActivity : AppCompatActivity() {
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
-    // Store the last scanned document results
-    private var lastDocumentResults: DocumentReaderResults? = null
     private lateinit var iProovManager: IProovManager
+    private lateinit var regulaScanner: RegulaScanner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +67,21 @@ class MainActivity : AppCompatActivity() {
             binding.mnemonicInput.setText(newMnemonic)
         }
 
-        initializeReader()
+        regulaScanner = RegulaScanner(
+            context = this,
+            binding = binding,
+            onResults = { results ->
+                displayImage(results)
+                displayTextFields(results)
+            },
+            onFinalize = { results ->
+                displayImage(results)
+                displayTextFields(results)
+            },
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+        regulaScanner.initializeReader()
 
         // Generate mnemonic UUID and set to input field
         val mnemonicUuid = generateMnemonicUUID()
@@ -78,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             binding.nameTv.text = "Name:"
             binding.dobTv?.text = "Date of Birth:"
             binding.resultIv.setImageBitmap(null)
-            showScanner()
+            regulaScanner.showScanner()
         }
 
         iProovManager = IProovManager(
@@ -198,71 +212,6 @@ class MainActivity : AppCompatActivity() {
                 return@IDocumentReaderInitCompletion
             }
         }
-
-    private val completion =
-        IDocumentReaderCompletion { action, results, error ->
-            //processing is finished, all results are ready
-
-            if (action == DocReaderAction.COMPLETE) {
-                //if (binding.doRfidCb.isChecked && results != null && results.chipPage != 0){
-                if (true) {
-                    DocumentReader.Instance().startRFIDReader(this, object : IRfidReaderCompletion() {
-                        override fun onCompleted(
-                            rfidAction: Int,
-                            documentReaderResults: DocumentReaderResults?,
-                            e: DocumentReaderException?
-                        ) {
-                            finalize(documentReaderResults)
-                        }
-                    })
-                } else finalize(results)
-            } else {
-                //something happened before all results were ready
-                if (action == DocReaderAction.CANCEL) {
-                    Toast.makeText(this@MainActivity, "Scanning was cancelled", Toast.LENGTH_LONG)
-                        .show()
-                } else if (action == DocReaderAction.ERROR) {
-                    Toast.makeText(this@MainActivity, "Error:${error?.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
-    private fun finalize(results: DocumentReaderResults?) {
-        showDialog("Finalizing process...")
-        DocumentReader.Instance()
-            .finalizePackage { action: Int, transactionInfo: TransactionInfo?, documentReaderException: DocumentReaderException? ->
-                dismissDialog()
-                if (action == DocReaderAction.COMPLETE) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Finalize Done. TransactionId " + transactionInfo?.transactionId,
-                        Toast.LENGTH_LONG
-                    )
-                        .show()
-                    lastDocumentResults = results
-                    displayImage(results)
-                    displayTextFields(results)
-                } else if (documentReaderException != null) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Failed to Finalize. Error " + documentReaderException.message,
-                        Toast.LENGTH_LONG
-                    )
-                        .show()
-                }
-            }
-    }
-
-    private fun showScanner() {
-        val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
-        DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
-
-        DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
-
-        val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
-
-        DocumentReader.Instance().startScanner(this, scannerConfig, completion)
-    }
 
     private fun dismissDialog() {
         if (loadingDialog != null) {
