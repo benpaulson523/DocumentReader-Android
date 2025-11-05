@@ -97,12 +97,23 @@
         app:layout_constraintStart_toStartOf="parent" />-->
 
     <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/scanDocumentBtn"
+        android:layout_marginEnd="8dp" />
+
+    <Button
         android:id="@+id/scanDocumentBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Scan Official Document"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/settingsButton"
+        android:layout_marginStart="8dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

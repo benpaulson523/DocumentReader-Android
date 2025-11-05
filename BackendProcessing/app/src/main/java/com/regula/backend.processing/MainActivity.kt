@@ -57,10 +57,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var regulaScanner: RegulaScanner
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+            super.onCreate(savedInstanceState)
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            val view = binding.root
+            setContentView(view)
+
+            // Initialize settings manager
+            SettingsManager.init(this)
+
+            binding.settingsButton.setOnClickListener {
+                val intent = android.content.Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+            }
 
         binding.refreshMnemonicButton.setOnClickListener {
             val newMnemonic = generateMnemonicUUID()
