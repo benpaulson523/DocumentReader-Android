@@ -15,12 +15,15 @@ import kotlinx.coroutines.flow.onSubscription
 import okhttp3.MediaType.Companion.toMediaType
 import com.iproov.sdk.api.IProov
 import com.iproov.sdk.api.exception.SessionCannotBeStartedTwiceException
+import android.app.Activity
 
 class IProovManager(
     private val context: Context,
     private val mnemonicInputProvider: () -> String,
     private val showResult: (title: String?, message: String?) -> Unit,
-    private val onVerificationSuccess: (token: String) -> Unit
+    private val onVerificationSuccess: (token: String) -> Unit,
+    private val showDialog: (String?) -> Unit,
+    private val dismissDialog: () -> Unit
 ) {
     companion object {
         private const val TAG = "IProovManager"
@@ -33,6 +36,7 @@ class IProovManager(
     
 
     fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
+        showDialog("Preparing facial scanner...")
         val userId = mnemonicInputProvider()
         val photoBytes = bitmapToJpegBytes(documentPhoto)
         val client = okhttp3.OkHttpClient()
@@ -44,7 +48,7 @@ class IProovManager(
                     put("userId", userId)
                 }
                 val tokenRequest = okhttp3.Request.Builder()
-                    .url(Neuvote.getNeuvoteServerUrl() + "/iproov/create-enrollment-token")
+                    .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-enrollment-token")
                     .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
                     .build()
                 client.newCall(tokenRequest).execute().use { tokenResponse ->
@@ -59,7 +63,7 @@ class IProovManager(
                         .addFormDataPart("token", token)
                         .build()
                     val enrollRequest = okhttp3.Request.Builder()
-                        .url(Neuvote.getNeuvoteServerUrl() + "/iproov/enroll-photo")
+                        .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/enroll-photo")
                         .post(enrollRequestBody)
                         .build()
                     client.newCall(enrollRequest).execute().use { enrollResponse ->
@@ -73,13 +77,14 @@ class IProovManager(
                                 put("userId", userId)
                             }
                             val verifyTokenRequest = okhttp3.Request.Builder()
-                                .url(Neuvote.getNeuvoteServerUrl() + "/iproov/create-verify-token")
+                                .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-verify-token")
                                 .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
                                 .build()
                             client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
                                 val verifyTokenBody = verifyTokenResponse.body!!.string()
                                 Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                                 val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
+                                dismissDialog();
                                 // Step 4: Launch verification scan
                                 withContext(Dispatchers.Main) {
                                     Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
@@ -96,6 +101,7 @@ class IProovManager(
                     }
                 }
             } catch (ex: Exception) {
+                dismissDialog();
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Photo enroll error", Toast.LENGTH_LONG).show()
@@ -125,12 +131,20 @@ class IProovManager(
                                     // Optionally show connected UI
                                 }
                                 is IProov.State.Processing -> {
-                                    // Optionally update progress UI
+                                    // Optionally show processing UI
                                 }
-                                is IProov.State.Success -> showResult("Success", "")
-                                is IProov.State.Failure -> showResult(state.failureResult.reason.feedbackCode.toString(), context.getString(state.failureResult.reason.description))
-                                is IProov.State.Error -> showResult("Error", state.exception.localizedMessage)
-                                is IProov.State.Canceled -> showResult("Canceled", null)
+                                is IProov.State.Success -> {
+                                    showResult("Success", "")
+                                }
+                                is IProov.State.Failure -> {
+                                    showResult(state.failureResult.reason.feedbackCode.toString(), context.getString(state.failureResult.reason.description))
+                                }
+                                is IProov.State.Error -> {
+                                    showResult("Error", state.exception.localizedMessage)
+                                }
+                                is IProov.State.Canceled -> {
+                                    showResult("Canceled", null)
+                                }
                             }
                         }
                     }
@@ -172,7 +186,7 @@ class IProovManager(
                     put("sex", sex)
                 }
                 val request = okhttp3.Request.Builder()
-                    .url(Neuvote.getNeuvoteServerUrl() + "/iproov/validate-verification")
+                    .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/validate-verification")
                     .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
                     .build()
                 client.newCall(request).execute().use { response ->

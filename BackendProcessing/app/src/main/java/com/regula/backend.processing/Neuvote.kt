@@ -10,32 +10,19 @@ import android.widget.EditText
 import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 
-object Neuvote {
-    private const val TAG = "Neuvote"
-    private const val PROGRESS_DIALOG_TAG_KEY: Int = 0xDEADBEEF.toInt()
+class NeuvoteManager (
+    private val context: Context,
+    private val showDialog: (String?) -> Unit,
+    private val dismissDialog: () -> Unit
+) {
+    companion object {
+        private const val TAG = "NeuvoteManager"
 
-    // --- Helpers to show/dismiss the spinner consistently ---
-    private fun Activity.showProgress(message: String = "Registering...") {
-        val dialog = ProgressDialog(this).apply {
-            setMessage(message)
-            setCancelable(false)
-            show()
+        fun getNeuvoteServerUrl(): String {
+            val address = SettingsManager.getServerAddress()
+            val port = SettingsManager.getServerPort()
+            return "http://$address:$port"
         }
-        findViewById<View>(android.R.id.content)?.setTag(PROGRESS_DIALOG_TAG_KEY, dialog)
-    }
-
-    private fun Activity.dismissProgress() {
-        val root = findViewById<View>(android.R.id.content)
-        val dialog = root?.getTag(PROGRESS_DIALOG_TAG_KEY) as? ProgressDialog
-        dialog?.dismiss()
-        root?.setTag(PROGRESS_DIALOG_TAG_KEY, null)
-    }
-    // --------------------------------------------------------
-
-    fun getNeuvoteServerUrl(): String {
-        val address = SettingsManager.getServerAddress()
-        val port = SettingsManager.getServerPort()
-        return "http://$address:$port"
     }
 
     fun sendVerificationEmail(context: Context, email: String, mnemonicUuid: String, iProovManager: IProovManager?) {
@@ -45,7 +32,7 @@ object Neuvote {
                 completeRegistration(context, iProovManager)
             }
         }
-        val url = Neuvote.getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
+        val url = getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
         val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
@@ -84,11 +71,7 @@ object Neuvote {
     }
 
     fun completeRegistration(context: Context, iProovManager: IProovManager?) {
-        // Show spinner (consistent)
-        if (context is Activity) {
-            context.showProgress("Registering...")
-        }
-
+        showDialog("Registering...")
         val email = (context as Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
         val mnemonicUuid = (context as Activity).findViewById<EditText>(R.id.mnemonicInput)?.text.toString()
         val verificationCode = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
@@ -142,7 +125,7 @@ object Neuvote {
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                    dismissDialog();
                     Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                 }
             }
@@ -167,7 +150,7 @@ object Neuvote {
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
                         if (parseError != null) {
-                            try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                            dismissDialog();
                             Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                             return@runOnUiThread
                         }
@@ -186,17 +169,17 @@ object Neuvote {
                                     updateAbisID(context, voterIdentifier, mnemonicUuid)
                                 },
                                 onError = { errorMsg ->
-                                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                                    dismissDialog();
                                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
                                     Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                                 }
                             )
                         } else {
-                            try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                            dismissDialog();
                             Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                         }
                     } else {
-                        try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                        dismissDialog();
                         Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -219,7 +202,7 @@ object Neuvote {
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                    dismissDialog();
                     Toast.makeText(context, "Setting ABIS ID failed", Toast.LENGTH_LONG).show()
                 }
                 Log.e(TAG, "Failed to update ABIS ID: " + e.message)
@@ -231,7 +214,7 @@ object Neuvote {
                     if (response.isSuccessful) {
                         updateAbisFacialScanFlag(context, mnemonicUuid)
                     } else {
-                        try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                        dismissDialog();
                         Toast.makeText(context, "Setting ABIS ID failed", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -254,7 +237,7 @@ object Neuvote {
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                    dismissDialog();
                     Toast.makeText(context, "Setting face scan flag failed", Toast.LENGTH_LONG).show()
                 }
                 Log.e(TAG, "Failed to update facial scan flag: " + e.message)
@@ -263,8 +246,7 @@ object Neuvote {
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /voters/abis/$abisID/face-scan-flag: $responseBody")
                 (context as? Activity)?.runOnUiThread {
-                    // Always dismiss spinner before showing toast (consistent mechanism)
-                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+                    dismissDialog();
 
                     if (response.isSuccessful) {
                         Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()

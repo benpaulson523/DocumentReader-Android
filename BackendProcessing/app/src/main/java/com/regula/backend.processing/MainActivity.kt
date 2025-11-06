@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 import okhttp3.MediaType.Companion.toMediaType
+import android.app.Activity
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var iProovManager: IProovManager
     private lateinit var regulaScanner: RegulaScanner
+    private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -110,12 +112,22 @@ class MainActivity : AppCompatActivity() {
             context = this,
             mnemonicInputProvider = { binding.mnemonicInput.text.toString() },
             showResult = { title, message -> onResult(title, message) },
-            onVerificationSuccess = { token -> /* Optionally handle token if needed */ }
+            onVerificationSuccess = { token -> /* Optionally handle token if needed */ },
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+
+        neuvoteManager = NeuvoteManager(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
         )
     }
 
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
+
+        dismissDialog();
 
         // If verification is successful, call backend /validate-verification
         if (title == "Success") {
@@ -222,7 +234,7 @@ class MainActivity : AppCompatActivity() {
         verifyEmailBtn?.setOnClickListener {
             val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
             val mnemonicUuid = binding.mnemonicInput.text.toString()
-            Neuvote.sendVerificationEmail(this, email, mnemonicUuid, iProovManager)
+            neuvoteManager.sendVerificationEmail(this, email, mnemonicUuid, iProovManager)
         }
         // Add listeners to all extra input fields to check if all are non-empty
         for (inputId in inputIds) {
@@ -240,7 +252,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun populateDefaultsForExtraFields() {
-        findViewById<EditText>(R.id.emailInput)?.setText("test@example.com")
+        //findViewById<EditText>(R.id.emailInput)?.setText("test@example.com")
         findViewById<EditText>(R.id.phoneInput)?.setText("555-123-4567")
         findViewById<EditText>(R.id.streetInput)?.setText("123 Main St")
         findViewById<EditText>(R.id.cityInput)?.setText("Toronto")

@@ -31,7 +31,7 @@ class RegulaScanner(
     private val dismissDialog: () -> Unit
 ) {
     fun initializeReader() {
-        showDialog("initializing")
+        showDialog("Initializing...")
         Executors.newSingleThreadExecutor().execute {
             try {
                 val licInput = context.resources.openRawResource(R.raw.regula)
