@@ -19,8 +19,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:inputType="text"
+        android:inputType="none"
         android:hint="Mnemonic UUID"
+        android:focusable="false"
+        android:cursorVisible="false"
+        android:longClickable="false"
+        android:clickable="false"
         app:layout_constraintTop_toBottomOf="@+id/toolBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/refreshMnemonicButton" />
@@ -33,6 +37,16 @@
         app:layout_constraintTop_toBottomOf="@+id/toolBar"
         app:layout_constraintStart_toEndOf="@+id/mnemonicInput"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/scanDocumentBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan Proof of Identity"
+        app:layout_constraintTop_toBottomOf="@+id/refreshMnemonicButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/nameTv"
@@ -293,17 +307,7 @@
         android:text="Settings"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/scanDocumentBtn"
-        android:layout_marginEnd="8dp" />
-
-    <Button
-        android:id="@+id/scanDocumentBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scan Official Document"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settingsButton"
-        android:layout_marginStart="8dp" />
+        android:layout_marginEnd="8dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

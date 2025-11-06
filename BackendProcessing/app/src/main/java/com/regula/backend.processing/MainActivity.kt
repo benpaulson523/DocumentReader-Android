@@ -176,6 +176,8 @@ class MainActivity : AppCompatActivity() {
             val surname = "Surname: " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
             binding.surnameTv.visibility = View.VISIBLE
+            binding.scanDocumentBtn.visibility = View.GONE
+            binding.refreshMnemonicButton.isEnabled = false
         } else {
             binding.surnameTv.text = "Surname:"
             binding.surnameTv.visibility = View.GONE

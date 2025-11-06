@@ -29,6 +29,7 @@ class NeuvoteManager (
         (context as? Activity)?.runOnUiThread {
             val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
             registerBtn?.setOnClickListener {
+                registerBtn.isEnabled = false
                 completeRegistration(context, iProovManager)
             }
         }
