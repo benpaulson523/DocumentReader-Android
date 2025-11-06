@@ -67,9 +67,6 @@ class IProovManager(
                         Log.d(TAG, "Backend /iproov/enroll-photo response: $result")
                         val enrollJson = org.json.JSONObject(result)
                         val enrollSuccess = enrollJson.optBoolean("success", true)
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Photo enroll result: $result", Toast.LENGTH_LONG).show()
-                        }
                         if (enrollSuccess) {
                             // Step 3: Get verification token from backend
                             val verifyPayload = org.json.JSONObject().apply {
@@ -101,7 +98,7 @@ class IProovManager(
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Photo enroll error", Toast.LENGTH_LONG).show()
                 }
             }
         }

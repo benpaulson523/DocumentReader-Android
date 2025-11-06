@@ -116,18 +116,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
-        Toast.makeText(this@MainActivity, "Verification scan result: $title - $resultMessage", Toast.LENGTH_LONG).show()
 
         // If verification is successful, call backend /validate-verification
         if (title == "Success") {
-            // Show extra input fields after verification scan is successful
+            Toast.makeText(this@MainActivity, "Verification scan passed", Toast.LENGTH_LONG).show()
             showExtraFields()
         } else {
-            AlertDialog.Builder(this@MainActivity)
-                .setTitle(title)
-                .setMessage(resultMessage)
-                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.cancel() }
-                .show()
+            Toast.makeText(this@MainActivity, "Verification scan failed", Toast.LENGTH_LONG).show()
         }
     }
 
