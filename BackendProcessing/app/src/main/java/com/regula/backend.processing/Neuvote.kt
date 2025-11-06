@@ -121,8 +121,29 @@ object Neuvote {
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                var voterIdentifier = ""
+                var parseError: String? = null
+                var responseBody: String? = null
+                if (response.isSuccessful) {
+                    // Parse voterIdentifier from response (off main thread)
+                    responseBody = response.body?.string()
+                    Log.d(TAG, "Server response from /mfa/verify/email: $responseBody")
+                    try {
+                        val json = org.json.JSONObject(responseBody ?: "")
+                        val data = json.optJSONObject("data")
+                        voterIdentifier = data?.optString("voterIdentifier", "") ?: ""
+                        Log.d(TAG, "voterIdentifier: $voterIdentifier")
+                    } catch (e: Exception) {
+                        parseError = e.message
+                        Log.e(TAG, "Failed to parse voterIdentifier: " + e.message)
+                    }
+                }
                 (context as? android.app.Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
+                        if (parseError != null) {
+                            Toast.makeText(context, "Registration error: $parseError", Toast.LENGTH_LONG).show()
+                            return@runOnUiThread
+                        }
                         if (iProovManager != null) {
                             val verifyToken = iProovManager.getLastIProovToken() ?: ""
                             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
@@ -135,7 +156,7 @@ object Neuvote {
                                 sex,
                                 onResult = { responseBody ->
                                     Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
-                                    Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
+                                    updateAbis(context, voterIdentifier, mnemonicUuid)
                                 },
                                 onError = { errorMsg ->
                                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
@@ -147,6 +168,39 @@ object Neuvote {
                         }
                     } else {
                         Toast.makeText(context, "Registration error", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    fun updateAbis(context: Context, voterIdentifier: String, mnemonicUuid: String) {
+        val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
+        val jsonBody = """{"abisID":"$mnemonicUuid"}"""
+        val client = okhttp3.OkHttpClient()
+        val requestBody = okhttp3.RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            jsonBody
+        )
+        val request = okhttp3.Request.Builder()
+            .url(url)
+            .put(requestBody)
+            .build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                (context as? android.app.Activity)?.runOnUiThread {
+                    Toast.makeText(context, "Failed to update ABIS ID", Toast.LENGTH_LONG).show()
+                }
+                Log.e(TAG, "Failed to update ABIS ID: " + e.message)
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val responseBody = response.body?.string()
+                Log.d(TAG, "Server response from /$voterIdentifier/abis-id: $responseBody")
+                (context as? android.app.Activity)?.runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "ABIS ID updated!", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, "Failed to update ABIS ID", Toast.LENGTH_LONG).show()
                     }
                 }
             }
