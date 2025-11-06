@@ -156,7 +156,7 @@ object Neuvote {
                                 sex,
                                 onResult = { responseBody ->
                                     Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
-                                    updateAbis(context, voterIdentifier, mnemonicUuid)
+                                    updateAbisID(context, voterIdentifier, mnemonicUuid)
                                 },
                                 onError = { errorMsg ->
                                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
@@ -174,7 +174,7 @@ object Neuvote {
         })
     }
 
-    fun updateAbis(context: Context, voterIdentifier: String, mnemonicUuid: String) {
+    fun updateAbisID(context: Context, voterIdentifier: String, mnemonicUuid: String) {
         val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
         val jsonBody = """{"abisID":"$mnemonicUuid"}"""
         val client = okhttp3.OkHttpClient()
@@ -199,8 +199,42 @@ object Neuvote {
                 (context as? android.app.Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(context, "ABIS ID updated!", Toast.LENGTH_LONG).show()
+                        updateAbisFacialScanFlag(context, mnemonicUuid);
                     } else {
                         Toast.makeText(context, "Failed to update ABIS ID", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    fun updateAbisFacialScanFlag(context: Context, abisID: String) {
+        val url = getNeuvoteServerUrl() + "/voters/abis/" + abisID + "/face-scan-flag"
+        val jsonBody = """{"biometricsFacialScanCollected":true}"""
+        val client = okhttp3.OkHttpClient()
+        val requestBody = okhttp3.RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            jsonBody
+        )
+        val request = okhttp3.Request.Builder()
+            .url(url)
+            .put(requestBody)
+            .build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                (context as? android.app.Activity)?.runOnUiThread {
+                    Toast.makeText(context, "Failed to update facial scan flag", Toast.LENGTH_LONG).show()
+                }
+                Log.e(TAG, "Failed to update facial scan flag: " + e.message)
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val responseBody = response.body?.string()
+                Log.d(TAG, "Server response from /voters/abis/$abisID/face-scan-flag: $responseBody")
+                (context as? android.app.Activity)?.runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Facial scan flag updated!", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, "Failed to update facial scan flag", Toast.LENGTH_LONG).show()
                     }
                 }
             }
