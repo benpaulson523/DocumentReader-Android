@@ -1,7 +1,7 @@
-
-
 package com.regula.backend.processing
 
+import android.app.Activity
+import android.app.ProgressDialog
 import android.widget.TextView
 import android.view.View
 import android.util.Log
@@ -12,6 +12,26 @@ import okhttp3.MediaType.Companion.toMediaType
 
 object Neuvote {
     private const val TAG = "Neuvote"
+    private const val PROGRESS_DIALOG_TAG_KEY: Int = 0xDEADBEEF.toInt()
+
+    // --- Helpers to show/dismiss the spinner consistently ---
+    private fun Activity.showProgress(message: String = "Registering...") {
+        val dialog = ProgressDialog(this).apply {
+            setMessage(message)
+            setCancelable(false)
+            show()
+        }
+        findViewById<View>(android.R.id.content)?.setTag(PROGRESS_DIALOG_TAG_KEY, dialog)
+    }
+
+    private fun Activity.dismissProgress() {
+        val root = findViewById<View>(android.R.id.content)
+        val dialog = root?.getTag(PROGRESS_DIALOG_TAG_KEY) as? ProgressDialog
+        dialog?.dismiss()
+        root?.setTag(PROGRESS_DIALOG_TAG_KEY, null)
+    }
+    // --------------------------------------------------------
+
     fun getNeuvoteServerUrl(): String {
         val address = SettingsManager.getServerAddress()
         val port = SettingsManager.getServerPort()
@@ -19,8 +39,8 @@ object Neuvote {
     }
 
     fun sendVerificationEmail(context: Context, email: String, mnemonicUuid: String, iProovManager: IProovManager?) {
-        (context as? android.app.Activity)?.runOnUiThread {
-            val registerBtn = (context as android.app.Activity).findViewById<View>(R.id.registerBtn)
+        (context as? Activity)?.runOnUiThread {
+            val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
             registerBtn?.setOnClickListener {
                 completeRegistration(context, iProovManager)
             }
@@ -38,19 +58,19 @@ object Neuvote {
             .build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
                     Toast.makeText(context, "Failed to send verification email", Toast.LENGTH_LONG).show()
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(context, "Verification email sent!", Toast.LENGTH_LONG).show()
                         // Show email code input and register button, hide verifyEmailBtn
-                        val emailCodeLabel = (context as android.app.Activity).findViewById<TextView>(R.id.emailCodeLabel)
-                        val emailCodeInput = (context as android.app.Activity).findViewById<EditText>(R.id.emailCodeInput)
-                        val registerBtn = (context as android.app.Activity).findViewById<View>(R.id.registerBtn)
-                        val verifyEmailBtn = (context as android.app.Activity).findViewById<View>(R.id.verifyEmailBtn)
+                        val emailCodeLabel = (context as Activity).findViewById<TextView>(R.id.emailCodeLabel)
+                        val emailCodeInput = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)
+                        val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
+                        val verifyEmailBtn = (context as Activity).findViewById<View>(R.id.verifyEmailBtn)
                         emailCodeLabel?.visibility = View.VISIBLE
                         emailCodeInput?.visibility = View.VISIBLE
                         registerBtn?.visibility = View.VISIBLE
@@ -62,24 +82,29 @@ object Neuvote {
             }
         })
     }
-    
-    fun completeRegistration(context: Context, iProovManager: IProovManager?) {
-        val email = (context as android.app.Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
-        val mnemonicUuid = (context as android.app.Activity).findViewById<EditText>(R.id.mnemonicInput)?.text.toString()
-        val verificationCode = (context as android.app.Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
-        val phone = (context as android.app.Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
-        val city = (context as android.app.Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
-        val province = (context as android.app.Activity).findViewById<EditText>(R.id.provinceInput)?.text.toString()
 
-        val nameText = (context as android.app.Activity).findViewById<TextView>(R.id.nameTv)?.text.toString().removePrefix("Name: ").trim()
+    fun completeRegistration(context: Context, iProovManager: IProovManager?) {
+        // Show spinner (consistent)
+        if (context is Activity) {
+            context.showProgress("Registering...")
+        }
+
+        val email = (context as Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
+        val mnemonicUuid = (context as Activity).findViewById<EditText>(R.id.mnemonicInput)?.text.toString()
+        val verificationCode = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
+        val phone = (context as Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
+        val city = (context as Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
+        val province = (context as Activity).findViewById<EditText>(R.id.provinceInput)?.text.toString()
+
+        val nameText = (context as Activity).findViewById<TextView>(R.id.nameTv)?.text.toString().removePrefix("Name: ").trim()
         val nameParts = nameText.split(" ")
         val firstName = nameParts.getOrNull(0) ?: ""
         val middleName = if (nameParts.size > 1) nameParts.subList(1, nameParts.size).joinToString(" ") else ""
-        val lastName = (context as android.app.Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname:")
-        val dateOfBirth = (context as android.app.Activity).findViewById<TextView>(R.id.dobTv)?.text.toString().removePrefix("Date of Birth: ")
-        val streetAddress = (context as android.app.Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
-        val postalCode = (context as android.app.Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
-        val sex = (context as android.app.Activity).findViewById<TextView>(R.id.sexTv)?.text.toString().removePrefix("Sex: ").trim()
+        val lastName = (context as Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname:")
+        val dateOfBirth = (context as Activity).findViewById<TextView>(R.id.dobTv)?.text.toString().removePrefix("Date of Birth: ")
+        val streetAddress = (context as Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
+        val postalCode = (context as Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
+        val sex = (context as Activity).findViewById<TextView>(R.id.sexTv)?.text.toString().removePrefix("Sex: ").trim()
         val unitNumberPOBox = "" // Add logic if you have this field
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF" // Example value
 
@@ -116,7 +141,8 @@ object Neuvote {
             .build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
+                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                     Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                 }
             }
@@ -138,15 +164,16 @@ object Neuvote {
                         Log.e(TAG, "Failed to parse voterIdentifier: " + e.message)
                     }
                 }
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
                         if (parseError != null) {
+                            try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                             Toast.makeText(context, "Registration error: $parseError", Toast.LENGTH_LONG).show()
                             return@runOnUiThread
                         }
                         if (iProovManager != null) {
                             val verifyToken = iProovManager.getLastIProovToken() ?: ""
-                            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
+                            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
                             iProovManager.validateVerification(
                                 verifyToken,
                                 mnemonicUuid,
@@ -154,19 +181,22 @@ object Neuvote {
                                 lastName,
                                 dateOfBirth,
                                 sex,
-                                onResult = { responseBody ->
-                                    Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
+                                onResult = { _ ->
+                                    Log.d(TAG, "Backend /iproov/validate-verification completed")
                                     updateAbisID(context, voterIdentifier, mnemonicUuid)
                                 },
                                 onError = { errorMsg ->
+                                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
                                     Toast.makeText(context, "Registration error!", Toast.LENGTH_LONG).show()
                                 }
                             )
                         } else {
+                            try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                             Toast.makeText(context, "iProovManager not available", Toast.LENGTH_LONG).show()
                         }
                     } else {
+                        try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                         Toast.makeText(context, "Registration error", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -188,7 +218,8 @@ object Neuvote {
             .build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
+                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                     Toast.makeText(context, "Failed to update ABIS ID", Toast.LENGTH_LONG).show()
                 }
                 Log.e(TAG, "Failed to update ABIS ID: " + e.message)
@@ -196,11 +227,11 @@ object Neuvote {
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /$voterIdentifier/abis-id: $responseBody")
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "ABIS ID updated!", Toast.LENGTH_LONG).show()
-                        updateAbisFacialScanFlag(context, mnemonicUuid);
+                        updateAbisFacialScanFlag(context, mnemonicUuid)
                     } else {
+                        try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                         Toast.makeText(context, "Failed to update ABIS ID", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -222,7 +253,8 @@ object Neuvote {
             .build()
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
+                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
                     Toast.makeText(context, "Failed to update facial scan flag", Toast.LENGTH_LONG).show()
                 }
                 Log.e(TAG, "Failed to update facial scan flag: " + e.message)
@@ -230,9 +262,12 @@ object Neuvote {
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /voters/abis/$abisID/face-scan-flag: $responseBody")
-                (context as? android.app.Activity)?.runOnUiThread {
+                (context as? Activity)?.runOnUiThread {
+                    // Always dismiss spinner before showing toast (consistent mechanism)
+                    try { (context as? Activity)?.dismissProgress() } catch (_: Exception) {}
+
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "Facial scan flag updated!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
                     } else {
                         Toast.makeText(context, "Failed to update facial scan flag", Toast.LENGTH_LONG).show()
                     }
