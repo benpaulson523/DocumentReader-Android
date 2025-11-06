@@ -1,4 +1,5 @@
 
+
 package com.regula.backend.processing
 
 import android.widget.TextView
@@ -10,17 +11,18 @@ import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 
 object Neuvote {
+    private const val TAG = "Neuvote"
     fun getNeuvoteServerUrl(): String {
         val address = SettingsManager.getServerAddress()
         val port = SettingsManager.getServerPort()
         return "http://$address:$port"
     }
 
-    fun sendVerificationEmail(context: Context, email: String, mnemonicUuid: String) {
+    fun sendVerificationEmail(context: Context, email: String, mnemonicUuid: String, iProovManager: IProovManager?) {
         (context as? android.app.Activity)?.runOnUiThread {
             val registerBtn = (context as android.app.Activity).findViewById<View>(R.id.registerBtn)
             registerBtn?.setOnClickListener {
-                completeRegistration(context)
+                completeRegistration(context, iProovManager)
             }
         }
         val url = Neuvote.getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
@@ -61,27 +63,27 @@ object Neuvote {
         })
     }
     
-    fun completeRegistration(context: Context) {
+    fun completeRegistration(context: Context, iProovManager: IProovManager?) {
         val email = (context as android.app.Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
         val mnemonicUuid = (context as android.app.Activity).findViewById<EditText>(R.id.mnemonicInput)?.text.toString()
         val verificationCode = (context as android.app.Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
         val phone = (context as android.app.Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
-        val street = (context as android.app.Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
         val city = (context as android.app.Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
         val province = (context as android.app.Activity).findViewById<EditText>(R.id.provinceInput)?.text.toString()
-        val postal = (context as android.app.Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
 
-        val firstName = (context as android.app.Activity).findViewById<TextView>(R.id.nameTv)?.text.toString().removePrefix("Name: ")
+        val nameText = (context as android.app.Activity).findViewById<TextView>(R.id.nameTv)?.text.toString().removePrefix("Name: ").trim()
+        val nameParts = nameText.split(" ")
+        val firstName = nameParts.getOrNull(0) ?: ""
+        val middleName = if (nameParts.size > 1) nameParts.subList(1, nameParts.size).joinToString(" ") else ""
         val lastName = (context as android.app.Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname:")
         val dateOfBirth = (context as android.app.Activity).findViewById<TextView>(R.id.dobTv)?.text.toString().removePrefix("Date of Birth: ")
         val streetAddress = (context as android.app.Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
         val postalCode = (context as android.app.Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
+        val sex = (context as android.app.Activity).findViewById<TextView>(R.id.sexTv)?.text.toString().removePrefix("Sex: ").trim()
         val unitNumberPOBox = "" // Add logic if you have this field
-        val middleName = "" // Add logic if you have this field
-        val knownIdNumber = "" // Add logic if you have this field
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF" // Example value
 
-        val url = Neuvote.getNeuvoteServerUrl() + "/registration/mfa/verify/email"
+        val url = getNeuvoteServerUrl() + "/registration/mfa/verify/email"
         val jsonBody = """
             {
                 "votingChannel": "online",
@@ -91,7 +93,6 @@ object Neuvote {
                 "dateOfBirth": "$dateOfBirth",
                 "email": "$email",
                 "phone": "$phone",
-                "knownIdNumber": "$knownIdNumber",
                 "address": {
                     "streetAddress": "$streetAddress",
                     "city": "$city",
@@ -122,7 +123,28 @@ object Neuvote {
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 (context as? android.app.Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
+                        if (iProovManager != null) {
+                            val verifyToken = iProovManager.getLastIProovToken() ?: ""
+                            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification");
+                            iProovManager.validateVerification(
+                                verifyToken,
+                                mnemonicUuid,
+                                firstName,
+                                lastName,
+                                dateOfBirth,
+                                sex,
+                                onResult = { responseBody ->
+                                    Log.d(TAG, "Backend /iproov/validate-verification response: $responseBody")
+                                    Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
+                                },
+                                onError = { errorMsg ->
+                                    Log.e(TAG, "Backend validate-verification error: $errorMsg")
+                                    Toast.makeText(context, "Registration error!", Toast.LENGTH_LONG).show()
+                                }
+                            )
+                        } else {
+                            Toast.makeText(context, "iProovManager not available", Toast.LENGTH_LONG).show()
+                        }
                     } else {
                         Toast.makeText(context, "Registration error", Toast.LENGTH_LONG).show()
                     }

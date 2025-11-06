@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         verifyEmailBtn?.setOnClickListener {
             val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
             val mnemonicUuid = binding.mnemonicInput.text.toString()
-            Neuvote.sendVerificationEmail(this, email, mnemonicUuid)
+            Neuvote.sendVerificationEmail(this, email, mnemonicUuid, iProovManager)
         }
         // Add listeners to all extra input fields to check if all are non-empty
         for (inputId in inputIds) {
