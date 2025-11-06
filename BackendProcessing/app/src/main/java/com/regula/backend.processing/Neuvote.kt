@@ -83,7 +83,7 @@ class NeuvoteManager (
         val nameParts = nameText.split(" ")
         val firstName = nameParts.getOrNull(0) ?: ""
         val middleName = if (nameParts.size > 1) nameParts.subList(1, nameParts.size).joinToString(" ") else ""
-        val lastName = (context as Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname:")
+        val lastName = (context as Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname: ")
         val dateOfBirth = (context as Activity).findViewById<TextView>(R.id.dobTv)?.text.toString().removePrefix("Date of Birth: ")
         val streetAddress = (context as Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
         val postalCode = (context as Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()

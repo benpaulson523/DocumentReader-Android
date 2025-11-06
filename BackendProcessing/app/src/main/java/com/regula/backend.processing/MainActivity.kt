@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity() {
     private fun displayTextFields(results: DocumentReaderResults?) {
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
-            val surname = "Surname:" + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
+            val surname = "Surname: " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
             binding.surnameTv.visibility = View.VISIBLE
         } else {
@@ -215,6 +215,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showExtraFields() {
+        // Restrict email code field to 6 digits
+        val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
+        emailCodeInput?.filters = arrayOf(android.text.InputFilter.LengthFilter(6), object : android.text.InputFilter {
+            override fun filter(source: CharSequence?, start: Int, end: Int, dest: android.text.Spanned?, dstart: Int, dend: Int): CharSequence? {
+                val result = (dest?.substring(0, dstart) ?: "") + (source?.substring(start, end) ?: "") + (dest?.substring(dend) ?: "")
+                return if (result.length > 6 || !result.matches(Regex("\\d*"))) "" else null
+            }
+        })
+
+        val registerBtn = findViewById<View>(R.id.registerBtn)
+        emailCodeInput?.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val code = s?.toString() ?: ""
+                registerBtn?.visibility = if (code.length == 6 && code.matches(Regex("\\d{6}"))) View.VISIBLE else View.GONE
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        // Hide register button initially
+        registerBtn?.visibility = View.GONE
         val labelIds = listOf(
             R.id.emailLabel, R.id.phoneLabel, R.id.streetLabel, R.id.cityLabel, R.id.provinceLabel, R.id.postalLabel
         )
