@@ -14,45 +14,54 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name" />
 
-    <EditText
+    <TextView
+        android:id="@+id/mnemonicLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Your Biometrics ID: "
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
         android:id="@+id/mnemonicInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:inputType="none"
-        android:hint="Mnemonic UUID"
-        android:focusable="false"
-        android:cursorVisible="false"
-        android:longClickable="false"
-        android:clickable="false"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/refreshMnemonicButton" />
+        android:layout_marginEnd="8dp"
+        android:hint="Biometrics ID"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/mnemonicLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@+id/mnemonicLabel" />
 
-    <Button
+    <!--<ImageButton
         android:id="@+id/refreshMnemonicButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Regenerate ID"
+        android:src="@android:drawable/ic_menu_rotate"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Refresh ID"
         app:layout_constraintTop_toBottomOf="@+id/toolBar"
         app:layout_constraintStart_toEndOf="@+id/mnemonicInput"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />-->
 
     <Button
         android:id="@+id/scanDocumentBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Scan Proof of Identity"
-        app:layout_constraintTop_toBottomOf="@+id/refreshMnemonicButton"
+        app:layout_constraintTop_toBottomOf="@+id/mnemonicInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="12dp" />
 
     <TextView
         android:id="@+id/nameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
         android:text="Name:"
         android:textSize="18sp"
         android:visibility="gone"
@@ -63,7 +72,8 @@
         android:id="@+id/surnameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
         android:text="Surname:"
         android:textSize="18sp"
         android:visibility="gone"
@@ -74,7 +84,8 @@
         android:id="@+id/dobTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
         android:text="Date of Birth:"
         android:textSize="18sp"
         android:visibility="gone"
@@ -85,7 +96,8 @@
         android:id="@+id/sexTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
         android:text="Sex:"
         android:textSize="18sp"
         android:visibility="gone"
@@ -110,7 +122,7 @@
         app:layout_constraintTop_toBottomOf="@+id/resultIv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="12dp" />
 
     <!-- Extra fields shown after document capture -->
     <TextView
@@ -118,10 +130,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Email:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/resultIv"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/emailInput"
@@ -133,7 +146,7 @@
         app:layout_constraintTop_toBottomOf="@+id/resultIv"
         app:layout_constraintStart_toEndOf="@+id/emailLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <TextView
@@ -141,10 +154,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Phone Number:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/emailLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/phoneInput"
@@ -156,7 +170,7 @@
         app:layout_constraintTop_toBottomOf="@+id/emailLabel"
         app:layout_constraintStart_toEndOf="@+id/phoneLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <TextView
@@ -164,10 +178,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Street Address:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/streetInput"
@@ -179,7 +194,7 @@
         app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
         app:layout_constraintStart_toEndOf="@+id/streetLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <TextView
@@ -187,10 +202,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="City:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/streetLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/cityInput"
@@ -202,7 +218,7 @@
         app:layout_constraintTop_toBottomOf="@+id/streetLabel"
         app:layout_constraintStart_toEndOf="@+id/cityLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <TextView
@@ -210,10 +226,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Province:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/cityLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/provinceInput"
@@ -225,7 +242,7 @@
         app:layout_constraintTop_toBottomOf="@+id/cityLabel"
         app:layout_constraintStart_toEndOf="@+id/provinceLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <TextView
@@ -233,10 +250,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Postal Code:"
+        android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
 
     <EditText
@@ -249,7 +267,7 @@
         app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
         app:layout_constraintStart_toEndOf="@+id/postalLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <Button
@@ -261,7 +279,7 @@
         app:layout_constraintTop_toBottomOf="@+id/postalInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
 
@@ -269,11 +287,12 @@
         android:id="@+id/emailCodeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="6-digit email code:"
+        android:text="6-digit Email Code:"
+        android:textSize="18sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalInput"
+        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp" />
     <EditText
         android:id="@+id/emailCodeInput"
@@ -283,10 +302,10 @@
         android:inputType="number"
         android:maxLength="6"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalInput"
+        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
         app:layout_constraintStart_toEndOf="@+id/emailCodeLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:layout_marginEnd="16dp" />
 
     <Button
@@ -298,7 +317,7 @@
         app:layout_constraintTop_toBottomOf="@+id/emailCodeInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
 

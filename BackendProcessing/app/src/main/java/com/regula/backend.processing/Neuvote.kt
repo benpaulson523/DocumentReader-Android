@@ -29,6 +29,12 @@ class NeuvoteManager (
         (context as? Activity)?.runOnUiThread {
             val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
             registerBtn?.setOnClickListener {
+                (context as Activity).findViewById<EditText>(R.id.phoneInput)?.isEnabled = false
+                (context as Activity).findViewById<EditText>(R.id.streetInput)?.isEnabled = false
+                (context as Activity).findViewById<EditText>(R.id.cityInput)?.isEnabled = false
+                (context as Activity).findViewById<EditText>(R.id.provinceInput)?.isEnabled = false
+                (context as Activity).findViewById<EditText>(R.id.postalInput)?.isEnabled = false
+                (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.isEnabled = false
                 registerBtn.isEnabled = false
                 completeRegistration(context, iProovManager)
             }
@@ -54,15 +60,17 @@ class NeuvoteManager (
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(context, "Verification email sent", Toast.LENGTH_LONG).show()
-                        // Show email code input and register button, hide verifyEmailBtn
+                        // Show email code input, hide verifyEmailBtn, do NOT show registerBtn yet
                         val emailCodeLabel = (context as Activity).findViewById<TextView>(R.id.emailCodeLabel)
                         val emailCodeInput = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)
                         val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
                         val verifyEmailBtn = (context as Activity).findViewById<View>(R.id.verifyEmailBtn)
+                        val emailInput = (context as Activity).findViewById<EditText>(R.id.emailInput)
                         emailCodeLabel?.visibility = View.VISIBLE
                         emailCodeInput?.visibility = View.VISIBLE
-                        registerBtn?.visibility = View.VISIBLE
+                        registerBtn?.visibility = View.GONE
                         verifyEmailBtn?.visibility = View.GONE
+                        emailInput?.isEnabled = false
                     } else {
                         Toast.makeText(context, "Failed to send email", Toast.LENGTH_LONG).show()
                     }
@@ -74,7 +82,7 @@ class NeuvoteManager (
     fun completeRegistration(context: Context, iProovManager: IProovManager?) {
         showDialog("Registering...")
         val email = (context as Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
-        val mnemonicUuid = (context as Activity).findViewById<EditText>(R.id.mnemonicInput)?.text.toString()
+        val mnemonicUuid = (context as Activity).findViewById<TextView>(R.id.mnemonicInput)?.text.toString()
         val verificationCode = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
         val phone = (context as Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
         val city = (context as Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
@@ -250,6 +258,8 @@ class NeuvoteManager (
                     dismissDialog();
 
                     if (response.isSuccessful) {
+                        val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
+                        registerBtn.visibility = View.GONE
                         Toast.makeText(context, "Registration received!", Toast.LENGTH_LONG).show()
                     } else {
                         Toast.makeText(context, "Setting face scan flag failed", Toast.LENGTH_LONG).show()

@@ -75,10 +75,10 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-        binding.refreshMnemonicButton.setOnClickListener {
+        /*binding.refreshMnemonicButton.setOnClickListener {
             val newMnemonic = generateMnemonicUUID()
             binding.mnemonicInput.setText(newMnemonic)
-        }
+        }*/
 
         regulaScanner = RegulaScanner(
             context = this,
@@ -131,10 +131,10 @@ class MainActivity : AppCompatActivity() {
 
         // If verification is successful, call backend /validate-verification
         if (title == "Success") {
-            Toast.makeText(this@MainActivity, "Verification scan passed", Toast.LENGTH_LONG).show()
+            Toast.makeText(this@MainActivity, "Facial scan matches photo", Toast.LENGTH_LONG).show()
             showExtraFields()
         } else {
-            Toast.makeText(this@MainActivity, "Verification scan failed", Toast.LENGTH_LONG).show()
+            Toast.makeText(this@MainActivity, "Facial scan failed", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity() {
             binding.surnameTv.text = surname
             binding.surnameTv.visibility = View.VISIBLE
             binding.scanDocumentBtn.visibility = View.GONE
-            binding.refreshMnemonicButton.isEnabled = false
+            //binding.refreshMnemonicButton.isEnabled = false
         } else {
             binding.surnameTv.text = "Surname:"
             binding.surnameTv.visibility = View.GONE
@@ -239,7 +239,7 @@ class MainActivity : AppCompatActivity() {
         emailCodeInput?.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
                 val code = s?.toString() ?: ""
-                registerBtn?.visibility = if (code.length == 6 && code.matches(Regex("\\d{6}"))) View.VISIBLE else View.GONE
+                registerBtn?.visibility = if (code.matches(Regex("^\\d{6}$"))) View.VISIBLE else View.GONE
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
