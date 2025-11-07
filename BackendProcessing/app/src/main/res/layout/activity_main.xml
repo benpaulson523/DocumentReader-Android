@@ -331,14 +331,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />-->
 
-    <Button
+    <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Settings"
+        android:src="@drawable/baseline_settings_24"
+        android:tint="#b0b0b0ff"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Settings"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
