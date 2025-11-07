@@ -29,11 +29,6 @@ class NeuvoteManager (
         (context as? Activity)?.runOnUiThread {
             val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
             registerBtn?.setOnClickListener {
-                (context as Activity).findViewById<EditText>(R.id.phoneInput)?.isEnabled = false
-                (context as Activity).findViewById<EditText>(R.id.streetInput)?.isEnabled = false
-                (context as Activity).findViewById<EditText>(R.id.cityInput)?.isEnabled = false
-                (context as Activity).findViewById<EditText>(R.id.provinceInput)?.isEnabled = false
-                (context as Activity).findViewById<EditText>(R.id.postalInput)?.isEnabled = false
                 (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.isEnabled = false
                 registerBtn.isEnabled = false
                 completeRegistration(context, iProovManager)
@@ -71,6 +66,11 @@ class NeuvoteManager (
                         registerBtn?.visibility = View.GONE
                         verifyEmailBtn?.visibility = View.GONE
                         emailInput?.isEnabled = false
+                        (context as Activity).findViewById<EditText>(R.id.phoneInput)?.isEnabled = false
+                        (context as Activity).findViewById<EditText>(R.id.streetInput)?.isEnabled = false
+                        (context as Activity).findViewById<EditText>(R.id.cityInput)?.isEnabled = false
+                        (context as Activity).findViewById<EditText>(R.id.provinceInput)?.isEnabled = false
+                        (context as Activity).findViewById<EditText>(R.id.postalInput)?.isEnabled = false
                     } else {
                         Toast.makeText(context, "Failed to send email", Toast.LENGTH_LONG).show()
                     }

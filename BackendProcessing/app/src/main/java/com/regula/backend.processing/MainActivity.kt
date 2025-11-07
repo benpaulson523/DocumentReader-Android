@@ -259,7 +259,7 @@ class MainActivity : AppCompatActivity() {
             inputView?.visibility = View.VISIBLE
         }
 
-        populateDefaultsForExtraFields();
+        //populateDefaultsForExtraFields();
 
         val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
         verifyEmailBtn?.setOnClickListener {
