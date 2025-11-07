@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
 
-        dismissDialog();
+        binding.startFacialScanBtn.visibility = View.GONE
 
         // If verification is successful, call backend /validate-verification
         if (title == "Success") {
@@ -155,6 +155,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayImage(results: DocumentReaderResults?) {
+        val startFacialScanBtn = binding.startFacialScanBtn
+        startFacialScanBtn.setOnClickListener {
+            iProovManager.launchFacialScanSession()
+            startFacialScanBtn.isEnabled = false
+        }
         if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
             var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             if (documentImage != null) {
@@ -164,9 +169,13 @@ class MainActivity : AppCompatActivity() {
                     (480 * aspectRatio).toInt(), 480, false
                 )
                 binding.resultIv.setImageBitmap(documentImage)
+                startFacialScanBtn.visibility = View.VISIBLE
                 // Automatically enroll the photo with iProov
                 iProovManager.enrollDocumentPhotoWithIProov(documentImage)
             }
+        } else {
+            binding.resultIv.setImageBitmap(null)
+            startFacialScanBtn.visibility = View.GONE
         }
     }
 

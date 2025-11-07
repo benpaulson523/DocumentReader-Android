@@ -250,7 +250,7 @@ class NeuvoteManager (
                     dismissDialog();
 
                     if (response.isSuccessful) {
-                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Registration received!", Toast.LENGTH_LONG).show()
                     } else {
                         Toast.makeText(context, "Setting face scan flag failed", Toast.LENGTH_LONG).show()
                     }

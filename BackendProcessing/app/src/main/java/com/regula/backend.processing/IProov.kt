@@ -35,6 +35,8 @@ class IProovManager(
     private var sessionStateJob: Job? = null
     
 
+    private var pendingVerifyToken: String? = null
+
     fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
         showDialog("Preparing facial scanner...")
         val userId = mnemonicInputProvider()
@@ -85,16 +87,11 @@ class IProovManager(
                                 Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                                 val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
                                 dismissDialog();
-                                // Step 4: Launch verification scan
                                 withContext(Dispatchers.Main) {
-                                    Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
+                                    pendingVerifyToken = verifyToken
                                     lastIProovToken = verifyToken
                                     onVerificationSuccess(verifyToken)
-                                    IProov.createSession(context.applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
-                                        observeSessionState(session) {
-                                            session.start()
-                                        }
-                                    }
+                                    // Do NOT launch iProov session here
                                 }
                             }
                         }
@@ -106,6 +103,16 @@ class IProovManager(
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Photo enroll error", Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    fun launchFacialScanSession() {
+        val verifyToken = pendingVerifyToken ?: return
+        Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
+        IProov.createSession(context.applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
+            observeSessionState(session) {
+                session.start()
             }
         }
     }
