@@ -35,17 +35,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBaseline_toBaselineOf="@+id/mnemonicLabel" />
 
-    <!--<ImageButton
-        android:id="@+id/refreshMnemonicButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_rotate"
-        android:background="?attr/selectableItemBackground"
-        android:contentDescription="Refresh ID"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar"
-        app:layout_constraintStart_toEndOf="@+id/mnemonicInput"
-        app:layout_constraintEnd_toEndOf="parent" />-->
-
     <Button
         android:id="@+id/scanDocumentBtn"
         android:layout_width="wrap_content"
@@ -113,224 +102,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/startFacialScanBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Facial Scan"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/resultIv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp" />
-
-    <!-- Extra fields shown after document capture -->
-    <TextView
-        android:id="@+id/emailLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/resultIv"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/emailInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter email"
-        android:inputType="textEmailAddress"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/resultIv"
-        app:layout_constraintStart_toEndOf="@+id/emailLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/phoneLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Phone Number:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/emailLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/phoneInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter phone number"
-        android:inputType="phone"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/emailLabel"
-        app:layout_constraintStart_toEndOf="@+id/phoneLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/streetLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Street Address:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/streetInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter street address"
-        android:inputType="textPostalAddress"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
-        app:layout_constraintStart_toEndOf="@+id/streetLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/cityLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="City:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/streetLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/cityInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter city"
-        android:inputType="text"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/streetLabel"
-        app:layout_constraintStart_toEndOf="@+id/cityLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/provinceLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Province:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/cityLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/provinceInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter province"
-        android:inputType="text"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/cityLabel"
-        app:layout_constraintStart_toEndOf="@+id/provinceLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/postalLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Postal Code:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-
-    <EditText
-        android:id="@+id/postalInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter postal code"
-        android:inputType="textPostalAddress"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
-        app:layout_constraintStart_toEndOf="@+id/postalLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <Button
-        android:id="@+id/verifyEmailBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Verify Email"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/emailCodeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="6-digit Email Code:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/emailCodeInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter code"
-        android:inputType="number"
-        android:maxLength="6"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
-        app:layout_constraintStart_toEndOf="@+id/emailCodeLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
-
-    <Button
-        android:id="@+id/registerBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Register"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/emailCodeInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-
-    <!--<CheckBox
-        android:id="@+id/doRfidCb"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Perform NFC chip reading"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/scanDocumentBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />-->
-
     <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="wrap_content"
@@ -343,5 +114,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="6dp" />
+
+    <Button
+        android:id="@+id/nextBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

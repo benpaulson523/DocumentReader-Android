@@ -62,23 +62,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            val view = binding.root
-            setContentView(view)
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-            // Initialize settings manager
-            SettingsManager.init(this)
+        // Initialize settings manager
+        SettingsManager.init(this)
 
-            binding.settingsButton.setOnClickListener {
-                val intent = android.content.Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-            }
-
-        /*binding.refreshMnemonicButton.setOnClickListener {
-            val newMnemonic = generateMnemonicUUID()
-            binding.mnemonicInput.setText(newMnemonic)
-        }*/
+        binding.settingsButton.setOnClickListener {
+            val intent = android.content.Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        
+        binding.nextBtn.isEnabled = false
 
         regulaScanner = RegulaScanner(
             context = this,
@@ -108,58 +105,28 @@ class MainActivity : AppCompatActivity() {
             regulaScanner.showScanner()
         }
 
-        iProovManager = IProovManager(
+        iProovManager = IProovManager.getInstance(
             context = this,
             mnemonicInputProvider = { binding.mnemonicInput.text.toString() },
-            showResult = { title, message -> onResult(title, message) },
             onVerificationSuccess = { token -> /* Optionally handle token if needed */ },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-
-        neuvoteManager = NeuvoteManager(
+        
+        neuvoteManager = NeuvoteManager.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-    }
+        neuvoteManager.setMnemonicUuid(mnemonicUuid)
 
-    private fun onResult(title: String?, resultMessage: String?) {
-        Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
-
-        binding.startFacialScanBtn.visibility = View.GONE
-
-        // If verification is successful, call backend /validate-verification
-        if (title == "Success") {
-            Toast.makeText(this@MainActivity, "Facial scan matches photo", Toast.LENGTH_LONG).show()
-            showExtraFields()
-        } else {
-            Toast.makeText(this@MainActivity, "Facial scan failed", Toast.LENGTH_LONG).show()
+        binding.nextBtn.setOnClickListener {
+            val intent = android.content.Intent(this, com.regula.backendprocessing.FacialScanActivity::class.java)
+            startActivity(intent)
         }
-    }
-
-    private fun dismissDialog() {
-        if (loadingDialog != null) {
-            loadingDialog!!.dismiss()
-        }
-    }
-
-    private fun showDialog(msg: String?) {
-        dismissDialog()
-        val builderDialog = AlertDialog.Builder(this)
-        val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
-        builderDialog.setTitle(msg)
-        builderDialog.setView(dialogView)
-        builderDialog.setCancelable(false)
-        loadingDialog = builderDialog.show()
     }
 
     private fun displayImage(results: DocumentReaderResults?) {
-        val startFacialScanBtn = binding.startFacialScanBtn
-        startFacialScanBtn.setOnClickListener {
-            iProovManager.launchFacialScanSession()
-            startFacialScanBtn.isEnabled = false
-        }
         if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
             var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             if (documentImage != null) {
@@ -169,36 +136,43 @@ class MainActivity : AppCompatActivity() {
                     (480 * aspectRatio).toInt(), 480, false
                 )
                 binding.resultIv.setImageBitmap(documentImage)
-                startFacialScanBtn.visibility = View.VISIBLE
                 // Automatically enroll the photo with iProov
                 iProovManager.enrollDocumentPhotoWithIProov(documentImage)
             }
         } else {
             binding.resultIv.setImageBitmap(null)
-            startFacialScanBtn.visibility = View.GONE
         }
     }
 
     private fun displayTextFields(results: DocumentReaderResults?) {
+
+        val neuvoteManager = NeuvoteManager.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
             val surname = "Surname: " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
             binding.surnameTv.visibility = View.VISIBLE
             binding.scanDocumentBtn.visibility = View.GONE
-            //binding.refreshMnemonicButton.isEnabled = false
+            neuvoteManager.setSurname(results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME))
         } else {
             binding.surnameTv.text = "Surname:"
             binding.surnameTv.visibility = View.GONE
+            neuvoteManager.setSurname(null)
         }
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES) != null) {
             val name = "Name: " + results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES)
             binding.nameTv.text = name
             binding.nameTv.visibility = View.VISIBLE
+            neuvoteManager.setName(results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES))
         } else {
             binding.nameTv.text = "Name:"
             binding.nameTv.visibility = View.GONE
+            neuvoteManager.setName(null)
         }
 
         // Display date of birth between last name and photo
@@ -208,9 +182,11 @@ class MainActivity : AppCompatActivity() {
             val dob = "Date of Birth: $formattedDob"
             binding.dobTv?.text = dob
             binding.dobTv?.visibility = View.VISIBLE
+            neuvoteManager.setDateOfBirth(formattedDob)
         } else {
             binding.dobTv?.text = "Date of Birth:"
             binding.dobTv?.visibility = View.GONE
+            neuvoteManager.setDateOfBirth(null)
         }
         
         // Display sex between date of birth and photo
@@ -219,88 +195,12 @@ class MainActivity : AppCompatActivity() {
             val sexDisplay = "Sex: $sex"
             binding.sexTv?.text = sexDisplay
             binding.sexTv?.visibility = View.VISIBLE
+            neuvoteManager.setSex(sex)
         } else {
             binding.sexTv?.text = "Sex:"
             binding.sexTv?.visibility = View.GONE
+            neuvoteManager.setSex(null)
         }
-    }
-
-    private fun showExtraFields() {
-        // Restrict email code field to 6 digits
-        val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
-        emailCodeInput?.filters = arrayOf(android.text.InputFilter.LengthFilter(6), object : android.text.InputFilter {
-            override fun filter(source: CharSequence?, start: Int, end: Int, dest: android.text.Spanned?, dstart: Int, dend: Int): CharSequence? {
-                val result = (dest?.substring(0, dstart) ?: "") + (source?.substring(start, end) ?: "") + (dest?.substring(dend) ?: "")
-                return if (result.length > 6 || !result.matches(Regex("\\d*"))) "" else null
-            }
-        })
-
-        val registerBtn = findViewById<View>(R.id.registerBtn)
-        emailCodeInput?.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val code = s?.toString() ?: ""
-                registerBtn?.visibility = if (code.matches(Regex("^\\d{6}$"))) View.VISIBLE else View.GONE
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-        // Hide register button initially
-        registerBtn?.visibility = View.GONE
-        val labelIds = listOf(
-            R.id.emailLabel, R.id.phoneLabel, R.id.streetLabel, R.id.cityLabel, R.id.provinceLabel, R.id.postalLabel
-        )
-        val inputIds = listOf(
-            R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput
-        )
-        for (i in labelIds.indices) {
-            val labelView = findViewById<TextView>(labelIds[i])
-            val inputView = findViewById<EditText>(inputIds[i])
-            labelView?.visibility = View.VISIBLE
-            inputView?.visibility = View.VISIBLE
-        }
-
-        //populateDefaultsForExtraFields();
-
-        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
-        verifyEmailBtn?.setOnClickListener {
-            val email = findViewById<EditText>(R.id.emailInput)?.text.toString()
-            val mnemonicUuid = binding.mnemonicInput.text.toString()
-            neuvoteManager.sendVerificationEmail(this, email, mnemonicUuid, iProovManager)
-        }
-        // Add listeners to all extra input fields to check if all are non-empty
-        for (inputId in inputIds) {
-            val inputView = findViewById<EditText>(inputId)
-            inputView?.addTextChangedListener(object : android.text.TextWatcher {
-                override fun afterTextChanged(s: android.text.Editable?) {
-                    checkVerifyEmailButtonVisibility()
-                }
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
-        }
-        // Initial check
-        checkVerifyEmailButtonVisibility()
-    }
-
-    private fun populateDefaultsForExtraFields() {
-        //findViewById<EditText>(R.id.emailInput)?.setText("test@example.com")
-        findViewById<EditText>(R.id.phoneInput)?.setText("555-123-4567")
-        findViewById<EditText>(R.id.streetInput)?.setText("123 Main St")
-        findViewById<EditText>(R.id.cityInput)?.setText("Toronto")
-        findViewById<EditText>(R.id.provinceInput)?.setText("ON")
-        findViewById<EditText>(R.id.postalInput)?.setText("A1A 1A1")
-    }
-
-    private fun checkVerifyEmailButtonVisibility() {
-        val inputIds = listOf(
-            R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput
-        )
-        val allFilled = inputIds.all { id ->
-            val inputView = findViewById<EditText>(id)
-            inputView?.visibility == View.VISIBLE && !inputView.text.isNullOrBlank()
-        }
-        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
-        verifyEmailBtn?.visibility = if (allFilled) View.VISIBLE else View.GONE
     }
 
     override fun setContentView(view: View?) {
@@ -328,5 +228,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun dismissDialog() {
+        if (loadingDialog != null) {
+            loadingDialog!!.dismiss()
+        }
+    }
+
+    private fun showDialog(msg: String?) {
+        dismissDialog()
+        val builderDialog = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.simple_dialog, null)
+        builderDialog.setTitle(msg)
+        builderDialog.setView(dialogView)
+        builderDialog.setCancelable(false)
+        loadingDialog = builderDialog.show()
+    }
 }
 

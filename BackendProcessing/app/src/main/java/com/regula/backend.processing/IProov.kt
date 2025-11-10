@@ -16,17 +16,44 @@ import okhttp3.MediaType.Companion.toMediaType
 import com.iproov.sdk.api.IProov
 import com.iproov.sdk.api.exception.SessionCannotBeStartedTwiceException
 import android.app.Activity
+import android.view.View
 
-class IProovManager(
+class IProovManager private constructor(
     private val context: Context,
     private val mnemonicInputProvider: () -> String,
-    private val showResult: (title: String?, message: String?) -> Unit,
     private val onVerificationSuccess: (token: String) -> Unit,
     private val showDialog: (String?) -> Unit,
     private val dismissDialog: () -> Unit
 ) {
     companion object {
         private const val TAG = "IProovManager"
+
+        @Volatile
+        private var instance: IProovManager? = null
+
+        @JvmStatic
+        fun getInstance(
+            context: Context,
+            mnemonicInputProvider: () -> String,
+            onVerificationSuccess: (token: String) -> Unit,
+            showDialog: (String?) -> Unit,
+            dismissDialog: () -> Unit
+        ): IProovManager {
+            return instance ?: synchronized(this) {
+                instance ?: IProovManager(
+                    context,
+                    mnemonicInputProvider,
+                    onVerificationSuccess,
+                    showDialog,
+                    dismissDialog
+                ).also { instance = it }
+            }
+        }
+
+        @JvmStatic
+        fun getInstanceOrNull(): IProovManager? {
+            return instance
+        }
     }
 
     private var lastIProovToken: String? = null
@@ -37,8 +64,14 @@ class IProovManager(
 
     private var pendingVerifyToken: String? = null
 
+    private var showResult: ((title: String?, message: String?) -> Unit)? = null
+
+    fun setShowResultHandler(handler: (title: String?, message: String?) -> Unit) {
+        this.showResult = handler
+    }
+
     fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
-        showDialog("Preparing facial scanner...")
+    showDialog("Saving identification photo...")
         val userId = mnemonicInputProvider()
         val photoBytes = bitmapToJpegBytes(documentPhoto)
         val client = okhttp3.OkHttpClient()
@@ -87,10 +120,19 @@ class IProovManager(
                                 Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                                 val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
                                 dismissDialog();
+
                                 withContext(Dispatchers.Main) {
                                     pendingVerifyToken = verifyToken
                                     lastIProovToken = verifyToken
                                     onVerificationSuccess(verifyToken)
+                                    // Enable the 'next' button in MainActivity
+                                    try {
+                                        val activity = context as? Activity
+                                        val nextBtn = activity?.findViewById<View>(R.id.nextBtn)
+                                        nextBtn?.isEnabled = true
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Unable to enable next button: ${e.localizedMessage}", e)
+                                    }
                                     // Do NOT launch iProov session here
                                 }
                             }
@@ -141,16 +183,16 @@ class IProovManager(
                                     // Optionally show processing UI
                                 }
                                 is IProov.State.Success -> {
-                                    showResult("Success", "")
+                                    showResult?.invoke("Success", "")
                                 }
                                 is IProov.State.Failure -> {
-                                    showResult(state.failureResult.reason.feedbackCode.toString(), context.getString(state.failureResult.reason.description))
+                                    showResult?.invoke(state.failureResult.reason.feedbackCode.toString(), context.getString(state.failureResult.reason.description))
                                 }
                                 is IProov.State.Error -> {
-                                    showResult("Error", state.exception.localizedMessage)
+                                    showResult?.invoke("Error", state.exception.localizedMessage)
                                 }
                                 is IProov.State.Canceled -> {
-                                    showResult("Canceled", null)
+                                    showResult?.invoke("Canceled", null)
                                 }
                             }
                         }

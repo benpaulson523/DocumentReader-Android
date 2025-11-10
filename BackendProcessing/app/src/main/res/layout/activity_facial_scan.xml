@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/app_name" />
+
+    <Button
+        android:id="@+id/startFacialScanBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Facial Scan"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Extra fields shown after document capture -->
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter email"
+        android:inputType="textEmailAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toEndOf="@+id/emailLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/phoneLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/emailLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/phoneInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter phone number"
+        android:inputType="phone"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/emailLabel"
+        app:layout_constraintStart_toEndOf="@+id/phoneLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/streetLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Street Address:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/streetInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter street address"
+        android:inputType="textPostalAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/phoneLabel"
+        app:layout_constraintStart_toEndOf="@+id/streetLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/cityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="City:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/streetLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/cityInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter city"
+        android:inputType="text"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/streetLabel"
+        app:layout_constraintStart_toEndOf="@+id/cityLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/provinceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Province:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/cityLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/provinceInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter province"
+        android:inputType="text"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/cityLabel"
+        app:layout_constraintStart_toEndOf="@+id/provinceLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/postalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Postal Code:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+
+    <EditText
+        android:id="@+id/postalInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter postal code"
+        android:inputType="textPostalAddress"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/provinceLabel"
+        app:layout_constraintStart_toEndOf="@+id/postalLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <Button
+        android:id="@+id/verifyEmailBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Verify Email"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/postalInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/emailCodeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6-digit Email Code:"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp" />
+    <EditText
+        android:id="@+id/emailCodeInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter code"
+        android:inputType="number"
+        android:maxLength="6"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
+        app:layout_constraintStart_toEndOf="@+id/emailCodeLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp" />
+
+    <Button
+        android:id="@+id/registerBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/emailCodeInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+        
+
+    <ImageButton
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_settings_24"
+        android:tint="#b0b0b0ff"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Settings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp" />
+
+    <Button
+        android:id="@+id/backBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/nextBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

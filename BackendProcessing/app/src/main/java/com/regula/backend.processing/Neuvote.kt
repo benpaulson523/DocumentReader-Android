@@ -10,13 +10,39 @@ import android.widget.EditText
 import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
 
-class NeuvoteManager (
-    private val context: Context,
-    private val showDialog: (String?) -> Unit,
-    private val dismissDialog: () -> Unit
+class NeuvoteManager private constructor(
+    var context: Context,
+    var showDialog: (String?) -> Unit,
+    var dismissDialog: () -> Unit
 ) {
+    private var name: String? = null
+    private var surname: String? = null
+    private var dateOfBirth: String? = null
+    private var sex: String? = null
+    private var mnemonicUuid: String? = null
+
     companion object {
         private const val TAG = "NeuvoteManager"
+        @Volatile
+        private var instance: NeuvoteManager? = null
+
+        @JvmStatic
+        fun getInstance(
+            context: Context,
+            showDialog: (String?) -> Unit,
+            dismissDialog: () -> Unit
+        ): NeuvoteManager {
+            return if (instance == null) {
+                synchronized(this) {
+                    instance ?: NeuvoteManager(context, showDialog, dismissDialog).also { instance = it }
+                }
+            } else {
+                instance!!.context = context
+                instance!!.showDialog = showDialog
+                instance!!.dismissDialog = dismissDialog
+                instance!!
+            }
+        }
 
         fun getNeuvoteServerUrl(): String {
             val address = SettingsManager.getServerAddress()
@@ -82,24 +108,24 @@ class NeuvoteManager (
     fun completeRegistration(context: Context, iProovManager: IProovManager?) {
         showDialog("Registering...")
         val email = (context as Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
-        val mnemonicUuid = (context as Activity).findViewById<TextView>(R.id.mnemonicInput)?.text.toString()
         val verificationCode = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
         val phone = (context as Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
         val city = (context as Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
         val province = (context as Activity).findViewById<EditText>(R.id.provinceInput)?.text.toString()
-
-        val nameText = (context as Activity).findViewById<TextView>(R.id.nameTv)?.text.toString().removePrefix("Name: ").trim()
-        val nameParts = nameText.split(" ")
-        val firstName = nameParts.getOrNull(0) ?: ""
-        val middleName = if (nameParts.size > 1) nameParts.subList(1, nameParts.size).joinToString(" ") else ""
-        val lastName = (context as Activity).findViewById<TextView>(R.id.surnameTv)?.text.toString().removePrefix("Surname: ")
-        val dateOfBirth = (context as Activity).findViewById<TextView>(R.id.dobTv)?.text.toString().removePrefix("Date of Birth: ")
         val streetAddress = (context as Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
         val postalCode = (context as Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
-        val sex = (context as Activity).findViewById<TextView>(R.id.sexTv)?.text.toString().removePrefix("Sex: ").trim()
         val unitNumberPOBox = "" // Add logic if you have this field
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF" // Example value
 
+        val mnemonicUuidValue = mnemonicUuid ?: ""
+        val firstName = name ?: ""
+        val lastName = surname ?: ""
+        val dateOfBirthValue = dateOfBirth ?: ""
+        val sexValue = sex ?: ""
+        val middleName = "" // If you want to support middle name, add logic to store it
+
+        Log.d(TAG, "validateVerification data: verificationCode=$verificationCode, mnemonicUuid=$mnemonicUuidValue, firstName=$firstName, lastName=$lastName, dateOfBirth=$dateOfBirthValue, sex=$sexValue")
+        Log.d(TAG, "validateVerification data: email=$email, phone=$phone, city=$city, province=$province, streetAddress=$streetAddress, postalCode=$postalCode")
         val url = getNeuvoteServerUrl() + "/registration/mfa/verify/email"
         val jsonBody = """
             {
@@ -107,9 +133,10 @@ class NeuvoteManager (
                 "firstName": "$firstName",
                 "middleName": "$middleName",
                 "lastName": "$lastName",
-                "dateOfBirth": "$dateOfBirth",
+                "dateOfBirth": "$dateOfBirthValue",
                 "email": "$email",
                 "phone": "$phone",
+                "mnemonicUuid": "$mnemonicUuid",
                 "address": {
                     "streetAddress": "$streetAddress",
                     "city": "$city",
@@ -168,14 +195,14 @@ class NeuvoteManager (
                             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
                             iProovManager.validateVerification(
                                 verifyToken,
-                                mnemonicUuid,
+                                mnemonicUuidValue,
                                 firstName,
                                 lastName,
-                                dateOfBirth,
-                                sex,
+                                dateOfBirthValue,
+                                sexValue,
                                 onResult = { _ ->
                                     Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    updateAbisID(context, voterIdentifier, mnemonicUuid)
+                                    updateAbisID(context, voterIdentifier, mnemonicUuidValue)
                                 },
                                 onError = { errorMsg ->
                                     dismissDialog();
@@ -267,5 +294,22 @@ class NeuvoteManager (
                 }
             }
         })
+    }
+    
+    fun setName(value: String?) {
+        name = value
+    }
+    fun setSurname(value: String?) {
+        surname = value
+    }
+    fun setDateOfBirth(value: String?) {
+        dateOfBirth = value
+    }
+    fun setSex(value: String?) {
+        sex = value
+    }
+
+    fun setMnemonicUuid(value: String?) {
+        mnemonicUuid = value
     }
 }
