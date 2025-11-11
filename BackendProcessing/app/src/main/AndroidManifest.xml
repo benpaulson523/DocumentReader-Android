@@ -29,7 +29,10 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
-            android:name="com.regula.backendprocessing.FacialScanActivity"
+            android:name="com.regula.backend.processing.FacialScanActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.regula.backend.processing.VerifyEmailActivity"
             android:exported="false" />
     </application>
 

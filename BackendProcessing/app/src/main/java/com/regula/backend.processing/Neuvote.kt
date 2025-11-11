@@ -20,6 +20,12 @@ class NeuvoteManager private constructor(
     private var dateOfBirth: String? = null
     private var sex: String? = null
     private var mnemonicUuid: String? = null
+    private var email: String? = null
+    private var phone: String? = null
+    private var streetAddress: String? = null
+    private var city: String? = null
+    private var province: String? = null
+    private var postalCode: String? = null
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -51,15 +57,12 @@ class NeuvoteManager private constructor(
         }
     }
 
-    fun sendVerificationEmail(context: Context, email: String, mnemonicUuid: String, iProovManager: IProovManager?) {
-        (context as? Activity)?.runOnUiThread {
-            val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
-            registerBtn?.setOnClickListener {
-                (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.isEnabled = false
-                registerBtn.isEnabled = false
-                completeRegistration(context, iProovManager)
-            }
-        }
+    fun sendVerificationEmail(
+        context: Context,
+        email: String,
+        mnemonicUuid: String,
+        onResponse: (Boolean) -> Unit
+    ) {
         val url = getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
         val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
         val client = okhttp3.OkHttpClient()
@@ -75,57 +78,39 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     Toast.makeText(context, "Failed to send email", Toast.LENGTH_LONG).show()
+                    onResponse(false)
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 (context as? Activity)?.runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(context, "Verification email sent", Toast.LENGTH_LONG).show()
-                        // Show email code input, hide verifyEmailBtn, do NOT show registerBtn yet
-                        val emailCodeLabel = (context as Activity).findViewById<TextView>(R.id.emailCodeLabel)
-                        val emailCodeInput = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)
-                        val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
-                        val verifyEmailBtn = (context as Activity).findViewById<View>(R.id.verifyEmailBtn)
-                        val emailInput = (context as Activity).findViewById<EditText>(R.id.emailInput)
-                        emailCodeLabel?.visibility = View.VISIBLE
-                        emailCodeInput?.visibility = View.VISIBLE
-                        registerBtn?.visibility = View.GONE
-                        verifyEmailBtn?.visibility = View.GONE
-                        emailInput?.isEnabled = false
-                        (context as Activity).findViewById<EditText>(R.id.phoneInput)?.isEnabled = false
-                        (context as Activity).findViewById<EditText>(R.id.streetInput)?.isEnabled = false
-                        (context as Activity).findViewById<EditText>(R.id.cityInput)?.isEnabled = false
-                        (context as Activity).findViewById<EditText>(R.id.provinceInput)?.isEnabled = false
-                        (context as Activity).findViewById<EditText>(R.id.postalInput)?.isEnabled = false
-                    } else {
-                        Toast.makeText(context, "Failed to send email", Toast.LENGTH_LONG).show()
-                    }
+                    onResponse(response.isSuccessful)
                 }
             }
         })
     }
 
-    fun completeRegistration(context: Context, iProovManager: IProovManager?) {
+    fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?) {
         showDialog("Registering...")
-        val email = (context as Activity).findViewById<EditText>(R.id.emailInput)?.text.toString()
-        val verificationCode = (context as Activity).findViewById<EditText>(R.id.emailCodeInput)?.text.toString()
-        val phone = (context as Activity).findViewById<EditText>(R.id.phoneInput)?.text.toString()
-        val city = (context as Activity).findViewById<EditText>(R.id.cityInput)?.text.toString()
-        val province = (context as Activity).findViewById<EditText>(R.id.provinceInput)?.text.toString()
-        val streetAddress = (context as Activity).findViewById<EditText>(R.id.streetInput)?.text.toString()
-        val postalCode = (context as Activity).findViewById<EditText>(R.id.postalInput)?.text.toString()
-        val unitNumberPOBox = "" // Add logic if you have this field
-        val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF" // Example value
+        
+        val unitNumberPOBox = "" // TODO
+        val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
 
+        val postalCodeValue = postalCode ?: ""
+        val streetAddressValue = streetAddress ?: ""
+        val provinceValue = province ?: ""
+        val cityValue = city ?: ""
+        val phoneValue = phone ?: ""
+        val emailValue = email ?: ""
         val mnemonicUuidValue = mnemonicUuid ?: ""
         val firstName = name ?: ""
         val lastName = surname ?: ""
         val dateOfBirthValue = dateOfBirth ?: ""
         val sexValue = sex ?: ""
-        val middleName = "" // If you want to support middle name, add logic to store it
+        val middleName = "" // TODO
 
         Log.d(TAG, "validateVerification data: verificationCode=$verificationCode, mnemonicUuid=$mnemonicUuidValue, firstName=$firstName, lastName=$lastName, dateOfBirth=$dateOfBirthValue, sex=$sexValue")
-        Log.d(TAG, "validateVerification data: email=$email, phone=$phone, city=$city, province=$province, streetAddress=$streetAddress, postalCode=$postalCode")
+        Log.d(TAG, "validateVerification data: email=$emailValue, phone=$phoneValue, city=$cityValue, province=$provinceValue, streetAddress=$streetAddressValue, postalCode=$postalCode")
+        
         val url = getNeuvoteServerUrl() + "/registration/mfa/verify/email"
         val jsonBody = """
             {
@@ -134,14 +119,14 @@ class NeuvoteManager private constructor(
                 "middleName": "$middleName",
                 "lastName": "$lastName",
                 "dateOfBirth": "$dateOfBirthValue",
-                "email": "$email",
-                "phone": "$phone",
+                "email": "$emailValue",
+                "phone": "$phoneValue",
                 "mnemonicUuid": "$mnemonicUuid",
                 "address": {
-                    "streetAddress": "$streetAddress",
-                    "city": "$city",
-                    "province": "$province",
-                    "postalCode": "$postalCode",
+                    "streetAddress": "$streetAddressValue",
+                    "city": "$cityValue",
+                    "province": "$provinceValue",
+                    "postalCode": "$postalCodeValue",
                     "unitNumberPOBox": "$unitNumberPOBox"
                 },
                 "electionOptIns": "$electionOptIns",
@@ -311,5 +296,50 @@ class NeuvoteManager private constructor(
 
     fun setMnemonicUuid(value: String?) {
         mnemonicUuid = value
+    }
+    fun getMnemonicUuid(): String? {
+        return mnemonicUuid
+    }
+
+    fun setEmail(value: String?) {
+        email = value
+    }
+    fun getEmail(): String? {
+        return email
+    }
+
+    fun setPhone(value: String?) {
+        phone = value
+    }
+    fun getPhone(): String? {
+        return phone
+    }
+
+    fun setCity(value: String?) {
+        city = value
+    }
+    fun getCity(): String? {
+        return city
+    }
+
+    fun setProvince(value: String?) {
+        province = value
+    }
+    fun getProvince(): String? {
+        return province
+    }
+
+    fun setStreetAddress(value: String?) {
+        streetAddress = value
+    }
+    fun getStreetAddress(): String? {
+        return streetAddress
+    }
+
+    fun setPostalCode(value: String?) {
+        postalCode = value
+    }
+    fun getPostalCode(): String? {
+        return postalCode
     }
 }

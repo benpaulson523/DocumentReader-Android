@@ -20,7 +20,7 @@ import android.view.View
 
 class IProovManager private constructor(
     private val context: Context,
-    private val mnemonicInputProvider: () -> String,
+    private val mnemonicUuid: String?,
     private val onVerificationSuccess: (token: String) -> Unit,
     private val showDialog: (String?) -> Unit,
     private val dismissDialog: () -> Unit
@@ -34,7 +34,7 @@ class IProovManager private constructor(
         @JvmStatic
         fun getInstance(
             context: Context,
-            mnemonicInputProvider: () -> String,
+            mnemonicUuid: String?,
             onVerificationSuccess: (token: String) -> Unit,
             showDialog: (String?) -> Unit,
             dismissDialog: () -> Unit
@@ -42,7 +42,7 @@ class IProovManager private constructor(
             return instance ?: synchronized(this) {
                 instance ?: IProovManager(
                     context,
-                    mnemonicInputProvider,
+                    mnemonicUuid,
                     onVerificationSuccess,
                     showDialog,
                     dismissDialog
@@ -60,8 +60,6 @@ class IProovManager private constructor(
     private val job = SupervisorJob()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var sessionStateJob: Job? = null
-    
-
     private var pendingVerifyToken: String? = null
 
     private var showResult: ((title: String?, message: String?) -> Unit)? = null
@@ -71,8 +69,8 @@ class IProovManager private constructor(
     }
 
     fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
-    showDialog("Saving identification photo...")
-        val userId = mnemonicInputProvider()
+        showDialog("Saving identification photo...")
+
         val photoBytes = bitmapToJpegBytes(documentPhoto)
         val client = okhttp3.OkHttpClient()
 
@@ -80,7 +78,7 @@ class IProovManager private constructor(
             try {
                 // Step 1: Get enrollment token from backend
                 val tokenPayload = org.json.JSONObject().apply {
-                    put("userId", userId)
+                    put("userId", mnemonicUuid)
                 }
                 val tokenRequest = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-enrollment-token")
@@ -109,7 +107,7 @@ class IProovManager private constructor(
                         if (enrollSuccess) {
                             // Step 3: Get verification token from backend
                             val verifyPayload = org.json.JSONObject().apply {
-                                put("userId", userId)
+                                put("userId", mnemonicUuid)
                             }
                             val verifyTokenRequest = okhttp3.Request.Builder()
                                 .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-verify-token")

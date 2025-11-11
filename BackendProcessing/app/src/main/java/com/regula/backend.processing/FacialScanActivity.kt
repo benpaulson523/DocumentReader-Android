@@ -1,4 +1,4 @@
-package com.regula.backendprocessing
+package com.regula.backend.processing
 
 import android.os.Bundle
 import android.view.View
@@ -23,6 +23,8 @@ class FacialScanActivity : AppCompatActivity() {
     private lateinit var iProovManager: IProovManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Opened FacialScanActivity screen")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_facial_scan)
 
@@ -31,10 +33,13 @@ class FacialScanActivity : AppCompatActivity() {
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
+
+        // Populate mnemonicInput with NeuvoteManager.mnemonicUuid
+        val mnemonicInputView = findViewById<TextView>(R.id.mnemonicInput)
+        mnemonicInputView?.text = neuvoteManager.getMnemonicUuid()
         
         iProovManager = IProovManager.getInstanceOrNull() ?: return
         iProovManager.setShowResultHandler(this::onResult)
-
 
         val startFacialScanBtn = findViewById<Button>(R.id.startFacialScanBtn)
         startFacialScanBtn.setOnClickListener {
@@ -43,6 +48,60 @@ class FacialScanActivity : AppCompatActivity() {
                 startFacialScanBtn.isEnabled = false
             } else {
                 Toast.makeText(this, "Facial scan not available", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
+        val nextBtn = findViewById<Button>(R.id.nextBtn)
+        nextBtn?.setOnClickListener {
+            val emailInput = findViewById<EditText>(R.id.emailInput)
+            val email = emailInput?.text?.toString()
+            neuvoteManager.setEmail(email)
+            
+            val phoneInput = findViewById<EditText>(R.id.phoneInput)
+            val phone = phoneInput?.text?.toString()
+            neuvoteManager.setPhone(phone)
+            
+            val streetAddressInput = findViewById<EditText>(R.id.streetInput)
+            val streetAddress = streetAddressInput?.text?.toString()
+            neuvoteManager.setStreetAddress(streetAddress)
+            
+            val cityInput = findViewById<EditText>(R.id.cityInput)
+            val city = cityInput?.text?.toString()
+            neuvoteManager.setCity(city)
+            
+            val provinceInput = findViewById<EditText>(R.id.provinceInput)
+            val province = provinceInput?.text?.toString()
+            neuvoteManager.setProvince(province)
+            
+            val postalCodeInput = findViewById<EditText>(R.id.postalInput)
+            val postalCode = postalCodeInput?.text?.toString()
+            neuvoteManager.setPostalCode(postalCode)
+
+            val intent = android.content.Intent(this, com.regula.backend.processing.VerifyEmailActivity::class.java)
+            startActivity(intent)
+        }
+        nextBtn?.isEnabled = false
+        
+        // Handle back button navigation
+        val backBtn = findViewById<Button>(R.id.backBtn)
+        backBtn?.setOnClickListener {
+            finish()
+        }
+    }
+    
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = androidx.core.view.WindowInsetsCompat.Type.systemBars() or androidx.core.view.WindowInsetsCompat.Type.displayCutout()
+                val sbInsets = insets.getInsets(systemBars)
+                view.setPadding(sbInsets.left, sbInsets.top, sbInsets.right, sbInsets.bottom)
+                insets
             }
         }
     }
@@ -65,30 +124,6 @@ class FacialScanActivity : AppCompatActivity() {
         val startFacialScanBtn = findViewById<Button>(R.id.startFacialScanBtn)
         startFacialScanBtn?.visibility = View.GONE
 
-        val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
-        if (emailCodeInput != null) {
-            emailCodeInput.filters = arrayOf(
-                android.text.InputFilter.LengthFilter(6),
-                object : android.text.InputFilter {
-                    override fun filter(source: CharSequence?, start: Int, end: Int, dest: android.text.Spanned?, dstart: Int, dend: Int): CharSequence? {
-                        val result = (dest?.subSequence(0, dstart).toString()) + (source?.subSequence(start, end).toString()) + (dest?.subSequence(dend, dest.length ?: 0).toString())
-                        return if (result.length > 6 || !result.matches(Regex("\\d*"))) "" else null
-                    }
-                }
-            )
-        }
-
-        val registerBtn = findViewById<View>(R.id.registerBtn)
-        emailCodeInput?.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val code = s?.toString() ?: ""
-                registerBtn?.visibility = if (code.matches(Regex("^\\d{6}$"))) View.VISIBLE else View.GONE
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-        registerBtn?.visibility = View.GONE
-
         val labelIds = listOf(R.id.emailLabel, R.id.phoneLabel, R.id.streetLabel, R.id.cityLabel, R.id.provinceLabel, R.id.postalLabel)
         val inputIds = listOf(R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput)
         for (i in labelIds.indices) {
@@ -96,40 +131,26 @@ class FacialScanActivity : AppCompatActivity() {
             findViewById<EditText>(inputIds[i])?.visibility = View.VISIBLE
         }
 
-        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
-        verifyEmailBtn?.setOnClickListener {
-            val emailInput = findViewById<EditText>(R.id.emailInput)
-            val email = emailInput?.text?.toString() ?: ""
-            val mnemonicInput = findViewById<TextView>(R.id.mnemonicInput)
-            val mnemonicUuid = mnemonicInput?.text?.toString() ?: ""
-            neuvoteManager.sendVerificationEmail(
-                this,
-                email,
-                mnemonicUuid,
-                com.regula.backend.processing.IProovManager.getInstanceOrNull()
-            )
-        }
-
         for (inputId in inputIds) {
             findViewById<EditText>(inputId)?.addTextChangedListener(object : android.text.TextWatcher {
-                override fun afterTextChanged(s: android.text.Editable?) { checkVerifyEmailButtonVisibility() }
+                override fun afterTextChanged(s: android.text.Editable?) { checkNextButtonEnablement() }
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
         }
 
         populateDefaultsForExtraFields()
-        checkVerifyEmailButtonVisibility()
+        checkNextButtonEnablement()
     }
 
-    private fun checkVerifyEmailButtonVisibility() {
+    private fun checkNextButtonEnablement() {
         val inputIds = listOf(R.id.emailInput, R.id.phoneInput, R.id.streetInput, R.id.cityInput, R.id.provinceInput, R.id.postalInput)
         val allFilled = inputIds.all { id ->
             val inputView = findViewById<EditText>(id)
             inputView?.visibility == View.VISIBLE && !inputView?.text.isNullOrBlank()
         }
-        val verifyEmailBtn = findViewById<View>(R.id.verifyEmailBtn)
-        verifyEmailBtn?.visibility = if (allFilled) View.VISIBLE else View.GONE
+        val nextBtn = findViewById<View>(R.id.nextBtn)
+        nextBtn?.isEnabled = if (allFilled) true else false
     }
 
     private fun populateDefaultsForExtraFields() {

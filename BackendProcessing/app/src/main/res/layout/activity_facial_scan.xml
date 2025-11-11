@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".FacialScanActivity"
+    android:tag="content">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolBar"
@@ -10,6 +13,27 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name" />
+
+    <TextView
+        android:id="@+id/mnemonicLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Your Biometrics ID: "
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/mnemonicInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:hint="Biometrics ID"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/mnemonicLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@+id/mnemonicLabel" />
 
     <Button
         android:id="@+id/startFacialScanBtn"
@@ -29,7 +53,7 @@
         android:text="Email:"
         android:textSize="18sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintTop_toBottomOf="@+id/mnemonicLabel"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp" />
@@ -40,7 +64,7 @@
         android:hint="Enter email"
         android:inputType="textEmailAddress"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintTop_toBottomOf="@+id/mnemonicLabel"
         app:layout_constraintStart_toEndOf="@+id/emailLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="4dp"
@@ -168,56 +192,23 @@
         android:layout_marginEnd="16dp" />
 
     <Button
-        android:id="@+id/verifyEmailBtn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Verify Email"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-
-    <TextView
-        android:id="@+id/emailCodeLabel"
+        android:id="@+id/backBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="6-digit Email Code:"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp" />
-    <EditText
-        android:id="@+id/emailCodeInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter code"
-        android:inputType="number"
-        android:maxLength="6"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/postalLabel"
-        app:layout_constraintStart_toEndOf="@+id/emailCodeLabel"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp" />
+        android:layout_marginBottom="42dp" />
 
     <Button
-        android:id="@+id/registerBtn"
-        android:layout_width="0dp"
+        android:id="@+id/nextBtn"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/emailCodeInput"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="Next"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
-        
+        android:layout_marginBottom="42dp" />
 
     <ImageButton
         android:id="@+id/settingsButton"
@@ -231,25 +222,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="6dp" />
-
-    <Button
-        android:id="@+id/backBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp" />
-
-    <Button
-        android:id="@+id/nextBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

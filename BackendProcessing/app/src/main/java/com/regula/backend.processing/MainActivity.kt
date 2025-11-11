@@ -62,6 +62,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Opened MainActivity screen")
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
@@ -104,14 +106,6 @@ class MainActivity : AppCompatActivity() {
             binding.resultIv.setImageBitmap(null)
             regulaScanner.showScanner()
         }
-
-        iProovManager = IProovManager.getInstance(
-            context = this,
-            mnemonicInputProvider = { binding.mnemonicInput.text.toString() },
-            onVerificationSuccess = { token -> /* Optionally handle token if needed */ },
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
         
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
@@ -120,8 +114,16 @@ class MainActivity : AppCompatActivity() {
         )
         neuvoteManager.setMnemonicUuid(mnemonicUuid)
 
+        iProovManager = IProovManager.getInstance(
+            context = this,
+            mnemonicUuid = mnemonicUuid,
+            onVerificationSuccess = { token -> /* Optionally handle token if needed */ },
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+
         binding.nextBtn.setOnClickListener {
-            val intent = android.content.Intent(this, com.regula.backendprocessing.FacialScanActivity::class.java)
+            val intent = android.content.Intent(this, com.regula.backend.processing.FacialScanActivity::class.java)
             startActivity(intent)
         }
     }
