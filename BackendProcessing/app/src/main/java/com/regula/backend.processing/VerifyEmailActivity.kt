@@ -38,12 +38,10 @@ class VerifyEmailActivity : AppCompatActivity() {
         )
 
         // Populate mnemonicInput with value if needed
-        val mnemonicInputView = findViewById<TextView>(R.id.mnemonicInput)
-        var mnemonicUuid = neuvoteManager.getMnemonicUuid()
-        mnemonicInputView?.text = mnemonicUuid
+        val mnemonicUuid = neuvoteManager.getMnemonicUuid()
+        binding.mnemonicInput.text = mnemonicUuid
 
-        val backBtn = findViewById<Button>(R.id.backBtn)
-        backBtn?.setOnClickListener { finish() }
+        binding.backBtn.setOnClickListener { finish() }
 
         var email = neuvoteManager.getEmail()
         neuvoteManager.sendVerificationEmail(
@@ -65,35 +63,31 @@ class VerifyEmailActivity : AppCompatActivity() {
             }
         }
         
-        val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
-        if (emailCodeInput != null) {
-            emailCodeInput.filters = arrayOf(
-                android.text.InputFilter.LengthFilter(6),
-                object : android.text.InputFilter {
-                    override fun filter(source: CharSequence?, start: Int, end: Int, dest: android.text.Spanned?, dstart: Int, dend: Int): CharSequence? {
-                        val result = (dest?.subSequence(0, dstart).toString()) + (source?.subSequence(start, end).toString()) + (dest?.subSequence(dend, dest.length ?: 0).toString())
-                        return if (result.length > 6 || !result.matches(Regex("\\d*"))) "" else null
-                    }
+        binding.emailCodeInput.filters = arrayOf(
+            android.text.InputFilter.LengthFilter(6),
+            object : android.text.InputFilter {
+                override fun filter(source: CharSequence?, start: Int, end: Int, dest: android.text.Spanned?, dstart: Int, dend: Int): CharSequence? {
+                    val result = (dest?.subSequence(0, dstart).toString()) + (source?.subSequence(start, end).toString()) + (dest?.subSequence(dend, dest.length ?: 0).toString())
+                    return if (result.length > 6 || !result.matches(Regex("\\d*"))) "" else null
                 }
-            )
-        }
+            }
+        )
         
-        val registerBtn = findViewById<View>(R.id.registerBtn)
-        emailCodeInput?.addTextChangedListener(object : android.text.TextWatcher {
+        binding.emailCodeInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
                 val code = s?.toString() ?: ""
-                registerBtn?.visibility = if (code.matches(Regex("^\\d{6}$"))) View.VISIBLE else View.GONE
+                binding.registerBtn.visibility = if (code.matches(Regex("^\\d{6}$"))) View.VISIBLE else View.GONE
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-        registerBtn?.setOnClickListener {
-            val code = emailCodeInput?.text?.toString() ?: ""
+        binding.registerBtn.setOnClickListener {
+            val code = binding.emailCodeInput.text?.toString() ?: ""
             neuvoteManager.completeRegistration(this, code, com.regula.backend.processing.IProovManager.getInstanceOrNull())
-            emailCodeInput?.isEnabled = false
-            registerBtn.isEnabled = false
+            binding.emailCodeInput.isEnabled = false
+            binding.registerBtn.isEnabled = false
         }
-        registerBtn?.visibility = View.GONE
+        binding.registerBtn.visibility = View.GONE
     }
     
     override fun setContentView(view: View?) {
