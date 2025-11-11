@@ -9,7 +9,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.regula.backend.processing.R
+import com.regula.backend.processing.databinding.ActivityVerifyEmailBinding
 
 class VerifyEmailActivity : AppCompatActivity() {
     companion object {
@@ -17,13 +20,16 @@ class VerifyEmailActivity : AppCompatActivity() {
     }
     
     private var loadingDialog: AlertDialog? = null
+    private lateinit var binding: ActivityVerifyEmailBinding
     private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened VerifyEmailActivity screen")
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_verify_email)
+        binding = ActivityVerifyEmailBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
@@ -88,6 +94,30 @@ class VerifyEmailActivity : AppCompatActivity() {
             registerBtn.isEnabled = false
         }
         registerBtn?.visibility = View.GONE
+    }
+    
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        applyEdgeToEdgeInsets()
+    }
+    
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
     
     private fun dismissDialog() {

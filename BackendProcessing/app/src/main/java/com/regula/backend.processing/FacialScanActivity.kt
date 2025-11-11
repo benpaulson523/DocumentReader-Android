@@ -9,9 +9,12 @@ import android.widget.EditText
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.regula.backend.processing.R
 import com.regula.backend.processing.IProovManager
 import com.regula.backend.processing.NeuvoteManager
+import com.regula.backend.processing.databinding.ActivityFacialScanBinding
 
 class FacialScanActivity : AppCompatActivity() {
     companion object {
@@ -19,6 +22,7 @@ class FacialScanActivity : AppCompatActivity() {
     }
 
     private var loadingDialog: AlertDialog? = null
+    private lateinit var binding: ActivityFacialScanBinding
     private lateinit var neuvoteManager: NeuvoteManager
     private lateinit var iProovManager: IProovManager
 
@@ -26,7 +30,9 @@ class FacialScanActivity : AppCompatActivity() {
         Log.d(TAG, "Opened FacialScanActivity screen")
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_facial_scan)
+        binding = ActivityFacialScanBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
@@ -88,23 +94,6 @@ class FacialScanActivity : AppCompatActivity() {
             finish()
         }
     }
-    
-    override fun setContentView(view: View?) {
-        super.setContentView(view)
-        applyEdgeToEdgeInsets()
-    }
-
-    private fun applyEdgeToEdgeInsets() {
-        val rootView = window.decorView.findViewWithTag<View>("content")
-        if (rootView != null) {
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
-                val systemBars = androidx.core.view.WindowInsetsCompat.Type.systemBars() or androidx.core.view.WindowInsetsCompat.Type.displayCutout()
-                val sbInsets = insets.getInsets(systemBars)
-                view.setPadding(sbInsets.left, sbInsets.top, sbInsets.right, sbInsets.bottom)
-                insets
-            }
-        }
-    }
 
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
@@ -160,6 +149,30 @@ class FacialScanActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.cityInput)?.setText("Toronto")
         findViewById<EditText>(R.id.provinceInput)?.setText("ON")
         findViewById<EditText>(R.id.postalInput)?.setText("A1A 1A1")
+    }
+    
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        applyEdgeToEdgeInsets()
+    }
+
+    private fun applyEdgeToEdgeInsets() {
+        val rootView = window.decorView.findViewWithTag<View>("content")
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            or WindowInsetsCompat.Type.displayCutout()
+                )
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+                insets
+            }
+        }
     }
     
     private fun dismissDialog() {
