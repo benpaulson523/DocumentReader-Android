@@ -14,6 +14,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name" />
 
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/philippinesbanner"
+        app:layout_constraintTop_toBottomOf="@id/toolBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/bannerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="National\nElections 2025"
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@+id/bannerImage"
+        app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="36dp" />
+
     <TextView
         android:id="@+id/mnemonicLabel"
         android:layout_width="wrap_content"
@@ -21,7 +45,7 @@
         android:layout_marginStart="16dp"
         android:text="Your Biometrics ID: "
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/toolBar"
+        app:layout_constraintTop_toBottomOf="@+id/bannerImage"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
@@ -199,7 +223,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="4dp"
-        android:layout_marginBottom="42dp" />
+        android:layout_marginBottom="24dp" />
 
     <Button
         android:id="@+id/nextBtn"
@@ -208,7 +232,7 @@
         android:text="Next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="42dp" 
+        android:layout_marginBottom="24dp" 
         android:layout_marginEnd="4dp" />
 
     <!--<ImageButton
