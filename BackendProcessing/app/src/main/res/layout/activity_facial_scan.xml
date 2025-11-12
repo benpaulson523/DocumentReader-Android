@@ -26,37 +26,37 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-    android:id="@+id/bannerLabel"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="National\nElections 2025"
-    android:textStyle="bold"
-    style="@style/AppTextLarge"
-    app:layout_constraintTop_toTopOf="@+id/bannerImage"
-    app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
-    app:layout_constraintStart_toStartOf="parent"
-    android:layout_marginStart="36dp" />
+        android:id="@+id/bannerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="National\nElections 2025"
+        android:textStyle="bold"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toTopOf="@+id/bannerImage"
+        app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="36dp" />
 
     <TextView
-    android:id="@+id/mnemonicLabel"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    style="@style/AppTextMedium"
-    android:layout_marginStart="16dp"
-    android:text="Your Biometrics ID: "
-    app:layout_constraintTop_toBottomOf="@+id/bannerImage"
-    app:layout_constraintStart_toStartOf="parent" />
+        android:id="@+id/mnemonicLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AppTextMedium"
+        android:layout_marginStart="16dp"
+        android:text="Your Biometrics ID: "
+        app:layout_constraintTop_toBottomOf="@+id/bannerImage"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-    android:id="@+id/mnemonicInput"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    style="@style/AppTextMedium"
-    android:layout_marginEnd="8dp"
-    android:hint="Biometrics ID"
-    app:layout_constraintStart_toEndOf="@+id/mnemonicLabel"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintBaseline_toBaselineOf="@+id/mnemonicLabel" />
+        android:id="@+id/mnemonicInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/AppTextMedium"
+        android:layout_marginEnd="8dp"
+        android:hint="Biometrics ID"
+        app:layout_constraintStart_toEndOf="@+id/mnemonicLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@+id/mnemonicLabel" />
 
     <Button
         android:id="@+id/startFacialScanBtn"

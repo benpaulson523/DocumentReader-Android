@@ -63,8 +63,12 @@ class NeuvoteManager private constructor(
         mnemonicUuid: String,
         onResponse: (Boolean) -> Unit
     ) {
-    val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
-        val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
+        val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
+        val jsonObj = org.json.JSONObject().apply {
+            put("email", email)
+            put("mnemonicUuid", mnemonicUuid)
+        }
+        val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
             "application/json; charset=utf-8".toMediaType(),
@@ -95,44 +99,29 @@ class NeuvoteManager private constructor(
         val unitNumberPOBox = "" // TODO
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
 
-        val postalCodeValue = postalCode ?: ""
-        val streetAddressValue = streetAddress ?: ""
-        val provinceValue = province ?: ""
-        val cityValue = city ?: ""
-        val phoneValue = phone ?: ""
-        val emailValue = email ?: ""
-        val mnemonicUuidValue = mnemonicUuid ?: ""
-        val firstName = name ?: ""
-        val lastName = surname ?: ""
-        val dateOfBirthValue = dateOfBirth ?: ""
-        val sexValue = sex ?: ""
-        val middleName = "" // TODO
-
-        Log.d(TAG, "validateVerification data: verificationCode=$verificationCode, mnemonicUuid=$mnemonicUuidValue, firstName=$firstName, lastName=$lastName, dateOfBirth=$dateOfBirthValue, sex=$sexValue")
-        Log.d(TAG, "validateVerification data: email=$emailValue, phone=$phoneValue, city=$cityValue, province=$provinceValue, streetAddress=$streetAddressValue, postalCode=$postalCode")
-        
+        val addressJson = org.json.JSONObject().apply {
+            put("streetAddress", streetAddress ?: "")
+            put("city", city ?: "")
+            put("province", province ?: "")
+            put("postalCode", postalCode ?: "")
+            put("unitNumberPOBox", unitNumberPOBox)
+        }
+        val jsonObj = org.json.JSONObject().apply {
+            put("votingChannel", "online")
+            put("firstName", name ?: "")
+            put("middleName", "") // TODO
+            put("lastName", surname ?: "")
+            put("dateOfBirth", dateOfBirth ?: "")
+            put("email", email ?: "")
+            put("phone", phone ?: "")
+            put("mnemonicUuid", mnemonicUuid ?: "")
+            put("address", addressJson)
+            put("electionOptIns", electionOptIns)
+            put("verificationCode", verificationCode)
+        }
+        Log.d(TAG, "validateVerification data: $jsonObj")
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_EMAIL
-        val jsonBody = """
-            {
-                "votingChannel": "online",
-                "firstName": "$firstName",
-                "middleName": "$middleName",
-                "lastName": "$lastName",
-                "dateOfBirth": "$dateOfBirthValue",
-                "email": "$emailValue",
-                "phone": "$phoneValue",
-                "mnemonicUuid": "$mnemonicUuid",
-                "address": {
-                    "streetAddress": "$streetAddressValue",
-                    "city": "$cityValue",
-                    "province": "$provinceValue",
-                    "postalCode": "$postalCodeValue",
-                    "unitNumberPOBox": "$unitNumberPOBox"
-                },
-                "electionOptIns": "$electionOptIns",
-                "verificationCode": "$verificationCode"
-            }
-        """.trimIndent()
+        val jsonBody = jsonObj.toString()
 
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
@@ -153,7 +142,7 @@ class NeuvoteManager private constructor(
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 var voterIdentifier = ""
                 var parseError: String? = null
-                var responseBody: String? = null
+                var responseBody: String?
                 if (response.isSuccessful) {
                     // Parse voterIdentifier from response (off main thread)
                     responseBody = response.body?.string()
@@ -180,14 +169,14 @@ class NeuvoteManager private constructor(
                             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
                             iProovManager.validateVerification(
                                 verifyToken,
-                                mnemonicUuidValue,
-                                firstName,
-                                lastName,
-                                dateOfBirthValue,
-                                sexValue,
+                                mnemonicUuid ?: "",
+                                name ?: "",
+                                surname ?: "",
+                                dateOfBirth ?: "",
+                                sex ?: "",
                                 onResult = { _ ->
                                     Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    updateAbisID(context, voterIdentifier, mnemonicUuidValue, onFinalResult)
+                                    updateAbisID(context, voterIdentifier, mnemonicUuid ?: "", onFinalResult)
                                 },
                                 onError = { errorMsg ->
                                     dismissDialog();
@@ -210,7 +199,10 @@ class NeuvoteManager private constructor(
 
     fun updateAbisID(context: Context, voterIdentifier: String, mnemonicUuid: String, onFinalResult: ((Boolean) -> Unit)? = null) {
         val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
-        val jsonBody = """{"abisID":"$mnemonicUuid"}"""
+        val jsonObj = org.json.JSONObject().apply {
+            put("abisID", mnemonicUuid)
+        }
+        val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
             "application/json; charset=utf-8".toMediaType(),
@@ -251,7 +243,10 @@ class NeuvoteManager private constructor(
 
     fun updateAbisFacialScanFlag(context: Context, abisID: String, onUiUpdate: (Boolean) -> Unit) {
         val url = getNeuvoteServerUrl() + "/voters/abis/" + abisID + "/face-scan-flag"
-        val jsonBody = """{"biometricsFacialScanCollected":true}"""
+        val jsonObj = org.json.JSONObject().apply {
+            put("biometricsFacialScanCollected", true)
+        }
+        val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
             "application/json; charset=utf-8".toMediaType(),
