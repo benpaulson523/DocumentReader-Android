@@ -1,6 +1,5 @@
 package com.regula.backend.processing
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -43,8 +42,6 @@ class MainActivity : AppCompatActivity() {
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
-    private lateinit var iProovManager: IProovManager
-    private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened MainActivity screen")
@@ -55,30 +52,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         // Initialize settings manager
-        /*SettingsManager.init(this)
+        SettingsManager.init(this)
 
-        binding.settingsButton.setOnClickListener {
+        /*binding.settingsButton.setOnClickListener {
             NavigationHelper.navigateToSettings(this)
-        }
-        
-        binding.mnemonicInput.setText(mnemonicUuid)
-
-        iProovManager = IProovManager.getInstance(
-            context = this,
-            mnemonicUuid = mnemonicUuid,
-            onVerificationSuccess = { _ -> /* Optionally handle token if needed */ },
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )*/
-        
-        // Generate mnemonic UUID and set to input field
-        val mnemonicUuid = generateMnemonicUUID()
-        neuvoteManager = NeuvoteManager.getInstance(
-            context = this,
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
-        neuvoteManager.setMnemonicUuid(mnemonicUuid)
+        }*/
 
         binding.registerBtn.setOnClickListener {
             NavigationHelper.navigateToRegistrationStart(this)

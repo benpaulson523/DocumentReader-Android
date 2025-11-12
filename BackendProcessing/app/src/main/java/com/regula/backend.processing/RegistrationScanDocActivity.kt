@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationScanDocBinding
 import androidx.appcompat.app.AlertDialog
+import android.graphics.Bitmap
 
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -33,6 +34,8 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationScanDocBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var regulaScanner: RegulaScanner
+    private lateinit var iProovManager: IProovManager
+    private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationScanDocActivity screen")
@@ -45,12 +48,12 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         regulaScanner = RegulaScanner(
             context = this,
             onResults = { results ->
-                docImageCaptured(results)
-                docFieldsCaptured(results)
+                //docImageCaptured(results)
+                docScanned(results)
             },
             onFinalize = { results ->
-                docImageCaptured(results)
-                docFieldsCaptured(results)
+                //docImageCaptured(results)
+                docScanned(results)
             },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
@@ -59,25 +62,25 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             regulaScanner.showScanner()
         }
         
-        /*val neuvoteManager = NeuvoteManager.getInstance(
+        val mnemonicUuid = generateMnemonicUUID()
+        neuvoteManager = NeuvoteManager.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
-        )*/
-        
-        /*binding.scanDocumentBtn.setOnClickListener {
-            binding.surnameTv.text = getString(R.string.surname_label)
-            binding.nameTv.text = getString(R.string.name_label)
-            binding.dobTv.text = getString(R.string.dob_label)
-            binding.resultIv.setImageBitmap(null)
-        }*/
+        )
+        neuvoteManager.setMnemonicUuid(mnemonicUuid)
+
+        iProovManager = IProovManager.getInstance(
+            context = this,
+            mnemonicUuid = neuvoteManager.getMnemonicUuid()
+        )
     }
 
-    private fun docImageCaptured(results: DocumentReaderResults?) {
-        
-        Toast.makeText(this, "docImageCaptured", Toast.LENGTH_LONG).show()
-        
-        /*if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
+    private fun docScanned(results: DocumentReaderResults?) {
+        binding.idUploadIcon.visibility = View.VISIBLE
+        binding.title.visibility = View.VISIBLE
+
+        if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
             var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             if (documentImage != null) {
                 val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
@@ -85,20 +88,19 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     documentImage,
                     (480 * aspectRatio).toInt(), 480, false
                 )
-                binding.resultIv.setImageBitmap(documentImage)
-                // Automatically enroll the photo with iProov, pass callback for UI update
+
+                // Enroll the photo with iProov, pass callback for UI update
                 iProovManager.enrollDocumentPhotoWithIProov(documentImage) {
-                    //binding.nextBtn.isEnabled = true
+                    Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
+                    binding.continueBtn.isEnabled = true
                 }
             }
+            else {
+                Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+            }
         } else {
-            binding.resultIv.setImageBitmap(null)
-        }*/
-    }
-
-    private fun docFieldsCaptured(results: DocumentReaderResults?) {
-        
-        Toast.makeText(this, "docFieldsCaptured", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+        }
 
         /*if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
             val surname = getString(R.string.surname_label) + ": " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)

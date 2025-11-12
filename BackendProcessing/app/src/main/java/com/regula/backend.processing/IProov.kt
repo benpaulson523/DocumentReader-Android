@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,10 +19,7 @@ import android.view.View
 
 class IProovManager private constructor(
     private val context: Context,
-    private val mnemonicUuid: String?,
-    private val onVerificationSuccess: (token: String) -> Unit,
-    private val showDialog: (String?) -> Unit,
-    private val dismissDialog: () -> Unit
+    private val mnemonicUuid: String?
 ) {
     companion object {
         private const val TAG = "IProovManager"
@@ -34,18 +30,12 @@ class IProovManager private constructor(
         @JvmStatic
         fun getInstance(
             context: Context,
-            mnemonicUuid: String?,
-            onVerificationSuccess: (token: String) -> Unit,
-            showDialog: (String?) -> Unit,
-            dismissDialog: () -> Unit
+            mnemonicUuid: String?
         ): IProovManager {
             return instance ?: synchronized(this) {
                 instance ?: IProovManager(
                     context,
-                    mnemonicUuid,
-                    onVerificationSuccess,
-                    showDialog,
-                    dismissDialog
+                    mnemonicUuid
                 ).also { instance = it }
             }
         }
@@ -69,8 +59,6 @@ class IProovManager private constructor(
     }
 
     fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap, onUiUpdate: (() -> Unit)? = null) {
-        showDialog("Saving identification photo...")
-
         val photoBytes = bitmapToJpegBytes(documentPhoto)
         val client = okhttp3.OkHttpClient()
 
@@ -117,12 +105,10 @@ class IProovManager private constructor(
                                 val verifyTokenBody = verifyTokenResponse.body!!.string()
                                 Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                                 val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
-                                dismissDialog();
 
                                 withContext(Dispatchers.Main) {
                                     pendingVerifyToken = verifyToken
                                     lastIProovToken = verifyToken
-                                    onVerificationSuccess(verifyToken)
                                     onUiUpdate?.invoke()
                                     // Do NOT launch iProov session here
                                 }
@@ -131,7 +117,6 @@ class IProovManager private constructor(
                     }
                 }
             } catch (ex: Exception) {
-                dismissDialog();
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Photo enroll error", Toast.LENGTH_LONG).show()
