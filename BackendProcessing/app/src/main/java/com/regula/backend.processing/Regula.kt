@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.regula.backend.processing.databinding.ActivityMainBinding
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
 import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
@@ -24,14 +23,29 @@ import java.util.concurrent.Executors
 
 class RegulaScanner(
     private val context: Context,
-    private val binding: ActivityMainBinding,
     private val onResults: (DocumentReaderResults?) -> Unit,
     private val onFinalize: (DocumentReaderResults?) -> Unit,
     private val showDialog: (String?) -> Unit,
     private val dismissDialog: () -> Unit
 ) {
-    fun initializeReader() {
+    fun initializeReader(onInitialized: (() -> Unit)? = null) {
         showDialog("Initializing...")
+        val initCompletionWithCallback = IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
+            dismissDialog()
+            if (result) {
+                if (DocumentReader.Instance().availableScenarios.size == 0) {
+                    Toast.makeText(
+                        context,
+                        "Available scenarios list is empty",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                onInitialized?.invoke()
+            } else {
+                Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
+                return@IDocumentReaderInitCompletion
+            }
+        }
         Executors.newSingleThreadExecutor().execute {
             try {
                 val licInput = context.resources.openRawResource(R.raw.regula)
@@ -44,7 +58,7 @@ class RegulaScanner(
                     handler.post {
                         val docReaderConfig = DocReaderConfig(license)
                         DocumentReader.Instance()
-                            .initializeReader(context, docReaderConfig, initCompletion)
+                            .initializeReader(context, docReaderConfig, initCompletionWithCallback)
                     }
                 }
             } catch (ex: Exception) {
@@ -57,24 +71,6 @@ class RegulaScanner(
             }
         }
     }
-
-    private val initCompletion =
-        IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
-            dismissDialog()
-            if (result) {
-                if (DocumentReader.Instance().availableScenarios.size == 0) {
-                    Toast.makeText(
-                        context,
-                        "Available scenarios list is empty",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    //binding.scanDocumentBtn.isEnabled = false
-                }
-            } else {
-                Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
-                return@IDocumentReaderInitCompletion
-            }
-        }
 
     val completion =
         IDocumentReaderCompletion { action, results, error ->

@@ -18,7 +18,7 @@ class RegistrationSelectDocActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Opened RegistrationStartActivity screen")
+        Log.d(TAG, "Opened RegistrationSelectDocActivity screen")
 
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationSelectDocBinding.inflate(layoutInflater)
@@ -41,7 +41,7 @@ class RegistrationSelectDocActivity : AppCompatActivity() {
         buttons[0].performClick()
 
         binding.continueBtn.setOnClickListener {
-            //NavigationHelper.navigateToRegistrationSelectDoc(this)
+            NavigationHelper.navigateToRegistrationScanDoc(this)
         }
     }
 
