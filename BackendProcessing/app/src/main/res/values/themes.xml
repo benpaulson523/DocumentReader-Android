@@ -6,8 +6,8 @@
         <item name="colorPrimaryVariant">@color/neuvote_dark_blue</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/neuvote_blue</item>
-        <item name="colorSecondaryVariant">@color/neuvote_dark_blue</item>
+        <item name="colorSecondary">@color/philippines_blue</item>
+        <item name="colorSecondaryVariant">@color/neuvote_blue</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>

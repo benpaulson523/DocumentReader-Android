@@ -10,6 +10,16 @@ object NavigationHelper {
         activity.startActivity(intent)
     }
 
+    fun navigateToRegistrationStart(activity: Activity) {
+        val intent = Intent(activity, RegistrationStartActivity::class.java)
+        activity.startActivity(intent)
+    }
+
+    fun navigateToRegistrationSelectDoc(activity: Activity) {
+        val intent = Intent(activity, RegistrationSelectDocActivity::class.java)
+        activity.startActivity(intent)
+    }
+
     fun navigateToFacialScan(activity: Activity) {
         val intent = Intent(activity, FacialScanActivity::class.java)
         activity.startActivity(intent)

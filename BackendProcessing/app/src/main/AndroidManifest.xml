@@ -29,6 +29,12 @@
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
+            android:name="com.regula.backend.processing.RegistrationStartActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.regula.backend.processing.RegistrationSelectDocActivity"
+            android:exported="false" />
+        <activity
             android:name="com.regula.backend.processing.FacialScanActivity"
             android:exported="false" />
         <activity

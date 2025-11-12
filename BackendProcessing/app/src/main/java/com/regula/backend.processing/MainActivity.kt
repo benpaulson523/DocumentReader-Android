@@ -70,14 +70,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         // Initialize settings manager
-        SettingsManager.init(this)
+        /*SettingsManager.init(this)
 
         binding.settingsButton.setOnClickListener {
             NavigationHelper.navigateToSettings(this)
         }
         
-        binding.nextBtn.isEnabled = false
-
         regulaScanner = RegulaScanner(
             context = this,
             binding = binding,
@@ -93,9 +91,7 @@ class MainActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         regulaScanner.initializeReader()
-
-        // Generate mnemonic UUID and set to input field
-        val mnemonicUuid = generateMnemonicUUID()
+        
         binding.mnemonicInput.setText(mnemonicUuid)
 
         binding.scanDocumentBtn.setOnClickListener {
@@ -105,13 +101,6 @@ class MainActivity : AppCompatActivity() {
             binding.resultIv.setImageBitmap(null)
             regulaScanner.showScanner()
         }
-        
-        neuvoteManager = NeuvoteManager.getInstance(
-            context = this,
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
-        neuvoteManager.setMnemonicUuid(mnemonicUuid)
 
         iProovManager = IProovManager.getInstance(
             context = this,
@@ -119,14 +108,23 @@ class MainActivity : AppCompatActivity() {
             onVerificationSuccess = { _ -> /* Optionally handle token if needed */ },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
+        )*/
+        
+        // Generate mnemonic UUID and set to input field
+        val mnemonicUuid = generateMnemonicUUID()
+        neuvoteManager = NeuvoteManager.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
         )
+        neuvoteManager.setMnemonicUuid(mnemonicUuid)
 
-        binding.nextBtn.setOnClickListener {
-            NavigationHelper.navigateToFacialScan(this)
+        binding.registerBtn.setOnClickListener {
+            NavigationHelper.navigateToRegistrationStart(this)
         }
     }
 
-    private fun displayImage(results: DocumentReaderResults?) {
+    /*private fun displayImage(results: DocumentReaderResults?) {
         if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
             var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
             if (documentImage != null) {
@@ -138,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                 binding.resultIv.setImageBitmap(documentImage)
                 // Automatically enroll the photo with iProov, pass callback for UI update
                 iProovManager.enrollDocumentPhotoWithIProov(documentImage) {
-                    binding.nextBtn.isEnabled = true
+                    //binding.nextBtn.isEnabled = true
                 }
             }
         } else {
@@ -203,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             binding.sexTv.visibility = View.GONE
             neuvoteManager.setSex(null)
         }
-    }
+    }*/
 
     override fun setContentView(view: View?) {
         super.setContentView(view)

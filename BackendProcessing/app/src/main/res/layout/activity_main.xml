@@ -7,37 +7,80 @@
     tools:context=".MainActivity"
     android:tag="content">
 
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/demobackground" />
+
+    <!--<ImageView
+        android:id="@+id/commission_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="fitXY"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="260dp"
+        app:layout_constraintStart_toStartOf="@+id/iconLabel"
+        app:layout_constraintEnd_toEndOf="@+id/iconLabel"
+        android:src="@drawable/neuvoteicon" />
+
+    <TextView
+        android:id="@+id/iconLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="REPUBLIC OF THE PHILIPPINES"
+        style="@style/AppTextMedium"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@+id/commission_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:id="@+id/iconLabel2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="COMMISSION ON ELECTIONS"
+        style="@style/AppTextMedium"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@+id/iconLabel"
+        app:layout_constraintStart_toStartOf="@+id/iconLabel"
+        app:layout_constraintEnd_toEndOf="@+id/iconLabel"
+        android:layout_marginTop="4dp" />
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/app_name" />
-
-    <ImageView
-        android:id="@+id/bannerImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/philippinesbanner"
-        app:layout_constraintTop_toBottomOf="@id/toolBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:title="@string/app_name" />-->
 
     <TextView
         android:id="@+id/bannerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="National\nElections 2025"
+        android:text="Elections\n2026"
         android:textStyle="bold"
-        style="@style/AppTextLarge"
-        app:layout_constraintTop_toTopOf="@+id/bannerImage"
-        app:layout_constraintBottom_toBottomOf="@+id/bannerImage"
+        style="@style/AppTextXLarge"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="36dp" />
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="24dp" />
 
     <TextView
+        android:id="@+id/dateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15 Sep 2026"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@+id/bannerLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp" />
+
+    <!--<TextView
         android:id="@+id/mnemonicLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -123,9 +166,9 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/sexTv"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />-->
         
-    <Button
+    <!--<Button
         android:id="@+id/settingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -133,16 +176,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="4dp"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="20dp" />-->
 
     <Button
-        android:id="@+id/nextBtn"
-        android:layout_width="wrap_content"
+        android:id="@+id/registerBtn"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="REGISTER"
+        android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="4dp"
         android:layout_marginBottom="20dp" />
 
     <!--<ImageButton

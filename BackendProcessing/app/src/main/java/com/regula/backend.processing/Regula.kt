@@ -68,7 +68,7 @@ class RegulaScanner(
                         "Available scenarios list is empty",
                         Toast.LENGTH_SHORT
                     ).show()
-                    binding.scanDocumentBtn.isEnabled = false
+                    //binding.scanDocumentBtn.isEnabled = false
                 }
             } else {
                 Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
