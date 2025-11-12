@@ -68,7 +68,7 @@ class IProovManager private constructor(
         this.showResult = handler
     }
 
-    fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap) {
+    fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap, onUiUpdate: (() -> Unit)? = null) {
         showDialog("Saving identification photo...")
 
         val photoBytes = bitmapToJpegBytes(documentPhoto)
@@ -123,14 +123,7 @@ class IProovManager private constructor(
                                     pendingVerifyToken = verifyToken
                                     lastIProovToken = verifyToken
                                     onVerificationSuccess(verifyToken)
-                                    // Enable the 'next' button in MainActivity
-                                    try {
-                                        val activity = context as? Activity
-                                        val nextBtn = activity?.findViewById<View>(R.id.nextBtn)
-                                        nextBtn?.isEnabled = true
-                                    } catch (e: Exception) {
-                                        Log.e(TAG, "Unable to enable next button: ${e.localizedMessage}", e)
-                                    }
+                                    onUiUpdate?.invoke()
                                     // Do NOT launch iProov session here
                                 }
                             }

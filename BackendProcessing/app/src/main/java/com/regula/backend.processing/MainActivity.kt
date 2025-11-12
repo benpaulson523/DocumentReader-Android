@@ -138,8 +138,10 @@ class MainActivity : AppCompatActivity() {
                     (480 * aspectRatio).toInt(), 480, false
                 )
                 binding.resultIv.setImageBitmap(documentImage)
-                // Automatically enroll the photo with iProov
-                iProovManager.enrollDocumentPhotoWithIProov(documentImage)
+                // Automatically enroll the photo with iProov, pass callback for UI update
+                iProovManager.enrollDocumentPhotoWithIProov(documentImage) {
+                    binding.nextBtn.isEnabled = true
+                }
             }
         } else {
             binding.resultIv.setImageBitmap(null)

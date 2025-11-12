@@ -89,7 +89,7 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?) {
+    fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
         showDialog("Registering...")
         
         val unitNumberPOBox = "" // TODO
@@ -187,7 +187,7 @@ class NeuvoteManager private constructor(
                                 sexValue,
                                 onResult = { _ ->
                                     Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    updateAbisID(context, voterIdentifier, mnemonicUuidValue)
+                                    updateAbisID(context, voterIdentifier, mnemonicUuidValue, onFinalResult)
                                 },
                                 onError = { errorMsg ->
                                     dismissDialog();
@@ -208,7 +208,7 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun updateAbisID(context: Context, voterIdentifier: String, mnemonicUuid: String) {
+    fun updateAbisID(context: Context, voterIdentifier: String, mnemonicUuid: String, onFinalResult: ((Boolean) -> Unit)? = null) {
         val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
         val jsonBody = """{"abisID":"$mnemonicUuid"}"""
         val client = okhttp3.OkHttpClient()
@@ -233,7 +233,13 @@ class NeuvoteManager private constructor(
                 Log.d(TAG, "Server response from /$voterIdentifier/abis-id: $responseBody")
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
-                        updateAbisFacialScanFlag(context, mnemonicUuid)
+                        updateAbisFacialScanFlag(context, mnemonicUuid) { success ->
+                            onFinalResult?.invoke(success)
+                            dismissDialog();
+                            if (!success) {
+                                Toast.makeText(context, context.getString(R.string.face_scan_flag_failed), Toast.LENGTH_LONG).show()
+                            }
+                        }
                     } else {
                         dismissDialog();
                         Toast.makeText(context, "Setting ABIS ID failed", Toast.LENGTH_LONG).show()
@@ -243,7 +249,7 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun updateAbisFacialScanFlag(context: Context, abisID: String) {
+    fun updateAbisFacialScanFlag(context: Context, abisID: String, onUiUpdate: (Boolean) -> Unit) {
         val url = getNeuvoteServerUrl() + "/voters/abis/" + abisID + "/face-scan-flag"
         val jsonBody = """{"biometricsFacialScanCollected":true}"""
         val client = okhttp3.OkHttpClient()
@@ -258,8 +264,7 @@ class NeuvoteManager private constructor(
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    dismissDialog();
-                    Toast.makeText(context, "Setting face scan flag failed", Toast.LENGTH_LONG).show()
+                    onUiUpdate(false)
                 }
                 Log.e(TAG, "Failed to update facial scan flag: " + e.message)
             }
@@ -267,15 +272,7 @@ class NeuvoteManager private constructor(
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /voters/abis/$abisID/face-scan-flag: $responseBody")
                 (context as? Activity)?.runOnUiThread {
-                    dismissDialog();
-
-                    if (response.isSuccessful) {
-                        val registerBtn = (context as Activity).findViewById<View>(R.id.registerBtn)
-                        registerBtn.visibility = View.GONE
-                        Toast.makeText(context, "Registration received!", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(context, "Setting face scan flag failed", Toast.LENGTH_LONG).show()
-                    }
+                    onUiUpdate(response.isSuccessful)
                 }
             }
         })

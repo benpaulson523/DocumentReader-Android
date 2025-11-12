@@ -27,21 +27,16 @@ class SettingsActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        val toolbar = findViewById<Toolbar>(R.id.settingsToolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = "Connection Settings"
-
-        val serverInput = findViewById<EditText>(R.id.serverInput)
-        val portInput = findViewById<EditText>(R.id.portInput)
-        val saveButton = findViewById<Button>(R.id.saveButton)
+        setSupportActionBar(binding.settingsToolbar)
+        supportActionBar?.title = getString(R.string.connection_settings_title)
 
         val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        serverInput.setText(prefs.getString("server_address", ""))
-        portInput.setText(prefs.getString("server_port", ""))
+        binding.serverInput.setText(prefs.getString("server_address", ""))
+        binding.portInput.setText(prefs.getString("server_port", ""))
 
-        saveButton.setOnClickListener {
-            val address = serverInput.text.toString()
-            val port = portInput.text.toString()
+        binding.saveButton.setOnClickListener {
+            val address = binding.serverInput.text.toString()
+            val port = binding.portInput.text.toString()
             SettingsManager.setServerAddress(this, address)
             SettingsManager.setServerPort(this, port)
             finish()

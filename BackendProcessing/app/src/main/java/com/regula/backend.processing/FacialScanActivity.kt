@@ -77,8 +77,7 @@ class FacialScanActivity : AppCompatActivity() {
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
 
-        val startFacialScanBtn = findViewById<Button>(R.id.startFacialScanBtn)
-        startFacialScanBtn?.visibility = View.GONE
+        binding.startFacialScanBtn.visibility = View.GONE
 
         if (title == "Success") {
             Toast.makeText(this, "Facial scan matches photo", Toast.LENGTH_LONG).show()

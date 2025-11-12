@@ -51,13 +51,9 @@ class VerifyEmailActivity : AppCompatActivity() {
         ) { success ->
             if (success) {
                 Toast.makeText(this, getString(R.string.verification_email_sent), Toast.LENGTH_LONG).show()
-                val emailCodeLabel = findViewById<TextView>(R.id.emailCodeLabel)
-                val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
-                val registerBtn = findViewById<View>(R.id.registerBtn)
-
-                emailCodeLabel?.visibility = View.VISIBLE
-                emailCodeInput?.visibility = View.VISIBLE
-                registerBtn?.visibility = View.GONE
+                binding.emailCodeLabel.visibility = View.VISIBLE
+                binding.emailCodeInput.visibility = View.VISIBLE
+                binding.registerBtn.visibility = View.GONE
             } else {
                 Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
             }
@@ -83,7 +79,18 @@ class VerifyEmailActivity : AppCompatActivity() {
         })
         binding.registerBtn.setOnClickListener {
             val code = binding.emailCodeInput.text?.toString() ?: ""
-            neuvoteManager.completeRegistration(this, code, com.regula.backend.processing.IProovManager.getInstanceOrNull())
+            neuvoteManager.completeRegistration(
+                this,
+                code,
+                com.regula.backend.processing.IProovManager.getInstanceOrNull()
+            ) { success ->
+                if (success) {
+                    binding.registerBtn.visibility = View.GONE
+                    Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.face_scan_flag_failed), Toast.LENGTH_LONG).show()
+                }
+            }
             binding.emailCodeInput.isEnabled = false
             binding.registerBtn.isEnabled = false
         }
