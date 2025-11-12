@@ -47,12 +47,8 @@ class FacialScanActivity : AppCompatActivity() {
         iProovManager.setShowResultHandler(this::onResult)
 
         binding.startFacialScanBtn.setOnClickListener {
-            if (iProovManager != null) {
-                iProovManager.launchFacialScanSession()
-                binding.startFacialScanBtn.isEnabled = false
-            } else {
-                Toast.makeText(this, "Facial scan not available", Toast.LENGTH_SHORT).show()
-            }
+            iProovManager.launchFacialScanSession()
+            binding.startFacialScanBtn.isEnabled = false
         }
         
         binding.nextBtn.setOnClickListener {

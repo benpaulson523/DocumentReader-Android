@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         binding.scanDocumentBtn.setOnClickListener {
             binding.surnameTv.text = getString(R.string.surname_label)
             binding.nameTv.text = getString(R.string.name_label)
-            binding.dobTv?.text = getString(R.string.dob_label)
+            binding.dobTv.text = getString(R.string.dob_label)
             binding.resultIv.setImageBitmap(null)
             regulaScanner.showScanner()
         }
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         iProovManager = IProovManager.getInstance(
             context = this,
             mnemonicUuid = mnemonicUuid,
-            onVerificationSuccess = { token -> /* Optionally handle token if needed */ },
+            onVerificationSuccess = { _ -> /* Optionally handle token if needed */ },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
@@ -182,12 +182,12 @@ class MainActivity : AppCompatActivity() {
             val rawDob = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
             val formattedDob = formatDateOfBirth(rawDob.toString())
             val dob = getString(R.string.dob_label) + ": " + formattedDob
-            binding.dobTv?.text = dob
-            binding.dobTv?.visibility = View.VISIBLE
+            binding.dobTv.text = dob
+            binding.dobTv.visibility = View.VISIBLE
             neuvoteManager.setDateOfBirth(formattedDob)
         } else {
-            binding.dobTv?.text = getString(R.string.dob_label)
-            binding.dobTv?.visibility = View.GONE
+            binding.dobTv.text = getString(R.string.dob_label)
+            binding.dobTv.visibility = View.GONE
             neuvoteManager.setDateOfBirth(null)
         }
         
@@ -195,12 +195,12 @@ class MainActivity : AppCompatActivity() {
         if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
             val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
             val sexDisplay = getString(R.string.sex_label) + ": " + sex
-            binding.sexTv?.text = sexDisplay
-            binding.sexTv?.visibility = View.VISIBLE
+            binding.sexTv.text = sexDisplay
+            binding.sexTv.visibility = View.VISIBLE
             neuvoteManager.setSex(sex)
         } else {
-            binding.sexTv?.text = getString(R.string.sex_label)
-            binding.sexTv?.visibility = View.GONE
+            binding.sexTv.text = getString(R.string.sex_label)
+            binding.sexTv.visibility = View.GONE
             neuvoteManager.setSex(null)
         }
     }

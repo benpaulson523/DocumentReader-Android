@@ -1,0 +1,27 @@
+<resources>
+    <style name="AppTextLarge">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="AppTextMedium">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="AppMarginStart16">
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+    <style name="AppMarginTop12">
+        <item name="android:layout_marginTop">12dp</item>
+    </style>
+    <style name="AppMarginEnd8">
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+    <style name="AppMarginEnd16">
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+    <style name="AppMarginStart4">
+        <item name="android:layout_marginStart">4dp</item>
+    </style>
+    <style name="AppMarginBottom20">
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+</resources>
