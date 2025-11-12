@@ -63,8 +63,7 @@ class FacialScanActivity : AppCompatActivity() {
             neuvoteManager.setProvince(binding.provinceInput.text?.toString())
             neuvoteManager.setPostalCode(binding.postalInput.text?.toString())
 
-            val intent = android.content.Intent(this, com.regula.backend.processing.VerifyEmailActivity::class.java)
-            startActivity(intent)
+            NavigationHelper.navigateToVerifyEmail(this)
         }
         binding.nextBtn.isEnabled = false
         

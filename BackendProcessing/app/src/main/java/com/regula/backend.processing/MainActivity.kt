@@ -73,8 +73,7 @@ class MainActivity : AppCompatActivity() {
         SettingsManager.init(this)
 
         binding.settingsButton.setOnClickListener {
-            val intent = android.content.Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            NavigationHelper.navigateToSettings(this)
         }
         
         binding.nextBtn.isEnabled = false
@@ -123,8 +122,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.nextBtn.setOnClickListener {
-            val intent = android.content.Intent(this, com.regula.backend.processing.FacialScanActivity::class.java)
-            startActivity(intent)
+            NavigationHelper.navigateToFacialScan(this)
         }
     }
 
