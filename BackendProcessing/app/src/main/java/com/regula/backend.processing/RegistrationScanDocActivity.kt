@@ -48,11 +48,9 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         regulaScanner = RegulaScanner(
             context = this,
             onResults = { results ->
-                //docImageCaptured(results)
                 docScanned(results)
             },
             onFinalize = { results ->
-                //docImageCaptured(results)
                 docScanned(results)
             },
             showDialog = { msg -> showDialog(msg) },
@@ -74,6 +72,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             context = this,
             mnemonicUuid = neuvoteManager.getMnemonicUuid()
         )
+        
+        binding.continueBtn.setOnClickListener {
+            NavigationHelper.navigateToRegistrationLiveness(this)
+        }
     }
 
     private fun docScanned(results: DocumentReaderResults?) {

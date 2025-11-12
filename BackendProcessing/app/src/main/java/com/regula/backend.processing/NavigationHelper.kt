@@ -25,6 +25,11 @@ object NavigationHelper {
         activity.startActivity(intent)
     }
 
+    fun navigateToRegistrationLiveness(activity: Activity) {
+        val intent = Intent(activity, RegistrationLivenessActivity::class.java)
+        activity.startActivity(intent)
+    }
+
     fun navigateToFacialScan(activity: Activity) {
         val intent = Intent(activity, FacialScanActivity::class.java)
         activity.startActivity(intent)

@@ -38,6 +38,9 @@
             android:name="com.regula.backend.processing.RegistrationScanDocActivity"
             android:exported="false" />
         <activity
+            android:name="com.regula.backend.processing.RegistrationLivenessActivity"
+            android:exported="false" />
+        <activity
             android:name="com.regula.backend.processing.FacialScanActivity"
             android:exported="false" />
         <activity
