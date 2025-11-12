@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Neuvote Voter Registration</string>
+    <string name="email_code_label">6-digit Email Code:</string>
+    <string name="verification_email_sent">Verification email sent</string>
+    <string name="verification_email_failed">Failed to send email</string>
+    <string name="surname_label">Surname</string>
+    <string name="name_label">Name</string>
+    <string name="dob_label">Date of Birth</string>
+    <string name="sex_label">Sex</string>
 </resources>

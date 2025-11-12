@@ -63,7 +63,7 @@
         android:id="@+id/emailCodeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="6-digit Email Code:"
+        android:text="@string/email_code_label"
         android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/mnemonicLabel"
@@ -104,7 +104,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="4dp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="20dp" />
 
     <!--<ImageButton
         android:id="@+id/settingsButton"

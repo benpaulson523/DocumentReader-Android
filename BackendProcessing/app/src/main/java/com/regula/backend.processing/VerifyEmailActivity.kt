@@ -50,7 +50,7 @@ class VerifyEmailActivity : AppCompatActivity() {
             mnemonicUuid.orEmpty()
         ) { success ->
             if (success) {
-                Toast.makeText(this, "Verification email sent", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.verification_email_sent), Toast.LENGTH_LONG).show()
                 val emailCodeLabel = findViewById<TextView>(R.id.emailCodeLabel)
                 val emailCodeInput = findViewById<EditText>(R.id.emailCodeInput)
                 val registerBtn = findViewById<View>(R.id.registerBtn)
@@ -59,7 +59,7 @@ class VerifyEmailActivity : AppCompatActivity() {
                 emailCodeInput?.visibility = View.VISIBLE
                 registerBtn?.visibility = View.GONE
             } else {
-                Toast.makeText(this, "Failed to send email", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
             }
         }
         

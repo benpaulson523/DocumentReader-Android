@@ -100,9 +100,9 @@ class MainActivity : AppCompatActivity() {
         binding.mnemonicInput.setText(mnemonicUuid)
 
         binding.scanDocumentBtn.setOnClickListener {
-            binding.surnameTv.text = "Surname:"
-            binding.nameTv.text = "Name:"
-            binding.dobTv?.text = "Date of Birth:"
+            binding.surnameTv.text = getString(R.string.surname_label)
+            binding.nameTv.text = getString(R.string.name_label)
+            binding.dobTv?.text = getString(R.string.dob_label)
             binding.resultIv.setImageBitmap(null)
             regulaScanner.showScanner()
         }
@@ -155,24 +155,24 @@ class MainActivity : AppCompatActivity() {
         )
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
-            val surname = "Surname: " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
+            val surname = getString(R.string.surname_label) + ": " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
             binding.surnameTv.text = surname
             binding.surnameTv.visibility = View.VISIBLE
             binding.scanDocumentBtn.visibility = View.GONE
             neuvoteManager.setSurname(results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME))
         } else {
-            binding.surnameTv.text = "Surname:"
+            binding.surnameTv.text = getString(R.string.surname_label)
             binding.surnameTv.visibility = View.GONE
             neuvoteManager.setSurname(null)
         }
 
         if (results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES) != null) {
-            val name = "Name: " + results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES)
+            val name = getString(R.string.name_label) + ": " + results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES)
             binding.nameTv.text = name
             binding.nameTv.visibility = View.VISIBLE
             neuvoteManager.setName(results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES))
         } else {
-            binding.nameTv.text = "Name:"
+            binding.nameTv.text = getString(R.string.name_label)
             binding.nameTv.visibility = View.GONE
             neuvoteManager.setName(null)
         }
@@ -181,12 +181,12 @@ class MainActivity : AppCompatActivity() {
         if (results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH) != null) {
             val rawDob = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
             val formattedDob = formatDateOfBirth(rawDob.toString())
-            val dob = "Date of Birth: $formattedDob"
+            val dob = getString(R.string.dob_label) + ": " + formattedDob
             binding.dobTv?.text = dob
             binding.dobTv?.visibility = View.VISIBLE
             neuvoteManager.setDateOfBirth(formattedDob)
         } else {
-            binding.dobTv?.text = "Date of Birth:"
+            binding.dobTv?.text = getString(R.string.dob_label)
             binding.dobTv?.visibility = View.GONE
             neuvoteManager.setDateOfBirth(null)
         }
@@ -194,12 +194,12 @@ class MainActivity : AppCompatActivity() {
         // Display sex between date of birth and photo
         if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
             val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
-            val sexDisplay = "Sex: $sex"
+            val sexDisplay = getString(R.string.sex_label) + ": " + sex
             binding.sexTv?.text = sexDisplay
             binding.sexTv?.visibility = View.VISIBLE
             neuvoteManager.setSex(sex)
         } else {
-            binding.sexTv?.text = "Sex:"
+            binding.sexTv?.text = getString(R.string.sex_label)
             binding.sexTv?.visibility = View.GONE
             neuvoteManager.setSex(null)
         }

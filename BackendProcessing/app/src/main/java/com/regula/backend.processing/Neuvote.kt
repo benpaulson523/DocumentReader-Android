@@ -63,7 +63,7 @@ class NeuvoteManager private constructor(
         mnemonicUuid: String,
         onResponse: (Boolean) -> Unit
     ) {
-        val url = getNeuvoteServerUrl() + "/registration/mfa/initiate/email"
+    val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
         val jsonBody = """{"email":"$email","mnemonicUuid":"$mnemonicUuid"}"""
         val client = okhttp3.OkHttpClient()
         val requestBody = okhttp3.RequestBody.create(
@@ -111,7 +111,7 @@ class NeuvoteManager private constructor(
         Log.d(TAG, "validateVerification data: verificationCode=$verificationCode, mnemonicUuid=$mnemonicUuidValue, firstName=$firstName, lastName=$lastName, dateOfBirth=$dateOfBirthValue, sex=$sexValue")
         Log.d(TAG, "validateVerification data: email=$emailValue, phone=$phoneValue, city=$cityValue, province=$provinceValue, streetAddress=$streetAddressValue, postalCode=$postalCode")
         
-        val url = getNeuvoteServerUrl() + "/registration/mfa/verify/email"
+        val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_EMAIL
         val jsonBody = """
             {
                 "votingChannel": "online",

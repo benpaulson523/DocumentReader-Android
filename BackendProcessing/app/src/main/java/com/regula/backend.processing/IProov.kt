@@ -81,12 +81,12 @@ class IProovManager private constructor(
                     put("userId", mnemonicUuid)
                 }
                 val tokenRequest = okhttp3.Request.Builder()
-                    .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-enrollment-token")
+                    .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN)
                     .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
                     .build()
                 client.newCall(tokenRequest).execute().use { tokenResponse ->
                     val tokenResponseBody = tokenResponse.body!!.string()
-                    Log.d(TAG, "Backend /iproov/create-enrollment-token response: $tokenResponseBody")
+                    Log.d(TAG, "Backend $Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN response: $tokenResponseBody")
                     val token = org.json.JSONObject(tokenResponseBody).getString("token")
                     // Step 2: Upload photo to backend
                     val enrollRequestBody = okhttp3.MultipartBody.Builder()
@@ -96,7 +96,7 @@ class IProovManager private constructor(
                         .addFormDataPart("token", token)
                         .build()
                     val enrollRequest = okhttp3.Request.Builder()
-                        .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/enroll-photo")
+                        .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_ENROLL_PHOTO)
                         .post(enrollRequestBody)
                         .build()
                     client.newCall(enrollRequest).execute().use { enrollResponse ->
@@ -110,7 +110,7 @@ class IProovManager private constructor(
                                 put("userId", mnemonicUuid)
                             }
                             val verifyTokenRequest = okhttp3.Request.Builder()
-                                .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/create-verify-token")
+                                .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN)
                                 .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
                                 .build()
                             client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
@@ -233,7 +233,7 @@ class IProovManager private constructor(
                     put("sex", sex)
                 }
                 val request = okhttp3.Request.Builder()
-                    .url(NeuvoteManager.getNeuvoteServerUrl() + "/iproov/validate-verification")
+                    .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_VALIDATE_VERIFICATION)
                     .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
                     .build()
                 client.newCall(request).execute().use { response ->
