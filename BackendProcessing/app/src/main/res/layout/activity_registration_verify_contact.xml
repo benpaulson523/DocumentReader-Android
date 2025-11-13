@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:text="Enter confirmation code:"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
 
     <EditText
         android:id="@+id/codeValue"
-        android:layout_width="100dp"
+        android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:inputType="number"
         android:textColor="@android:color/black"
@@ -39,33 +39,39 @@
         app:layout_constraintStart_toEndOf="@id/codeLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="36dp"
-        android:layout_marginStart="12dp" />
+        android:layout_marginStart="8dp" />
 
     <TextView
         android:id="@+id/registeredMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Your registration has been received.\nYou can finish biometrics collections\nat your local Commission office."
+        android:text="Your registration has been received. You can finish biometrics collections at your local Commission office."
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/codeLabel"
-        app:layout_constraintStart_toStartOf="@id/codeLabel"
-        android:layout_marginTop="12dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
     <TextView
-        android:id="@+id/biometricsLabel"
+        android:id="@+id/biometricsMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Your biometrics ID is below. Please\nbring this with you when you visit\nthe Commission office."
+        android:text="Your biometrics ID is below. Please bring this with you when you visit the Commission office."
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/registeredMessage"
-        app:layout_constraintStart_toStartOf="@id/registeredMessage"
-        android:layout_marginTop="12dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
     <TextView
         android:id="@+id/biometricsId"
@@ -75,7 +81,7 @@
         style="@style/AppTextXLarge"
         android:textStyle="bold"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/biometricsLabel"
+        app:layout_constraintTop_toBottomOf="@id/biometricsMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="12dp" />

@@ -29,14 +29,16 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Uploading your document, it will\ntake a few minutes depending on\nthe network status."
+        android:text="Uploading your document, it will take a few minutes depending on the network status."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
-        app:layout_constraintStart_toStartOf="@id/idUploadIcon"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
     <Button
         android:id="@+id/continueBtn"

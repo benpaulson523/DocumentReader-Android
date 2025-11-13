@@ -38,6 +38,8 @@ class RegistrationLivenessActivity : AppCompatActivity() {
         iProovManager.setShowResultHandler(this::onResult)
 
         binding.beginBtn.setOnClickListener {
+            val resultTv = binding.resultMessageTv
+            resultTv.visibility = View.GONE
             iProovManager.launchFacialScanSession()
             binding.beginBtn.isEnabled = false
         }
@@ -56,11 +58,10 @@ class RegistrationLivenessActivity : AppCompatActivity() {
     private fun onResult(title: String?, resultMessage: String?) {
         Log.d(TAG, "Verification scan result: title=$title, resultMessage=$resultMessage")
 
-        binding.beginBtn.visibility = View.GONE
-
         val resultTv = binding.resultMessageTv
 
         if (title == "Success") {
+            binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
             Toast.makeText(this, "Liveness check passed", Toast.LENGTH_LONG).show()
             binding.continueBtn.isEnabled = true
@@ -68,6 +69,8 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             Toast.makeText(this, "Facial scan failed", Toast.LENGTH_LONG).show()
             resultTv.text = resultMessage ?: "Unknown error"
             resultTv.visibility = View.VISIBLE
+            iProovManager.getVerificationToken()
+            binding.beginBtn.isEnabled = true
         }
     }
 

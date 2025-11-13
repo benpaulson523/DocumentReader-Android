@@ -64,8 +64,8 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                     val registeredMessage = binding.registeredMessage
                     registeredMessage.visibility = View.VISIBLE
                     
-                    val biometricsLabel = binding.biometricsLabel
-                    biometricsLabel.visibility = View.VISIBLE
+                    val biometricsMessage = binding.biometricsMessage
+                    biometricsMessage.visibility = View.VISIBLE
                     
                     val biometricsId = binding.biometricsId
                     biometricsId.setText(neuvoteManager.getBiometricsId())

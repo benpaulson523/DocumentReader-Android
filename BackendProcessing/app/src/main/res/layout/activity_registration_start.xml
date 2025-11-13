@@ -30,13 +30,15 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Registration requires to\nscan an official ID."
+        android:text="Registration requires to scan an official ID."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/idIcon"
-        app:layout_constraintStart_toStartOf="@id/idIcon"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
     <!-- Subtitle -->
     <TextView
@@ -46,7 +48,7 @@
         android:layout_marginTop="16dp"
         android:text="Acceptable Official ID:"
         android:textColor="@android:color/black"
-        android:textSize="20sp"
+        style="@style/AppTextMediumLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintStart_toStartOf="@+id/title"
@@ -69,7 +71,7 @@
             android:layout_height="wrap_content"
             android:text="•  Valid Passport"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            style="@style/AppTextMediumLarge"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 
@@ -78,7 +80,7 @@
             android:layout_height="wrap_content"
             android:text="•  Valid Government ID"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            style="@style/AppTextMediumLarge"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 
@@ -87,7 +89,7 @@
             android:layout_height="wrap_content"
             android:text="•  Valid Driver License"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            style="@style/AppTextMediumLarge"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -98,7 +100,7 @@
         android:layout_marginTop="16dp"
         android:text="Keep your ID ready and click start"
         android:textColor="@android:color/black"
-        android:textSize="20sp"
+        style="@style/AppTextMediumLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/bullets"
         app:layout_constraintStart_toStartOf="@+id/subtitle"

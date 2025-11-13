@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:text="Verified"
         android:textColor="@color/green"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/resolvedIcon"
         app:layout_constraintStart_toStartOf="@id/resolvedIcon"
@@ -43,18 +43,18 @@
         android:layout_height="wrap_content"
         android:text="Name:"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/verified"
         app:layout_constraintStart_toStartOf="@id/verified"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp"  />
+        android:layout_marginTop="16dp"  />
 
     <TextView
         android:id="@+id/nameValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/nameLabel"
         app:layout_constraintStart_toStartOf="@id/nameLabel"
@@ -66,18 +66,18 @@
         android:layout_height="wrap_content"
         android:text="Date of Birth:"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/nameValue"
         app:layout_constraintStart_toStartOf="@id/nameValue"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/dobValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/dobLabel"
         app:layout_constraintStart_toStartOf="@id/dobLabel"
@@ -89,18 +89,18 @@
         android:layout_height="wrap_content"
         android:text="Address:"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/dobValue"
         app:layout_constraintStart_toStartOf="@id/dobValue"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/addressValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/addressLabel"
         app:layout_constraintStart_toStartOf="@id/addressLabel"
@@ -115,20 +115,21 @@
         style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/addressValue"
         app:layout_constraintStart_toStartOf="@id/addressValue"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/emailValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/black"
         style="@style/AppTextLarge"
         android:textStyle="bold"
         android:inputType="textEmailAddress"
         app:layout_constraintTop_toTopOf="@id/emailLabel"
+        app:layout_constraintBottom_toBottomOf="@id/emailLabel"
         app:layout_constraintStart_toEndOf="@id/emailLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/emailLabel"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="4dp" />
 
@@ -141,20 +142,21 @@
         style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/emailLabel"
         app:layout_constraintStart_toStartOf="@id/emailLabel"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/phoneValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
+        android:backgroundTint="@android:color/black"
         style="@style/AppTextLarge"
         android:textStyle="bold"
         android:inputType="phone"
         app:layout_constraintTop_toTopOf="@id/phoneLabel"
+        app:layout_constraintBottom_toBottomOf="@id/phoneLabel"
         app:layout_constraintStart_toEndOf="@id/phoneLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/phoneLabel"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="4dp" />
 
@@ -162,12 +164,12 @@
         android:id="@+id/confirmationMethodLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Receive code via:"
+        android:text="Verify via:"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/phoneValue"
         app:layout_constraintStart_toStartOf="@id/phoneLabel"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/confirmationMethodGroup"
@@ -187,7 +189,7 @@
             app:backgroundTint="@color/white"
             app:strokeColor="@color/philippines_blue"
             app:strokeWidth="2dp"
-            app:cornerRadius="16dp" />
+            app:cornerRadius="18dp" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSms"
             android:layout_width="wrap_content"
@@ -196,7 +198,7 @@
             app:backgroundTint="@color/white"
             app:strokeColor="@color/philippines_blue"
             app:strokeWidth="2dp"
-            app:cornerRadius="16dp" />
+            app:cornerRadius="18dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <Button

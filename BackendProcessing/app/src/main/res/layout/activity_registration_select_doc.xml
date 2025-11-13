@@ -19,15 +19,16 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Select the type of document\nyou wish to scan."
+        android:text="Select the type of document you wish to scan."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="72dp" 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="72dp" 
-        android:layout_marginStart="24dp" />
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
     <LinearLayout
         android:id="@+id/buttonGroup"

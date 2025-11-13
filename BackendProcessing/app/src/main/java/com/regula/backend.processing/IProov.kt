@@ -50,7 +50,6 @@ class IProovManager private constructor(
     private val job = SupervisorJob()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var sessionStateJob: Job? = null
-    private var pendingVerifyToken: String? = null
 
     private var showResult: ((title: String?, message: String?) -> Unit)? = null
 
@@ -94,24 +93,9 @@ class IProovManager private constructor(
                         val enrollSuccess = enrollJson.optBoolean("success", true)
                         if (enrollSuccess) {
                             // Step 3: Get verification token from backend
-                            val verifyPayload = org.json.JSONObject().apply {
-                                put("userId", biometricsId)
-                            }
-                            val verifyTokenRequest = okhttp3.Request.Builder()
-                                .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN)
-                                .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
-                                .build()
-                            client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
-                                val verifyTokenBody = verifyTokenResponse.body!!.string()
-                                Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
-                                val verifyToken = org.json.JSONObject(verifyTokenBody).getString("token")
-
-                                withContext(Dispatchers.Main) {
-                                    pendingVerifyToken = verifyToken
-                                    lastIProovToken = verifyToken
-                                    onUiUpdate?.invoke()
-                                    // Do NOT launch iProov session here
-                                }
+                            getVerificationToken()
+                            withContext(Dispatchers.Main) {
+                                onUiUpdate?.invoke()
                             }
                         }
                     }
@@ -124,9 +108,35 @@ class IProovManager private constructor(
             }
         }
     }
+    
+    fun getVerificationToken() {
+        val client = okhttp3.OkHttpClient()
+
+        uiScope.launch(Dispatchers.IO) {
+            try {
+                val verifyPayload = org.json.JSONObject().apply {
+                    put("userId", biometricsId)
+                }
+                val verifyTokenRequest = okhttp3.Request.Builder()
+                    .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN)
+                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
+                    .build()
+                client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
+                    val verifyTokenBody = verifyTokenResponse.body!!.string()
+                    Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
+                    lastIProovToken = org.json.JSONObject(verifyTokenBody).getString("token")
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Verify token error", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     fun launchFacialScanSession() {
-        val verifyToken = pendingVerifyToken ?: return
+        val verifyToken = getLastIProovToken() ?: return
         Log.d(TAG, "Launching iProov verification scan with token: $verifyToken")
         IProov.createSession(context.applicationContext, Constants.IPROOV_BASE_URL, verifyToken).let { session ->
             observeSessionState(session) {
