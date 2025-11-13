@@ -1,40 +1,40 @@
 package com.regula.backend.processing
 
 import android.util.Log
+import android.widget.Toast
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
-import com.regula.backend.processing.databinding.ActivityRegistrationSelectDocBinding
+import com.regula.backend.processing.databinding.ActivityRegistrationDataBinding
 import androidx.appcompat.app.AlertDialog
 
-class RegistrationSelectDocActivity : AppCompatActivity() {
+class RegistrationDataActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "RegistrationSelectDocActivity"
+        private const val TAG = "RegistrationDataActivity"
     }
 
-    private lateinit var binding: ActivityRegistrationSelectDocBinding
+    private lateinit var binding: ActivityRegistrationDataBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Opened RegistrationSelectDocActivity screen")
+        Log.d(TAG, "Opened RegistrationDataActivity screen")
 
         super.onCreate(savedInstanceState)
-        binding = ActivityRegistrationSelectDocBinding.inflate(layoutInflater)
+        binding = ActivityRegistrationDataBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        
+
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-
-        val buttons = listOf(binding.btnPassport, binding.btnDriverLicense, binding.btnGovernmentID)
-        var selectedIndex = 0 // Default to Passport
-
+        var selectedIndex = 0
+        
+        val buttons = listOf(binding.btnEmail, binding.btnSms)
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 buttons.forEach {
@@ -46,16 +46,46 @@ class RegistrationSelectDocActivity : AppCompatActivity() {
                 selectedIndex = index
             }
         }
-
         // set passport as selected by default
         buttons[0].performClick()
+        
+        binding.nameValue.text = neuvoteManager.getFullName()
+        binding.dobValue.text = neuvoteManager.getDateOfBirth()
+        binding.addressValue.text = neuvoteManager.getFullAddress()
 
-        binding.continueBtn.setOnClickListener {
-            neuvoteManager.setReadChip(selectedIndex == 0)
+        // Enable sendBtn when both email and phone are non-empty
+        val watcher = object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val emailNotEmpty = binding.emailValue.text?.isNotEmpty() == true
+                val phoneNotEmpty = binding.phoneValue.text?.isNotEmpty() == true
+                binding.sendBtn.isEnabled = emailNotEmpty && phoneNotEmpty
+            }
+        }
+        binding.emailValue.addTextChangedListener(watcher)
+        binding.phoneValue.addTextChangedListener(watcher)
 
-            val readChip = neuvoteManager.getReadChip()
-            Log.d(TAG, "Reading chip: $readChip")
-            NavigationHelper.navigateToRegistrationScanDoc(this)
+        binding.sendBtn.setOnClickListener {
+            val email = binding.emailValue.text?.toString() ?: ""
+            neuvoteManager.setEmail(email)
+
+            val phone = binding.phoneValue.text?.toString() ?: ""
+            neuvoteManager.setPhone(phone)
+
+            Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
+
+            neuvoteManager.sendVerificationEmail(
+                this,
+                email.orEmpty()
+            ) { success ->
+                if (success) {
+                    Log.d(TAG, "Verification email sent successfully")
+                    NavigationHelper.navigateToRegistrationVerifyContact(this)
+                } else {
+                    Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

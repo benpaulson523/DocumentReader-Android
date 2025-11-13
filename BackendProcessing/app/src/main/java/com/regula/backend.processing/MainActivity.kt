@@ -20,7 +20,6 @@ import com.github.kittinunf.fuel.json.jsonDeserializer
 import com.regula.backend.processing.IProovManager
 import com.regula.backend.processing.RegulaScanner
 import com.regula.backend.processing.formatDateOfBirth
-import com.regula.backend.processing.generateMnemonicUUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

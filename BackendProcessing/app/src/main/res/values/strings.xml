@@ -9,5 +9,5 @@
     <string name="sex_label">Sex</string>
     <string name="connection_settings_title">Connection Settings</string>
     <string name="registration_received">Registration received!</string>
-    <string name="face_scan_flag_failed">Setting face scan flag failed</string>
+    <string name="registration_failed">Registration failed</string>
 </resources>

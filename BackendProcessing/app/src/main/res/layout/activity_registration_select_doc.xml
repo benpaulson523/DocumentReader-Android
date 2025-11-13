@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="Select the type of document\nyou wish to scan."
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextXLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:text="Registration requires to\nscan an official ID."
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextXLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/idIcon"
         app:layout_constraintStart_toStartOf="@id/idIcon"

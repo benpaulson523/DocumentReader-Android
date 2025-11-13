@@ -45,6 +45,12 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         
+        neuvoteManager = NeuvoteManager.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+        
         regulaScanner = RegulaScanner(
             context = this,
             onResults = { results ->
@@ -57,20 +63,15 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         regulaScanner.initializeReader {
-            regulaScanner.showScanner()
+            regulaScanner.showScanner(neuvoteManager.getReadChip())
         }
         
-        val mnemonicUuid = generateMnemonicUUID()
-        neuvoteManager = NeuvoteManager.getInstance(
-            context = this,
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
-        neuvoteManager.setMnemonicUuid(mnemonicUuid)
+        val biometricsId = generateMnemonicUUID()
+        neuvoteManager.setBiometricsId(biometricsId)
 
         iProovManager = IProovManager.getInstance(
             context = this,
-            mnemonicUuid = neuvoteManager.getMnemonicUuid()
+            biometricsId = neuvoteManager.getBiometricsId()
         )
         
         binding.continueBtn.setOnClickListener {
@@ -104,55 +105,46 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
         }
 
-        /*if (results?.getTextFieldByType(eVisualFieldType.FT_SURNAME) != null) {
-            val surname = getString(R.string.surname_label) + ": " + results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME)
-            binding.surnameTv.text = surname
-            binding.surnameTv.visibility = View.VISIBLE
-            binding.scanDocumentBtn.visibility = View.GONE
-            neuvoteManager.setSurname(results.getTextFieldValueByType(eVisualFieldType.FT_SURNAME))
-        } else {
-            binding.surnameTv.text = getString(R.string.surname_label)
-            binding.surnameTv.visibility = View.GONE
-            neuvoteManager.setSurname(null)
-        }
-
-        if (results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES) != null) {
-            val name = getString(R.string.name_label) + ": " + results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES)
-            binding.nameTv.text = name
-            binding.nameTv.visibility = View.VISIBLE
-            neuvoteManager.setName(results.getTextFieldValueByType(eVisualFieldType.FT_GIVEN_NAMES))
-        } else {
-            binding.nameTv.text = getString(R.string.name_label)
-            binding.nameTv.visibility = View.GONE
-            neuvoteManager.setName(null)
-        }
-
-        // Display date of birth between last name and photo
-        if (results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH) != null) {
-            val rawDob = results.getTextFieldValueByType(eVisualFieldType.FT_DATE_OF_BIRTH)
-            val formattedDob = formatDateOfBirth(rawDob.toString())
-            val dob = getString(R.string.dob_label) + ": " + formattedDob
-            binding.dobTv.text = dob
-            binding.dobTv.visibility = View.VISIBLE
-            neuvoteManager.setDateOfBirth(formattedDob)
-        } else {
-            binding.dobTv.text = getString(R.string.dob_label)
-            binding.dobTv.visibility = View.GONE
-            neuvoteManager.setDateOfBirth(null)
-        }
+        val surnameField = results?.getTextFieldByType(eVisualFieldType.FT_SURNAME)
+        val surname = surnameField?.value ?: ""
+        neuvoteManager.setSurname(surname)
+        Log.d(TAG, "Surname: $surname")
         
-        // Display sex between date of birth and photo
-        if (results?.getTextFieldByType(eVisualFieldType.FT_SEX) != null) {
-            val sex = results.getTextFieldValueByType(eVisualFieldType.FT_SEX)
-            val sexDisplay = getString(R.string.sex_label) + ": " + sex
-            binding.sexTv.text = sexDisplay
-            binding.sexTv.visibility = View.VISIBLE
-            neuvoteManager.setSex(sex)
-        } else {
-            binding.sexTv.text = getString(R.string.sex_label)
-            binding.sexTv.visibility = View.GONE
-            neuvoteManager.setSex(null)
-        }*/
+        val firstNameField = results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES)
+        val firstName = firstNameField?.value ?: ""
+        neuvoteManager.setFirstName(firstName)
+        Log.d(TAG, "First name: $firstName")
+        
+        val dobField = results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH)
+        val rawDob = dobField?.value ?: ""
+        val formattedDob = formatDateOfBirth(rawDob)
+        neuvoteManager.setDateOfBirth(formattedDob)
+        Log.d(TAG, "Date of birth: $formattedDob")
+        
+        val sexField = results?.getTextFieldByType(eVisualFieldType.FT_SEX)
+        val sex = sexField?.value ?: ""
+        neuvoteManager.setSex(sex)
+        Log.d(TAG, "Sex: $sex")
+        
+        val streetAddressField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_STREET)
+        val streetAddress = streetAddressField?.value ?: ""
+        neuvoteManager.setStreetAddress(streetAddress)
+        Log.d(TAG, "Street address: $streetAddress")
+        
+        val cityField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_CITY)
+        val city = cityField?.value ?: ""
+        neuvoteManager.setCity(city)
+        Log.d(TAG, "City: $city")
+        
+        val jurisdictionField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_JURISDICTION_CODE)
+        val jurisdiction = jurisdictionField?.value ?: ""
+        neuvoteManager.setJurisdiction(jurisdiction)
+        Log.d(TAG, "Jurisdiction: $jurisdiction")
+        
+        val postalCodeField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_POSTAL_CODE)
+        val postalCode = postalCodeField?.value ?: ""
+        neuvoteManager.setPostalCode(postalCode)
+        Log.d(TAG, "Postal code: $postalCode")
     }
 
     override fun setContentView(view: View?) {

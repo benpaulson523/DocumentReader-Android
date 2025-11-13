@@ -41,10 +41,10 @@
             android:name="com.regula.backend.processing.RegistrationLivenessActivity"
             android:exported="false" />
         <activity
-            android:name="com.regula.backend.processing.FacialScanActivity"
+            android:name="com.regula.backend.processing.RegistrationDataActivity"
             android:exported="false" />
         <activity
-            android:name="com.regula.backend.processing.VerifyEmailActivity"
+            android:name="com.regula.backend.processing.RegistrationVerifyContactActivity"
             android:exported="false" />
     </application>
 

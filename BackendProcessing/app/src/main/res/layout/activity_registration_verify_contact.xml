@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegistrationLivenessActivity"
+    tools:context=".RegistrationVerifyContactActivity"
     android:tag="content">
     
     <ImageView
@@ -15,47 +15,33 @@
         android:src="@drawable/philippinesbackground" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/codeLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Registration requires a live\nfacial scan. Ensure good lighting\nand a clear view of your face."
+        android:text="Enter confirmation code:"
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="72dp" 
         android:layout_marginStart="24dp" />
 
-    <Button
-        android:id="@+id/beginBtn"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:text="BEGIN SCAN"
-        android:backgroundTint="?attr/colorSecondary"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="36dp"  />
-
-    <TextView
-        android:id="@+id/resultMessageTv"
+    <EditText
+        android:id="@+id/codeValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_dark"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/beginBtn"
-        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@+id/codeLabel"
+        app:layout_constraintStart_toStartOf="@+id/codeLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginEnd="16dp" />
 
     <Button
-        android:id="@+id/continueBtn"
+        android:id="@+id/confirmBtn"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="CONTINUE"
+        android:text="CONFIRM"
         android:enabled="false"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"

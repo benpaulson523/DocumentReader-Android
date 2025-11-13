@@ -72,18 +72,22 @@ class RegulaScanner(
         }
     }
 
-    val completion =
+    fun getCompletion(readChip: Boolean) =
         IDocumentReaderCompletion { action, results, error ->
             if (action == DocReaderAction.COMPLETE) {
-                DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
-                    override fun onCompleted(
-                        rfidAction: Int,
-                        documentReaderResults: DocumentReaderResults?,
-                        e: DocumentReaderException?
-                    ) {
-                        onFinalize(documentReaderResults)
-                    }
-                })
+                if (readChip) {
+                    DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
+                        override fun onCompleted(
+                            rfidAction: Int,
+                            documentReaderResults: DocumentReaderResults?,
+                            e: DocumentReaderException?
+                        ) {
+                            onFinalize(documentReaderResults)
+                        }
+                    })
+                } else {
+                    onFinalize(results)
+                }
             } else {
                 if (action == DocReaderAction.CANCEL) {
                     Toast.makeText(context, "Scanning was cancelled", Toast.LENGTH_LONG)
@@ -94,12 +98,12 @@ class RegulaScanner(
             }
         }
 
-    fun showScanner() {
+    fun showScanner(readChip: Boolean) {
         val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
         DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
         DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
-        DocumentReader.Instance().startScanner(context, scannerConfig, completion)
+        DocumentReader.Instance().startScanner(context, scannerConfig, getCompletion(readChip))
     }
 
     fun finalize(results: DocumentReaderResults?) {

@@ -18,6 +18,7 @@ class RegistrationLivenessActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationLivenessBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var iProovManager: IProovManager
+    private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationLivenessActivity screen")
@@ -26,6 +27,12 @@ class RegistrationLivenessActivity : AppCompatActivity() {
         binding = ActivityRegistrationLivenessBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        
+        neuvoteManager = NeuvoteManager.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
         
         iProovManager = IProovManager.getInstanceOrNull() ?: return
         iProovManager.setShowResultHandler(this::onResult)
@@ -36,8 +43,13 @@ class RegistrationLivenessActivity : AppCompatActivity() {
         }
 
         binding.continueBtn.setOnClickListener {
-            Toast.makeText(this, "Navigate to next page", Toast.LENGTH_LONG).show()
-            //NavigationHelper.navigateToRegistrationSelectDoc(this)
+            if (neuvoteManager.hasAddress()) {
+                Log.d(TAG, "Address is populated")
+                NavigationHelper.navigateToRegistrationData(this)
+            } else {
+                //NavigationHelper.navigateToRegistrationSelectDoc(this)
+                Log.d(TAG, "Need to obtain address")
+            }
         }
     }
     

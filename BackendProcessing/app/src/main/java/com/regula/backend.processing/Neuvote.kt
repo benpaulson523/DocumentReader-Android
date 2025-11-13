@@ -15,17 +15,18 @@ class NeuvoteManager private constructor(
     var showDialog: (String?) -> Unit,
     var dismissDialog: () -> Unit
 ) {
-    private var name: String? = null
+    private var firstName: String? = null
     private var surname: String? = null
     private var dateOfBirth: String? = null
     private var sex: String? = null
-    private var mnemonicUuid: String? = null
+    private var biometricsId: String? = null
     private var email: String? = null
     private var phone: String? = null
     private var streetAddress: String? = null
     private var city: String? = null
-    private var province: String? = null
+    private var jurisdiction: String? = null
     private var postalCode: String? = null
+    private var readChip: Boolean = false
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -60,13 +61,12 @@ class NeuvoteManager private constructor(
     fun sendVerificationEmail(
         context: Context,
         email: String,
-        mnemonicUuid: String,
         onResponse: (Boolean) -> Unit
     ) {
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
         val jsonObj = org.json.JSONObject().apply {
             put("email", email)
-            put("mnemonicUuid", mnemonicUuid)
+            put("mnemonicUuid", biometricsId)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -102,19 +102,19 @@ class NeuvoteManager private constructor(
         val addressJson = org.json.JSONObject().apply {
             put("streetAddress", streetAddress ?: "")
             put("city", city ?: "")
-            put("province", province ?: "")
+            put("province", jurisdiction ?: "")
             put("postalCode", postalCode ?: "")
             put("unitNumberPOBox", unitNumberPOBox)
         }
         val jsonObj = org.json.JSONObject().apply {
             put("votingChannel", "online")
-            put("firstName", name ?: "")
+            put("firstName", firstName ?: "")
             put("middleName", "") // TODO
             put("lastName", surname ?: "")
             put("dateOfBirth", dateOfBirth ?: "")
             put("email", email ?: "")
             put("phone", phone ?: "")
-            put("mnemonicUuid", mnemonicUuid ?: "")
+            put("mnemonicUuid", biometricsId ?: "")
             put("address", addressJson)
             put("electionOptIns", electionOptIns)
             put("verificationCode", verificationCode)
@@ -169,14 +169,14 @@ class NeuvoteManager private constructor(
                             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
                             iProovManager.validateVerification(
                                 verifyToken,
-                                mnemonicUuid ?: "",
-                                name ?: "",
+                                biometricsId ?: "",
+                                firstName ?: "",
                                 surname ?: "",
                                 dateOfBirth ?: "",
                                 sex ?: "",
                                 onResult = { _ ->
                                     Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    updateAbisID(context, voterIdentifier, mnemonicUuid ?: "", onFinalResult)
+                                    updateAbisID(context, voterIdentifier, biometricsId ?: "", onFinalResult)
                                 },
                                 onError = { errorMsg ->
                                     dismissDialog();
@@ -197,10 +197,10 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun updateAbisID(context: Context, voterIdentifier: String, mnemonicUuid: String, onFinalResult: ((Boolean) -> Unit)? = null) {
+    fun updateAbisID(context: Context, voterIdentifier: String, biometricsId: String, onFinalResult: ((Boolean) -> Unit)? = null) {
         val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
         val jsonObj = org.json.JSONObject().apply {
-            put("abisID", mnemonicUuid)
+            put("abisID", biometricsId)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -225,11 +225,11 @@ class NeuvoteManager private constructor(
                 Log.d(TAG, "Server response from /$voterIdentifier/abis-id: $responseBody")
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
-                        updateAbisFacialScanFlag(context, mnemonicUuid) { success ->
+                        updateAbisFacialScanFlag(context, biometricsId) { success ->
                             onFinalResult?.invoke(success)
                             dismissDialog();
                             if (!success) {
-                                Toast.makeText(context, context.getString(R.string.face_scan_flag_failed), Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.registration_failed), Toast.LENGTH_LONG).show()
                             }
                         }
                     } else {
@@ -273,24 +273,43 @@ class NeuvoteManager private constructor(
         })
     }
     
-    fun setName(value: String?) {
-        name = value
+    fun setFirstName(value: String?) {
+        firstName = value
     }
+    fun getFirstName(): String? {
+        return firstName
+    }
+
     fun setSurname(value: String?) {
         surname = value
     }
+    fun getSurname(): String? {
+        return surname
+    }
+
+    fun getFullName(): String {
+        return firstName + " " + surname
+    }
+
     fun setDateOfBirth(value: String?) {
         dateOfBirth = value
     }
+    fun getDateOfBirth(): String? {
+        return dateOfBirth
+    }
+
     fun setSex(value: String?) {
         sex = value
     }
-
-    fun setMnemonicUuid(value: String?) {
-        mnemonicUuid = value
+    fun getSex(): String? {
+        return sex
     }
-    fun getMnemonicUuid(): String? {
-        return mnemonicUuid
+
+    fun setBiometricsId(value: String?) {
+        biometricsId = value
+    }
+    fun getBiometricsId(): String? {
+        return biometricsId
     }
 
     fun setEmail(value: String?) {
@@ -314,11 +333,11 @@ class NeuvoteManager private constructor(
         return city
     }
 
-    fun setProvince(value: String?) {
-        province = value
+    fun setJurisdiction(value: String?) {
+        jurisdiction = value
     }
-    fun getProvince(): String? {
-        return province
+    fun getJurisdiction(): String? {
+        return jurisdiction
     }
 
     fun setStreetAddress(value: String?) {
@@ -333,5 +352,23 @@ class NeuvoteManager private constructor(
     }
     fun getPostalCode(): String? {
         return postalCode
+    }
+
+    fun getFullAddress(): String {
+        return streetAddress + "\n" + city + ", " + jurisdiction + " " + postalCode
+    }
+
+    fun setReadChip(value: Boolean) {
+        readChip = value
+    }
+    fun getReadChip(): Boolean {
+        return readChip
+    }
+
+    fun hasAddress(): Boolean {
+        return (streetAddress != null) && (streetAddress != "") &&
+                (jurisdiction != null) && (jurisdiction != "") &&
+                (postalCode != null) && (postalCode != "") &&
+                (city != null) && (city != "")
     }
 }

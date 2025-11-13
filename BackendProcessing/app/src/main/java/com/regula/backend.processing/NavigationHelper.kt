@@ -30,13 +30,13 @@ object NavigationHelper {
         activity.startActivity(intent)
     }
 
-    fun navigateToFacialScan(activity: Activity) {
-        val intent = Intent(activity, FacialScanActivity::class.java)
+    fun navigateToRegistrationData(activity: Activity) {
+        val intent = Intent(activity, RegistrationDataActivity::class.java)
         activity.startActivity(intent)
     }
 
-    fun navigateToVerifyEmail(activity: Activity) {
-        val intent = Intent(activity, VerifyEmailActivity::class.java)
+    fun navigateToRegistrationVerifyContact(activity: Activity) {
+        val intent = Intent(activity, RegistrationVerifyContactActivity::class.java)
         activity.startActivity(intent)
     }
 }
