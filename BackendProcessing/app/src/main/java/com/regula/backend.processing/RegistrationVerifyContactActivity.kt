@@ -57,9 +57,22 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                 com.regula.backend.processing.IProovManager.getInstanceOrNull()
             ) { success ->
                 if (success) {
-                    binding.confirmBtn.isEnabled = false
+                    binding.confirmBtn.visibility = View.GONE
                     Log.d(TAG, "Registration completed successfully")
                     Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
+
+                    val registeredMessage = binding.registeredMessage
+                    registeredMessage.visibility = View.VISIBLE
+                    
+                    val biometricsLabel = binding.biometricsLabel
+                    biometricsLabel.visibility = View.VISIBLE
+                    
+                    val biometricsId = binding.biometricsId
+                    biometricsId.setText(neuvoteManager.getBiometricsId())
+                    biometricsId.visibility = View.VISIBLE
+                    
+                    val code = binding.codeValue
+                    code.isEnabled = false
                 } else {
                     Log.d(TAG, "Registration failed")
                     Toast.makeText(this, getString(R.string.registration_failed), Toast.LENGTH_LONG).show()

@@ -1,7 +1,6 @@
 <resources>
     <style name="AppTextXXLarge">
         <item name="android:textSize">72sp</item>
-        <item name="android:textColor">@android:color/white</item>
     </style>
     <style name="AppTextXLarge">
         <item name="android:textSize">24sp</item>

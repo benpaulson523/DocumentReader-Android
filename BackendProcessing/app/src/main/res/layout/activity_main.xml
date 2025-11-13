@@ -12,50 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/demobackground" />
-
-    <!--<ImageView
-        android:id="@+id/commission_icon"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="fitXY"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="260dp"
-        app:layout_constraintStart_toStartOf="@+id/iconLabel"
-        app:layout_constraintEnd_toEndOf="@+id/iconLabel"
-        android:src="@drawable/neuvoteicon" />
-
-    <TextView
-        android:id="@+id/iconLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="REPUBLIC OF THE PHILIPPINES"
-        style="@style/AppTextMedium"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@+id/commission_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:id="@+id/iconLabel2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="COMMISSION ON ELECTIONS"
-        style="@style/AppTextMedium"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@+id/iconLabel"
-        app:layout_constraintStart_toStartOf="@+id/iconLabel"
-        app:layout_constraintEnd_toEndOf="@+id/iconLabel"
-        android:layout_marginTop="4dp" />
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/app_name" />-->
+        android:src="@drawable/firstscreenbackground" />
 
     <TextView
         android:id="@+id/bannerLabel"
@@ -64,6 +21,7 @@
         android:text="Elections\n2026"
         android:textStyle="bold"
         style="@style/AppTextXXLarge"
+        android:textColor="@color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="48dp"
