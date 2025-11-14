@@ -3,6 +3,8 @@
     <string name="email_code_label">6-digit Email Code:</string>
     <string name="verification_email_sent">Verification email sent</string>
     <string name="verification_email_failed">Failed to send email</string>
+    <string name="verification_text_sent">Verification text sent</string>
+    <string name="verification_text_failed">Failed to send text</string>
     <string name="surname_label">Surname</string>
     <string name="name_label">Name</string>
     <string name="dob_label">Date of Birth</string>

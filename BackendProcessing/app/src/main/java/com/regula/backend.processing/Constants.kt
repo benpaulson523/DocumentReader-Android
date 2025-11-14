@@ -6,6 +6,8 @@ object Constants {
     const val ENDPOINT_IPROOV_VALIDATE_VERIFICATION = "/iproov/validate-verification"
     const val ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL = "/registration/mfa/initiate/email"
     const val ENDPOINT_REGISTRATION_MFA_VERIFY_EMAIL = "/registration/mfa/verify/email"
+    const val ENDPOINT_REGISTRATION_MFA_INITIATE_SMS = "/registration/mfa/initiate/sms"
+    const val ENDPOINT_REGISTRATION_MFA_VERIFY_SMS = "/registration/mfa/verify/sms"
     const val REGULA_BASE_URL = "https://api.regulaforensics.com"
     const val IPROOV_BASE_URL = "wss://sg.rp.secure.iproov.me/ws"
     const val FUEL_URL = "https://sg.rp.secure.iproov.me/api/v2/"

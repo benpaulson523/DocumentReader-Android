@@ -68,12 +68,11 @@ class RegistrationDataActivity : AppCompatActivity() {
 
         binding.sendBtn.setOnClickListener {
             val email = binding.emailValue.text?.toString() ?: ""
-            val phone = binding.phoneValue.text?.toString() ?: ""
+            var phone = binding.phoneValue.text?.toString() ?: ""
 
-            val digitCount = phone.filter { it.isDigit() }.length
-if (digitCount < 8) {
-    // Not enough digits
-}
+            if (!phone.startsWith("+")) {
+                phone = "+1$phone"
+            }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && (selectedIndex == 0)) {
                 Toast.makeText(this, getString(R.string.invalid_email_address), Toast.LENGTH_LONG).show()
@@ -88,6 +87,7 @@ if (digitCount < 8) {
                 Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
 
                 if (selectedIndex == 0) {
+                    neuvoteManager.setVerifyMethod("email")
                     neuvoteManager.sendVerificationEmail(
                         this,
                         email.orEmpty()
@@ -100,7 +100,18 @@ if (digitCount < 8) {
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Sending code via SMS", Toast.LENGTH_LONG).show()
+                    neuvoteManager.setVerifyMethod("sms")
+                    neuvoteManager.sendVerificationText(
+                        this,
+                        phone.orEmpty()
+                    ) { success ->
+                        if (success) {
+                            Log.d(TAG, "Verification text sent successfully")
+                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                        } else {
+                            Toast.makeText(this, getString(R.string.verification_text_failed), Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
             }
         }

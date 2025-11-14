@@ -28,6 +28,7 @@ class NeuvoteManager private constructor(
     private var jurisdiction: String? = null
     private var postalCode: String? = null
     private var readChip: Boolean = false
+    private var verifyMethod: String? = null
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -94,6 +95,41 @@ class NeuvoteManager private constructor(
         })
     }
 
+    fun sendVerificationText(
+        context: Context,
+        phone: String,
+        onResponse: (Boolean) -> Unit
+    ) {
+        val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_SMS
+        val jsonObj = org.json.JSONObject().apply {
+            put("phone", phone)
+            put("mnemonicUuid", biometricsId)
+        }
+        val jsonBody = jsonObj.toString()
+        val client = okhttp3.OkHttpClient()
+        val requestBody = okhttp3.RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            jsonBody
+        )
+        val request = okhttp3.Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                (context as? Activity)?.runOnUiThread {
+                    Toast.makeText(context, "Failed to send text", Toast.LENGTH_LONG).show()
+                    onResponse(false)
+                }
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                (context as? Activity)?.runOnUiThread {
+                    onResponse(response.isSuccessful)
+                }
+            }
+        })
+    }
+
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
         showDialog("Registering...")
         
@@ -121,7 +157,14 @@ class NeuvoteManager private constructor(
             put("verificationCode", verificationCode)
         }
         Log.d(TAG, "validateVerification data: $jsonObj")
-        val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_EMAIL
+
+        var url = getNeuvoteServerUrl()
+        if (verifyMethod == "email") {
+            url += Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_EMAIL
+        } else {
+            url += Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_SMS
+        }
+
         val jsonBody = jsonObj.toString()
 
         val client = okhttp3.OkHttpClient()
@@ -369,6 +412,13 @@ class NeuvoteManager private constructor(
         return streetAddress + "\n" + city + ", " + jurisdiction + " " + postalCode
     }
 
+    fun hasAddress(): Boolean {
+        return (streetAddress != null) && (streetAddress != "") &&
+                (jurisdiction != null) && (jurisdiction != "") &&
+                (postalCode != null) && (postalCode != "") &&
+                (city != null) && (city != "")
+    }
+
     fun setReadChip(value: Boolean) {
         readChip = value
     }
@@ -376,10 +426,10 @@ class NeuvoteManager private constructor(
         return readChip
     }
 
-    fun hasAddress(): Boolean {
-        return (streetAddress != null) && (streetAddress != "") &&
-                (jurisdiction != null) && (jurisdiction != "") &&
-                (postalCode != null) && (postalCode != "") &&
-                (city != null) && (city != "")
+    fun setVerifyMethod(value: String) {
+        verifyMethod = value
+    }
+    fun getVerifyMethod(): String? {
+        return verifyMethod
     }
 }
