@@ -1,6 +1,10 @@
 <resources>
-    <style name="AppTextXXLarge">
+    <style name="AppTextXXXLarge">
         <item name="android:textSize">72sp</item>
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+    <style name="AppTextXXLarge">
+        <item name="android:textSize">34sp</item>
         <item name="android:fontFamily">@font/poppins</item>
     </style>
     <style name="AppTextXLarge">

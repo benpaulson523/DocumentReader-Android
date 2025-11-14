@@ -53,11 +53,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         
         regulaScanner = RegulaScanner(
             context = this,
-            onResults = { results ->
-                docScanned(results)
-            },
             onFinalize = { results ->
                 docScanned(results)
+            },
+            onFailure = {
+                docScanningFailed()
             },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
@@ -77,9 +77,24 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         binding.continueBtn.setOnClickListener {
             NavigationHelper.navigateToRegistrationLiveness(this)
         }
+        
+        binding.retryBtn.setOnClickListener {
+            regulaScanner.showScanner(neuvoteManager.getReadChip())
+        }
+    }
+
+    private fun docScanningFailed() {
+        Log.d(TAG, "docScanningFailed")
+
+        binding.errorMessage.visibility = View.VISIBLE
+        binding.retryBtn.visibility = View.VISIBLE
     }
 
     private fun docScanned(results: DocumentReaderResults?) {
+        Log.d(TAG, "docScanned")
+        binding.errorMessage.visibility = View.GONE
+        binding.retryBtn.visibility = View.GONE
+
         binding.idUploadIcon.visibility = View.VISIBLE
         binding.title.visibility = View.VISIBLE
 
@@ -92,6 +107,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     (480 * aspectRatio).toInt(), 480, false
                 )
 
+                Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
                 // Enroll the photo with iProov, pass callback for UI update
                 iProovManager.enrollDocumentPhotoWithIProov(documentImage) {
                     Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()

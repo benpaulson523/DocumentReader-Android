@@ -45,7 +45,7 @@
         android:id="@+id/registeredMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Your registration has been received. You can finish biometrics collections at your local Commission office."
+        android:text="Your contact information has been confirmed and your registration has been received by Neuvote. You can finish biometrics collections at your local Commission office."
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         android:textStyle="bold"

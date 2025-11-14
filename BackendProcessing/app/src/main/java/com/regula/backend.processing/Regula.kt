@@ -1,5 +1,6 @@
 package com.regula.backend.processing
 
+import android.util.Log
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -23,13 +24,17 @@ import java.util.concurrent.Executors
 
 class RegulaScanner(
     private val context: Context,
-    private val onResults: (DocumentReaderResults?) -> Unit,
     private val onFinalize: (DocumentReaderResults?) -> Unit,
+    private val onFailure: () -> Unit,
     private val showDialog: (String?) -> Unit,
     private val dismissDialog: () -> Unit
 ) {
+    companion object {
+        private const val TAG = "RegulaScanner"
+    }
+
     fun initializeReader(onInitialized: (() -> Unit)? = null) {
-        showDialog("Initializing...")
+        showDialog("Initializing document reader...")
         val initCompletionWithCallback = IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
@@ -42,6 +47,7 @@ class RegulaScanner(
                 }
                 onInitialized?.invoke()
             } else {
+                Log.d(TAG, "Exception during initialization1")
                 Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
                 return@IDocumentReaderInitCompletion
             }
@@ -62,6 +68,7 @@ class RegulaScanner(
                     }
                 }
             } catch (ex: Exception) {
+                Log.d(TAG, "Exception during initialization2")
                 ex.printStackTrace()
                 Toast.makeText(
                     context,
@@ -75,6 +82,7 @@ class RegulaScanner(
     fun getCompletion(readChip: Boolean) =
         IDocumentReaderCompletion { action, results, error ->
             if (action == DocReaderAction.COMPLETE) {
+                Log.d(TAG, "IDocumentReaderCompletion COMPLETE")
                 if (readChip) {
                     DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
                         override fun onCompleted(
@@ -90,10 +98,18 @@ class RegulaScanner(
                 }
             } else {
                 if (action == DocReaderAction.CANCEL) {
+                    Log.d(TAG, "IDocumentReaderCompletion CANCEL")
                     Toast.makeText(context, "Scanning was cancelled", Toast.LENGTH_LONG)
                         .show()
+                    onFailure()
                 } else if (action == DocReaderAction.ERROR) {
-                    Toast.makeText(context, "Error:${error?.message}", Toast.LENGTH_LONG).show()
+                    Log.d(TAG, "IDocumentReaderCompletion ERROR")
+                    Toast.makeText(context, "Scanning error:${error?.message}", Toast.LENGTH_LONG).show()
+                    onFailure()
+                } else if (action == DocReaderAction.TIMEOUT) {
+                    Log.d(TAG, "IDocumentReaderCompletion TIMEOUT")
+                    Toast.makeText(context, "Scanning timed out", Toast.LENGTH_LONG).show()
+                    onFailure()
                 }
             }
         }
@@ -104,27 +120,5 @@ class RegulaScanner(
         DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
         DocumentReader.Instance().startScanner(context, scannerConfig, getCompletion(readChip))
-    }
-
-    fun finalize(results: DocumentReaderResults?) {
-        showDialog("Finalizing process...")
-        DocumentReader.Instance()
-            .finalizePackage { action: Int, transactionInfo: TransactionInfo?, documentReaderException: DocumentReaderException? ->
-                dismissDialog()
-                if (action == DocReaderAction.COMPLETE) {
-                    Toast.makeText(
-                        context,
-                        "Finalize Done. TransactionId " + transactionInfo?.transactionId,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    onResults(results)
-                } else if (documentReaderException != null) {
-                    Toast.makeText(
-                        context,
-                        "Failed to Finalize. Error " + documentReaderException.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
     }
 }
