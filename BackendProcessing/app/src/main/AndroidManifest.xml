@@ -44,7 +44,13 @@
             android:name="com.regula.backend.processing.RegistrationDataActivity"
             android:exported="false" />
         <activity
+            android:name="com.regula.backend.processing.RegistrationEnterContactActivity"
+            android:exported="false" />
+        <activity
             android:name="com.regula.backend.processing.RegistrationVerifyContactActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.regula.backend.processing.RegistrationAuthorizedActivity"
             android:exported="false" />
     </application>
 

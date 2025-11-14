@@ -35,8 +35,18 @@ object NavigationHelper {
         activity.startActivity(intent)
     }
 
+    fun navigateToRegistrationEnterContact(activity: Activity) {
+        val intent = Intent(activity, RegistrationEnterContactActivity::class.java)
+        activity.startActivity(intent)
+    }
+
     fun navigateToRegistrationVerifyContact(activity: Activity) {
         val intent = Intent(activity, RegistrationVerifyContactActivity::class.java)
+        activity.startActivity(intent)
+    }
+
+    fun navigateToRegistrationAuthorized(activity: Activity) {
+        val intent = Intent(activity, RegistrationAuthorizedActivity::class.java)
         activity.startActivity(intent)
     }
 }

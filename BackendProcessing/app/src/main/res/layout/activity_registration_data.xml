@@ -106,107 +106,11 @@
         app:layout_constraintStart_toStartOf="@id/addressLabel"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/emailLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email:"
-        android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
-        app:layout_constraintTop_toBottomOf="@id/addressValue"
-        app:layout_constraintStart_toStartOf="@id/addressValue"
-        android:layout_marginTop="16dp" />
-
-    <EditText
-        android:id="@+id/emailValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/black"
-        style="@style/AppTextLarge"
-        android:textStyle="bold"
-        android:inputType="textEmailAddress"
-        app:layout_constraintTop_toTopOf="@id/emailLabel"
-        app:layout_constraintBottom_toBottomOf="@id/emailLabel"
-        app:layout_constraintStart_toEndOf="@id/emailLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="4dp" />
-
-    <TextView
-        android:id="@+id/phoneLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Phone:"
-        android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
-        app:layout_constraintTop_toBottomOf="@id/emailLabel"
-        app:layout_constraintStart_toStartOf="@id/emailLabel"
-        android:layout_marginTop="16dp" />
-
-    <EditText
-        android:id="@+id/phoneValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/black"
-        style="@style/AppTextLarge"
-        android:textStyle="bold"
-        android:inputType="phone"
-        app:layout_constraintTop_toTopOf="@id/phoneLabel"
-        app:layout_constraintBottom_toBottomOf="@id/phoneLabel"
-        app:layout_constraintStart_toEndOf="@id/phoneLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="4dp" />
-
-    <TextView
-        android:id="@+id/confirmationMethodLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Verify via:"
-        android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
-        app:layout_constraintTop_toBottomOf="@id/phoneValue"
-        app:layout_constraintStart_toStartOf="@id/phoneLabel"
-        android:layout_marginTop="16dp" />
-
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/confirmationMethodGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/confirmationMethodLabel"
-        app:layout_constraintBottom_toBottomOf="@id/confirmationMethodLabel"
-        app:layout_constraintStart_toEndOf="@id/confirmationMethodLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="16dp" >
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email"
-            app:backgroundTint="@color/white"
-            app:strokeColor="@color/philippines_blue"
-            app:strokeWidth="2dp"
-            app:cornerRadius="18dp" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SMS"
-            app:backgroundTint="@color/white"
-            app:strokeColor="@color/philippines_blue"
-            app:strokeWidth="2dp"
-            app:cornerRadius="18dp" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
-
     <Button
-        android:id="@+id/sendBtn"
+        android:id="@+id/confirmBtn"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="SEND CODE"
-        android:enabled="false"
+        android:text="CONFIRM"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

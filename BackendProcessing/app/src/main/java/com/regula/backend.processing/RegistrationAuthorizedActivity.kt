@@ -7,23 +7,23 @@ import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
-import com.regula.backend.processing.databinding.ActivityRegistrationVerifyContactBinding
+import com.regula.backend.processing.databinding.ActivityRegistrationAuthorizedBinding
 import androidx.appcompat.app.AlertDialog
 
-class RegistrationVerifyContactActivity : AppCompatActivity() {
+class RegistrationAuthorizedActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "RegistrationVerifyContactActivity"
+        private const val TAG = "RegistrationAuthorizedActivity"
     }
 
-    private lateinit var binding: ActivityRegistrationVerifyContactBinding
+    private lateinit var binding: ActivityRegistrationAuthorizedBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var neuvoteManager: NeuvoteManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Opened RegistrationVerifyContactActivity screen")
+        Log.d(TAG, "Opened RegistrationAuthorizedActivity screen")
 
         super.onCreate(savedInstanceState)
-        binding = ActivityRegistrationVerifyContactBinding.inflate(layoutInflater)
+        binding = ActivityRegistrationAuthorizedBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -32,40 +32,12 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        
-        // Set max length for codeValue to 6
-        val filterArray = arrayOf(android.text.InputFilter.LengthFilter(6))
-        binding.codeValue.filters = filterArray
 
-        // Enable verifyBtn when codeValue contains 6 digits
-        binding.codeValue.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val code = s?.toString() ?: ""
-                binding.verifyBtn.isEnabled = code.length == 6 && code.all { it.isDigit() }
-            }
-        })
+        binding.biometricsId.setText(neuvoteManager.getBiometricsId())
+        binding.nameValue.setText(neuvoteManager.getFullName())
 
-        binding.verifyBtn.setOnClickListener {
-            val code = binding.codeValue.text?.toString() ?: ""
-            Log.d(TAG, "Confirm button clicked. Code: $code")
-
-            neuvoteManager.completeRegistration(
-                this,
-                code,
-                com.regula.backend.processing.IProovManager.getInstanceOrNull()
-            ) { success ->
-                if (success) {
-                    Log.d(TAG, "Registration completed successfully")
-                    Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
-
-                    NavigationHelper.navigateToRegistrationAuthorized(this)
-                } else {
-                    Log.d(TAG, "Registration failed")
-                    Toast.makeText(this, getString(R.string.registration_failed), Toast.LENGTH_LONG).show()
-                }
-            }
+        binding.exitBtn.setOnClickListener {
+            finishAffinity()
         }
     }
 

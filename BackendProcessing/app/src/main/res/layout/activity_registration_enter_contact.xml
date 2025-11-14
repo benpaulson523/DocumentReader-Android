@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegistrationEnterContactActivity"
+    android:tag="content">
+    
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/otherscreensbackground" />
+        
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="One final step!"
+        android:textColor="?attr/colorSecondary"
+        style="@style/AppTextXXLarge"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="72dp"
+        android:layout_marginStart="24dp" />
+        
+    <TextView
+        android:id="@+id/verifyInstruction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="We will send a verification code to you. Select where you would like the code to be sent."
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+        
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/confirmationMethodGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/verifyInstruction"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" >
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp"
+            app:cornerRadius="18dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMS"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp"
+            app:cornerRadius="18dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+        
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email Address:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/confirmationMethodGroup"
+        app:layout_constraintStart_toStartOf="@id/verifyInstruction"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/emailValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="textEmailAddress"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/emailLabel"
+        app:layout_constraintStart_toStartOf="@id/emailLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/phoneLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/emailValue"
+        app:layout_constraintStart_toStartOf="@id/emailValue"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/phoneValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="phone"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/phoneLabel"
+        app:layout_constraintStart_toStartOf="@id/phoneLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <Button
+        android:id="@+id/sendBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="SEND CODE"
+        android:enabled="false"
+        android:backgroundTint="?attr/colorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
