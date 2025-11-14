@@ -68,22 +68,39 @@ class RegistrationDataActivity : AppCompatActivity() {
 
         binding.sendBtn.setOnClickListener {
             val email = binding.emailValue.text?.toString() ?: ""
-            neuvoteManager.setEmail(email)
-
             val phone = binding.phoneValue.text?.toString() ?: ""
-            neuvoteManager.setPhone(phone)
 
-            Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
+            val digitCount = phone.filter { it.isDigit() }.length
+if (digitCount < 8) {
+    // Not enough digits
+}
 
-            neuvoteManager.sendVerificationEmail(
-                this,
-                email.orEmpty()
-            ) { success ->
-                if (success) {
-                    Log.d(TAG, "Verification email sent successfully")
-                    NavigationHelper.navigateToRegistrationVerifyContact(this)
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && (selectedIndex == 0)) {
+                Toast.makeText(this, getString(R.string.invalid_email_address), Toast.LENGTH_LONG).show()
+            } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
+                        (phone.filter { it.isDigit() }.length < 8)) &&
+                        (selectedIndex == 1)) {
+                Toast.makeText(this, getString(R.string.invalid_phone_number), Toast.LENGTH_LONG).show()
+            } else {
+                neuvoteManager.setEmail(email)
+                neuvoteManager.setPhone(phone)
+
+                Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
+
+                if (selectedIndex == 0) {
+                    neuvoteManager.sendVerificationEmail(
+                        this,
+                        email.orEmpty()
+                    ) { success ->
+                        if (success) {
+                            Log.d(TAG, "Verification email sent successfully")
+                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                        } else {
+                            Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                        }
+                    }
                 } else {
-                    Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Sending code via SMS", Toast.LENGTH_LONG).show()
                 }
             }
         }

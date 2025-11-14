@@ -36,8 +36,16 @@ fun formatDateOfBirth(dob: String): String {
 }
 
 fun generateMnemonicUUID(): String {
-    val adjectives = listOf("brave", "calm", "eager", "fancy", "gentle", "jolly", "kind", "lucky", "proud", "witty")
-    val nouns = listOf("lion", "tiger", "eagle", "panda", "shark", "wolf", "falcon", "otter", "fox", "bear")
+    val adjectives = listOf(
+        "quick", "bright", "silent", "brave", "calm", "eager", "gentle", "happy", "jolly", "kind", "lucky", "merry", "nice", "proud", "silly", "witty",
+        "bold", "clever", "daring", "fierce", "graceful", "humble", "keen", "loyal", "noble", "playful", "quirky", "radiant", "serene", "spirited", "sturdy", "swift",
+        "thoughtful", "vivid", "zesty", "charming", "diligent", "fearless", "glad", "honest", "inventive", "jovial", "modest", "optimistic", "patient", "resourceful", "sincere", "trusty"
+    )
+    val nouns = listOf(
+        "lion", "tiger", "bear", "fox", "wolf", "eagle", "owl", "shark", "panda", "zebra", "koala", "otter", "rabbit", "deer", "falcon",
+        "badger", "buffalo", "cheetah", "dolphin", "ferret", "giraffe", "jackal", "lemur", "lynx", "moose", "narwhal", "penguin", "raccoon",
+        "seal", "swan", "toucan", "vulture", "yak", "antelope", "camel", "goat", "iguana", "jaguar", "kangaroo", "lemur", "mole"
+    )
     val adj = adjectives.random()
     val noun = nouns.random()
     val uuid = java.util.UUID.randomUUID().toString().substring(0, 8)

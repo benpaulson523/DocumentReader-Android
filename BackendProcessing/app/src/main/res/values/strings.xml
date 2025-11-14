@@ -10,4 +10,6 @@
     <string name="connection_settings_title">Connection Settings</string>
     <string name="registration_received">Registration received!</string>
     <string name="registration_failed">Registration failed</string>
+    <string name="invalid_email_address">Invalid email address</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
 </resources>

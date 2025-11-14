@@ -16,6 +16,7 @@ class NeuvoteManager private constructor(
     var dismissDialog: () -> Unit
 ) {
     private var firstName: String? = null
+    private var middleName: String? = null
     private var surname: String? = null
     private var dateOfBirth: String? = null
     private var sex: String? = null
@@ -109,7 +110,7 @@ class NeuvoteManager private constructor(
         val jsonObj = org.json.JSONObject().apply {
             put("votingChannel", "online")
             put("firstName", firstName ?: "")
-            put("middleName", "") // TODO
+            put("middleName", middleName ?: "")
             put("lastName", surname ?: "")
             put("dateOfBirth", dateOfBirth ?: "")
             put("email", email ?: "")
@@ -279,6 +280,13 @@ class NeuvoteManager private constructor(
     fun getFirstName(): String? {
         return firstName
     }
+    
+    fun setMiddleName(value: String?) {
+        middleName = value
+    }
+    fun getMiddleName(): String? {
+        return middleName
+    }
 
     fun setSurname(value: String?) {
         surname = value
@@ -288,6 +296,9 @@ class NeuvoteManager private constructor(
     }
 
     fun getFullName(): String {
+        if (middleName != "") {
+            return firstName + " " + middleName + " " + surname
+        }
         return firstName + " " + surname
     }
 

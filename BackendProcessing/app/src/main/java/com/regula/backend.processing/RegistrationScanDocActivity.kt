@@ -111,9 +111,16 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         Log.d(TAG, "Surname: $surname")
         
         val firstNameField = results?.getTextFieldByType(eVisualFieldType.FT_GIVEN_NAMES)
-        val firstName = firstNameField?.value ?: ""
+        val firstNameRaw = firstNameField?.value ?: ""
+        val (firstName, middleName) = if (firstNameRaw.contains(",")) {
+            val parts = firstNameRaw.split(",", limit = 2).map { it.trim() }
+            Pair(parts[0], parts.getOrNull(1) ?: "")
+        } else {
+            Pair(firstNameRaw, "")
+        }
         neuvoteManager.setFirstName(firstName)
-        Log.d(TAG, "First name: $firstName")
+        neuvoteManager.setMiddleName(middleName)
+        Log.d(TAG, "First name: $firstName, Middle name: $middleName")
         
         val dobField = results?.getTextFieldByType(eVisualFieldType.FT_DATE_OF_BIRTH)
         val rawDob = dobField?.value ?: ""
