@@ -34,16 +34,12 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
         )
         var selectedIndex = 0
         
+        //val buttons = listOf(binding.btnEmail, binding.btnSms, binding.btnBoth)
         val buttons = listOf(binding.btnEmail, binding.btnSms)
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                buttons.forEach {
-                    it.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(this, R.color.white)))
-                    it.setTextColor(androidx.core.content.ContextCompat.getColor(this, android.R.color.black))
-                }
-                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(this, R.color.philippines_blue)))
-                button.setTextColor(androidx.core.content.ContextCompat.getColor(this, android.R.color.white))
                 selectedIndex = index
+                Log.d(TAG, "Radio button selected, Method index: $selectedIndex")
             }
         }
         // set passport as selected by default
@@ -70,11 +66,11 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                 phone = "+1$phone"
             }
 
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && (selectedIndex == 0)) {
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && ((selectedIndex == 0) || (selectedIndex == 2))) {
                 Toast.makeText(this, getString(R.string.invalid_email_address), Toast.LENGTH_LONG).show()
             } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
                         (phone.filter { it.isDigit() }.length < 8)) &&
-                        (selectedIndex == 1)) {
+                        ((selectedIndex == 0) || (selectedIndex == 2))) {
                 Toast.makeText(this, getString(R.string.invalid_phone_number), Toast.LENGTH_LONG).show()
             } else {
                 neuvoteManager.setEmail(email)
@@ -95,8 +91,31 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                             Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
                         }
                     }
-                } else {
+                } else if (selectedIndex == 1) {
                     neuvoteManager.setVerifyMethod("sms")
+                    neuvoteManager.sendVerificationText(
+                        this,
+                        phone.orEmpty()
+                    ) { success ->
+                        if (success) {
+                            Log.d(TAG, "Verification text sent successfully")
+                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                        } else {
+                            Toast.makeText(this, getString(R.string.verification_text_failed), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } else {
+                    neuvoteManager.setVerifyMethod("email")
+                    neuvoteManager.sendVerificationEmail(
+                        this,
+                        email.orEmpty()
+                    ) { success ->
+                        if (success) {
+                            Log.d(TAG, "Verification email sent successfully")
+                        } else {
+                            Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                        }
+                    }
                     neuvoteManager.sendVerificationText(
                         this,
                         phone.orEmpty()
