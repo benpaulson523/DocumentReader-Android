@@ -24,6 +24,7 @@ class NeuvoteManager private constructor(
     private var email: String? = null
     private var phone: String? = null
     private var streetAddress: String? = null
+    private var unitNumber: String? = null
     private var city: String? = null
     private var jurisdiction: String? = null
     private var postalCode: String? = null
@@ -133,7 +134,6 @@ class NeuvoteManager private constructor(
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
         showDialog("Registering...")
         
-        val unitNumberPOBox = "" // TODO
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
 
         val addressJson = org.json.JSONObject().apply {
@@ -141,7 +141,7 @@ class NeuvoteManager private constructor(
             put("city", city ?: "")
             put("province", jurisdiction ?: "")
             put("postalCode", postalCode ?: "")
-            put("unitNumberPOBox", unitNumberPOBox)
+            put("unitNumberPOBox", unitNumber)
         }
         val jsonObj = org.json.JSONObject().apply {
             put("votingChannel", "online")
@@ -401,6 +401,13 @@ class NeuvoteManager private constructor(
         return streetAddress
     }
 
+    fun setUnitNumber(value: String?) {
+        unitNumber = value
+    }
+    fun getUnitNumber(): String? {
+        return unitNumber
+    }
+
     fun setPostalCode(value: String?) {
         postalCode = value
     }
@@ -409,6 +416,9 @@ class NeuvoteManager private constructor(
     }
 
     fun getFullAddress(): String {
+        if ((unitNumber != null) && (unitNumber != "")) {
+            return streetAddress + " #" + unitNumber + "\n" + city + ", " + jurisdiction + " " + postalCode
+        }
         return streetAddress + "\n" + city + ", " + jurisdiction + " " + postalCode
     }
 

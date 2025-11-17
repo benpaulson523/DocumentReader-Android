@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegistrationEnterAddressActivity"
+    android:tag="content">
+
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/otherscreensbackground" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter your address"
+        android:textColor="?attr/colorSecondary"
+        style="@style/AppTextXLarge"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="72dp"
+        android:layout_marginStart="24dp" />
+
+    <TextView
+        android:id="@+id/streetLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Street Address:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="@id/title"
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/streetValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="textPostalAddress"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/streetLabel"
+        app:layout_constraintStart_toStartOf="@id/streetLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/unitNumberLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Apartment/Unit #:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/streetValue"
+        app:layout_constraintStart_toStartOf="@id/streetValue"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/unitNumberValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="text"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/unitNumberLabel"
+        app:layout_constraintStart_toStartOf="@id/unitNumberLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/cityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="City:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/unitNumberValue"
+        app:layout_constraintStart_toStartOf="@id/unitNumberValue"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/cityValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="textCapWords"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/cityLabel"
+        app:layout_constraintStart_toStartOf="@id/cityLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/provinceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Province/State:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/cityValue"
+        app:layout_constraintStart_toStartOf="@id/cityValue"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/provinceValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="textCapWords"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/provinceLabel"
+        app:layout_constraintStart_toStartOf="@id/provinceLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/postalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Postal Code:"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        app:layout_constraintTop_toBottomOf="@id/provinceValue"
+        app:layout_constraintStart_toStartOf="@id/provinceValue"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/postalValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:inputType="textPostalAddress"
+        android:background="@drawable/edittext_rounded"
+        app:layout_constraintTop_toBottomOf="@id/postalLabel"
+        app:layout_constraintStart_toStartOf="@id/postalLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp" />
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="SAVE"
+        android:enabled="false"
+        android:backgroundTint="?attr/colorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

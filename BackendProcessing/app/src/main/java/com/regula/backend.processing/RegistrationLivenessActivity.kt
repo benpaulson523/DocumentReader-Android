@@ -49,8 +49,8 @@ class RegistrationLivenessActivity : AppCompatActivity() {
                 Log.d(TAG, "Address is populated")
                 NavigationHelper.navigateToRegistrationData(this)
             } else {
-                //NavigationHelper.navigateToRegistrationSelectDoc(this)
                 Log.d(TAG, "Need to obtain address")
+                NavigationHelper.navigateToRegistrationEnterAddress(this)
             }
         }
     }

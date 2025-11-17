@@ -44,6 +44,9 @@
             android:name="com.regula.backend.processing.RegistrationDataActivity"
             android:exported="false" />
         <activity
+            android:name="com.regula.backend.processing.RegistrationEnterAddressActivity"
+            android:exported="false" />
+        <activity
             android:name="com.regula.backend.processing.RegistrationEnterContactActivity"
             android:exported="false" />
         <activity
