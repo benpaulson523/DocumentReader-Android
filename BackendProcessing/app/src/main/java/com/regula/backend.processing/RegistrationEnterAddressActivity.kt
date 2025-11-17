@@ -65,7 +65,6 @@ class RegistrationEnterAddressActivity : AppCompatActivity() {
             neuvoteManager.setPostalCode(postal)
 
             Log.d(TAG, "Address saved: $street, Apt/Unit: $unitNumber, $city, $province, $postal")
-            Toast.makeText(this, "Address saved", Toast.LENGTH_LONG).show()
             NavigationHelper.navigateToRegistrationData(this)
         }
     }

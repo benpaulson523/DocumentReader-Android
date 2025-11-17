@@ -25,6 +25,7 @@ import com.regula.documentreader.api.params.BackendProcessingConfig
 import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.TransactionInfo
+import com.regula.documentreader.api.enums.eRPRM_ResultType
 
 class RegistrationScanDocActivity : AppCompatActivity() {
     companion object {
@@ -98,27 +99,30 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         binding.idUploadIcon.visibility = View.VISIBLE
         binding.title.visibility = View.VISIBLE
 
-        if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT) != null) {
-            var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT)
-            if (documentImage != null) {
-                val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
-                documentImage = Bitmap.createScaledBitmap(
-                    documentImage,
-                    (480 * aspectRatio).toInt(), 480, false
-                )
-
-                Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
-                // Enroll the photo with iProov, pass callback for UI update
-                iProovManager.enrollDocumentPhotoWithIProov(documentImage) {
-                    Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
-                    binding.continueBtn.isEnabled = true
+        if (neuvoteManager.getReadChip()) {
+            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
+                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
+                if (documentImage != null) {
+                    processDocumentImage(documentImage)
                 }
-            }
-            else {
-                Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                else {
+                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
             }
         } else {
-            Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
+                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
+                if (documentImage != null) {
+                    processDocumentImage(documentImage)
+                }
+                else {
+                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+            }
         }
 
         val surnameField = results?.getTextFieldByType(eVisualFieldType.FT_SURNAME)
@@ -168,6 +172,21 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         val postalCode = postalCodeField?.value ?: ""
         neuvoteManager.setPostalCode(postalCode)
         Log.d(TAG, "Postal code: $postalCode")
+    }
+
+    fun processDocumentImage(documentImage: Bitmap) {
+        val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
+        var scaledDocumentImage = Bitmap.createScaledBitmap(
+            documentImage,
+            (480 * aspectRatio).toInt(), 480, false
+        )
+
+        Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
+        // Enroll the photo with iProov, pass callback for UI update
+        iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) {
+            Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
+            binding.continueBtn.isEnabled = true
+        }
     }
 
     override fun setContentView(view: View?) {
