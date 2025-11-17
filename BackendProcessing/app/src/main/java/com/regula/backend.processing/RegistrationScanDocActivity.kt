@@ -51,20 +51,16 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        regulaScanner = RegulaScanner(
+        regulaScanner = RegulaScanner.getInstance(
             context = this,
-            onFinalize = { results ->
-                docScanned(results)
-            },
-            onFailure = {
-                docScanningFailed()
-            },
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        regulaScanner.initializeReader {
-            regulaScanner.showScanner(neuvoteManager.getReadChip())
-        }
+        regulaScanner.showScanner(
+            neuvoteManager.getReadChip(),
+            onFinalize = { results -> docScanned(results) },
+            onFailure = { docScanningFailed() }
+        )
         
         val biometricsId = generateMnemonicUUID()
         neuvoteManager.setBiometricsId(biometricsId)
@@ -73,13 +69,17 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             context = this,
             biometricsId = neuvoteManager.getBiometricsId()
         )
-        
+
         binding.continueBtn.setOnClickListener {
             NavigationHelper.navigateToRegistrationLiveness(this)
         }
-        
+
         binding.retryBtn.setOnClickListener {
-            regulaScanner.showScanner(neuvoteManager.getReadChip())
+            regulaScanner.showScanner(
+                neuvoteManager.getReadChip(),
+                onFinalize = { results -> docScanned(results) },
+                onFailure = { docScanningFailed() }
+            )
         }
     }
 

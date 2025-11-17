@@ -22,22 +22,44 @@ import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.TransactionInfo
 import java.util.concurrent.Executors
 
-class RegulaScanner(
-    private val context: Context,
-    private val onFinalize: (DocumentReaderResults?) -> Unit,
-    private val onFailure: () -> Unit,
-    private val showDialog: (String?) -> Unit,
-    private val dismissDialog: () -> Unit
+
+class RegulaScanner private constructor(
+    var context: Context,
+    var showDialog: (String?) -> Unit,
+    var dismissDialog: () -> Unit
 ) {
+    @Volatile
+    private var isInitialized: Boolean = false
+
     companion object {
         private const val TAG = "RegulaScanner"
+        @Volatile
+        private var instance: RegulaScanner? = null
+
+        @JvmStatic
+        fun getInstance(
+            context: Context,
+            showDialog: (String?) -> Unit,
+            dismissDialog: () -> Unit
+        ): RegulaScanner {
+            return if (instance == null) {
+                synchronized(this) {
+                    instance ?: RegulaScanner(context, showDialog, dismissDialog).also { instance = it }
+                }
+            } else {
+                instance!!.context = context
+                instance!!.showDialog = showDialog
+                instance!!.dismissDialog = dismissDialog
+                instance!!
+            }
+        }
     }
 
-    fun initializeReader(onInitialized: (() -> Unit)? = null) {
-        showDialog("Initializing document reader...")
+    fun initializeReader() {
         val initCompletionWithCallback = IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
+                isInitialized = true
                 if (DocumentReader.Instance().availableScenarios.size == 0) {
                     Toast.makeText(
                         context,
@@ -45,7 +67,6 @@ class RegulaScanner(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                onInitialized?.invoke()
             } else {
                 Log.d(TAG, "Exception during initialization1")
                 Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
@@ -60,11 +81,12 @@ class RegulaScanner(
                 licInput.read(license)
                 licInput.close()
                 val handler = Handler(Looper.getMainLooper())
-                if (context is androidx.appcompat.app.AppCompatActivity && !context.isFinishing && !context.isDestroyed) {
+                val activity = context as? androidx.appcompat.app.AppCompatActivity
+                if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
                     handler.post {
                         val docReaderConfig = DocReaderConfig(license)
                         DocumentReader.Instance()
-                            .initializeReader(context, docReaderConfig, initCompletionWithCallback)
+                            .initializeReader(activity, docReaderConfig, initCompletionWithCallback)
                     }
                 }
             } catch (ex: Exception) {
@@ -79,46 +101,77 @@ class RegulaScanner(
         }
     }
 
-    fun getCompletion(readChip: Boolean) =
-        IDocumentReaderCompletion { action, results, error ->
-            if (action == DocReaderAction.COMPLETE) {
-                Log.d(TAG, "IDocumentReaderCompletion COMPLETE")
-                if (readChip) {
-                    DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
-                        override fun onCompleted(
-                            rfidAction: Int,
-                            documentReaderResults: DocumentReaderResults?,
-                            e: DocumentReaderException?
-                        ) {
-                            onFinalize(documentReaderResults)
-                        }
-                    })
-                } else {
-                    onFinalize(results)
-                }
+    private fun getCompletion(
+        readChip: Boolean,
+        onFinalize: (DocumentReaderResults?) -> Unit,
+        onFailure: () -> Unit
+    ) = IDocumentReaderCompletion { action, results, error ->
+        if (action == DocReaderAction.COMPLETE) {
+            Log.d(TAG, "IDocumentReaderCompletion COMPLETE")
+            if (readChip) {
+                DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
+                    override fun onCompleted(
+                        rfidAction: Int,
+                        documentReaderResults: DocumentReaderResults?,
+                        e: DocumentReaderException?
+                    ) {
+                        onFinalize(documentReaderResults)
+                    }
+                })
             } else {
-                if (action == DocReaderAction.CANCEL) {
-                    Log.d(TAG, "IDocumentReaderCompletion CANCEL")
-                    Toast.makeText(context, "Scanning was cancelled", Toast.LENGTH_LONG)
-                        .show()
-                    onFailure()
-                } else if (action == DocReaderAction.ERROR) {
-                    Log.d(TAG, "IDocumentReaderCompletion ERROR")
-                    Toast.makeText(context, "Scanning error:${error?.message}", Toast.LENGTH_LONG).show()
-                    onFailure()
-                } else if (action == DocReaderAction.TIMEOUT) {
-                    Log.d(TAG, "IDocumentReaderCompletion TIMEOUT")
-                    Toast.makeText(context, "Scanning timed out", Toast.LENGTH_LONG).show()
-                    onFailure()
-                }
+                onFinalize(results)
+            }
+        } else {
+            if (action == DocReaderAction.CANCEL) {
+                Log.d(TAG, "IDocumentReaderCompletion CANCEL")
+                Toast.makeText(context, "Scanning was cancelled", Toast.LENGTH_LONG)
+                    .show()
+                onFailure()
+            } else if (action == DocReaderAction.ERROR) {
+                Log.d(TAG, "IDocumentReaderCompletion ERROR")
+                Toast.makeText(context, "Scanning error:${error?.message}", Toast.LENGTH_LONG).show()
+                onFailure()
+            } else if (action == DocReaderAction.TIMEOUT) {
+                Log.d(TAG, "IDocumentReaderCompletion TIMEOUT")
+                Toast.makeText(context, "Scanning timed out", Toast.LENGTH_LONG).show()
+                onFailure()
             }
         }
+    }
 
-    fun showScanner(readChip: Boolean) {
+    fun showScanner(
+        readChip: Boolean,
+        onFinalize: (DocumentReaderResults?) -> Unit,
+        onFailure: () -> Unit
+    ) {
+        if (!isInitialized) {
+            showDialog("Initializing document reader...")
+            // Poll until initialized, then proceed
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed(object : Runnable {
+                override fun run() {
+                    if (isInitialized) {
+                        dismissDialog()
+                        startScannerInternal(readChip, onFinalize, onFailure)
+                    } else {
+                        handler.postDelayed(this, 500)
+                    }
+                }
+            }, 500)
+        } else {
+            startScannerInternal(readChip, onFinalize, onFailure)
+        }
+    }
+
+    private fun startScannerInternal(
+        readChip: Boolean,
+        onFinalize: (DocumentReaderResults?) -> Unit,
+        onFailure: () -> Unit
+    ) {
         val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
         DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
         DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
         val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
-        DocumentReader.Instance().startScanner(context, scannerConfig, getCompletion(readChip))
+        DocumentReader.Instance().startScanner(context, scannerConfig, getCompletion(readChip, onFinalize, onFailure))
     }
 }

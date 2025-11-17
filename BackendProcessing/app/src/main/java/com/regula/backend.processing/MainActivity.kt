@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
+    private lateinit var regulaScanner: RegulaScanner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened MainActivity screen")
@@ -60,6 +61,13 @@ class MainActivity : AppCompatActivity() {
         binding.registerBtn.setOnClickListener {
             NavigationHelper.navigateToRegistrationStart(this)
         }
+
+        regulaScanner = RegulaScanner.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+        regulaScanner.initializeReader()
     }
 
     override fun setContentView(view: View?) {
