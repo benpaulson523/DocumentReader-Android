@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationAuthorizedBinding
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.OnBackPressedCallback
 
 class RegistrationAuthorizedActivity : AppCompatActivity() {
     companion object {
@@ -39,6 +40,19 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         binding.exitBtn.setOnClickListener {
             finishAffinity()
         }
+
+        // Disable back navigation using OnBackPressedDispatcher
+        onBackPressedDispatcher.addCallback(this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    Toast.makeText(this@RegistrationAuthorizedActivity, "Unable to return to previous screen", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+    }
+
+    override fun onBackPressed() {
+        Toast.makeText(this, "Unable to return to previous screen", Toast.LENGTH_LONG).show()
     }
 
     override fun setContentView(view: View?) {

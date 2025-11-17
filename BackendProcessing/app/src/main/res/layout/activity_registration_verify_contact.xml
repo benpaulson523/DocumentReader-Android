@@ -42,19 +42,87 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
 
-    <EditText
-        android:id="@+id/codeValue"
-        android:layout_width="120dp"
+    <LinearLayout
+        android:id="@+id/codeBoxGroup"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
-        android:textStyle="bold"
-        android:inputType="number"
-        android:background="@drawable/edittext_rounded"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/codeLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="72dp" />
+        android:layout_marginTop="72dp">
+        <EditText
+            android:id="@+id/codeBox1"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/codeBox2"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/codeBox3"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/codeBox4"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/codeBox5"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/codeBox6"
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:background="@drawable/edittext_rounded"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/verifyBtn"

@@ -57,7 +57,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Uploading your document, it will take a few minutes depending on the network status."
+        android:text="Uploading your document, it may take a few minutes depending on the network status."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:textStyle="bold"

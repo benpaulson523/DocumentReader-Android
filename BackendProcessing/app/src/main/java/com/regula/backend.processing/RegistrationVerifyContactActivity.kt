@@ -33,22 +33,36 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        // Set max length for codeValue to 6
-        val filterArray = arrayOf(android.text.InputFilter.LengthFilter(6))
-        binding.codeValue.filters = filterArray
+        // Setup code boxes logic
+        val codeBoxes = listOf(
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox1),
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox2),
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox3),
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox4),
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox5),
+            binding.root.findViewById<android.widget.EditText>(R.id.codeBox6)
+        )
 
-        // Enable verifyBtn when codeValue contains 6 digits
-        binding.codeValue.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val code = s?.toString() ?: ""
-                binding.verifyBtn.isEnabled = code.length == 6 && code.all { it.isDigit() }
-            }
-        })
+        codeBoxes.forEachIndexed { i, editText ->
+            editText.filters = arrayOf(android.text.InputFilter.LengthFilter(1))
+            editText.addTextChangedListener(object : android.text.TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    val text = s?.toString() ?: ""
+                    if (text.length == 1 && i < codeBoxes.size - 1) {
+                        codeBoxes[i + 1].requestFocus()
+                    } else if (text.isEmpty() && i > 0) {
+                        codeBoxes[i - 1].requestFocus()
+                    }
+                    val code = codeBoxes.joinToString(separator = "") { it.text?.toString() ?: "" }
+                    binding.verifyBtn.isEnabled = code.length == 6 && code.all { it.isDigit() }
+                }
+            })
+        }
 
         binding.verifyBtn.setOnClickListener {
-            val code = binding.codeValue.text?.toString() ?: ""
+            val code = codeBoxes.joinToString(separator = "") { it.text?.toString() ?: "" }
             Log.d(TAG, "Confirm button clicked. Code: $code")
 
             neuvoteManager.completeRegistration(
@@ -59,7 +73,7 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                 if (success) {
                     Log.d(TAG, "Registration completed successfully")
                     Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
-
+                    binding.verifyBtn.isEnabled = false
                     NavigationHelper.navigateToRegistrationAuthorized(this)
                 } else {
                     Log.d(TAG, "Registration failed")
