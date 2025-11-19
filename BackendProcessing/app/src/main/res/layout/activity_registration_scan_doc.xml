@@ -14,22 +14,6 @@
         android:scaleType="fitXY"
         android:src="@drawable/otherscreensbackground" />
 
-    <TextView
-        android:id="@+id/errorMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="The document scanning has failed. Please try again."
-        android:textColor="@android:color/holo_red_dark"
-        style="@style/AppTextLarge"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="72dp" 
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp" />
-
     <Button
         android:id="@+id/retryBtn"
         android:layout_width="wrap_content"
@@ -65,6 +49,23 @@
         app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+    <TextView
+        android:id="@+id/errorMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="The document scanning has failed. Please try again."
+        android:textColor="@android:color/holo_red_dark"
+        style="@style/AppTextLarge"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="72dp" 
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
 

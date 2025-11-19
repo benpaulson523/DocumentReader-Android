@@ -131,7 +131,7 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
+    fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean, String?) -> Unit)? = null) {
         showDialog("Registering...")
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
         val addressJson = org.json.JSONObject().apply {
@@ -188,6 +188,7 @@ class NeuvoteManager private constructor(
                 responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /mfa/verify/email_or_sms: $responseBody")
                 var errorMsg: String? = null
+                var invalidCode = false
                 if (response.isSuccessful) {
                     try {
                         val json = org.json.JSONObject(responseBody ?: "")
@@ -206,20 +207,40 @@ class NeuvoteManager private constructor(
                     // Try to parse error message from server
                     try {
                         val json = org.json.JSONObject(responseBody ?: "")
-                        errorMsg = json.optString("error")
-                        if (errorMsg.isNullOrEmpty()) {
-                            errorMsg = json.optString("message")
+                        // Check for error object with code/message
+                        if (json.has("error")) {
+                            val errorObj = json.optJSONObject("error")
+                            val code = errorObj?.optInt("code", -1) ?: -1
+                            val message = errorObj?.optString("message", "") ?: ""
+                            if (code == 400 && message == "Invalid code") {
+                                invalidCode = true
+                            } else {
+                                errorMsg = message
+                            }
+                        } else {
+                            errorMsg = json.optString("error")
+                            if (errorMsg.isNullOrEmpty()) {
+                                errorMsg = json.optString("message")
+                            }
                         }
                     } catch (e: Exception) {
                         errorMsg = "Unknown server error"
                     }
                 }
                 (context as? Activity)?.runOnUiThread {
-                    if (response.isSuccessful && errorMsg == null) {
-                        validateIProovVerification(context, voterIdentifier, iProovManager, onFinalResult)
+                    if (invalidCode) {
+                        dismissDialog();
+                        Toast.makeText(context, "Error: invalid code", Toast.LENGTH_LONG).show()
+                        onFinalResult?.invoke(false, "Error: invalid code")
+                    } else if (response.isSuccessful && errorMsg == null) {
+                        validateIProovVerification(context, voterIdentifier, iProovManager) { success ->
+                            onFinalResult?.invoke(success, null)
+                        }
                     } else {
                         dismissDialog();
-                        Toast.makeText(context, "Registration failed: ${errorMsg ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                        val failMsg = "Registration failed: ${errorMsg ?: "Unknown error"}"
+                        Toast.makeText(context, failMsg, Toast.LENGTH_LONG).show()
+                        onFinalResult?.invoke(false, failMsg)
                     }
                 }
             }

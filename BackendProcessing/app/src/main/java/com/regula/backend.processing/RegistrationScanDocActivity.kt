@@ -183,9 +183,16 @@ class RegistrationScanDocActivity : AppCompatActivity() {
 
         Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
         // Enroll the photo with iProov, pass callback for UI update
-        iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) {
-            Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
-            binding.continueBtn.isEnabled = true
+        iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
+            if (errorMsg == null) {
+                Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
+                binding.continueBtn.isEnabled = true
+                binding.errorMessage.visibility = View.GONE
+            } else {
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+                binding.errorMessage.text = errorMsg
+                binding.errorMessage.visibility = View.VISIBLE
+            }
         }
     }
 

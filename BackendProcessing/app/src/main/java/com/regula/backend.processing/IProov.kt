@@ -57,7 +57,7 @@ class IProovManager private constructor(
         this.showResult = handler
     }
 
-    fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap, onUiUpdate: (() -> Unit)? = null) {
+    fun enrollDocumentPhotoWithIProov(documentPhoto: Bitmap, onUiUpdate: ((String?) -> Unit)? = null) {
         val photoBytes = bitmapToJpegBytes(documentPhoto)
         val client = okhttp3.OkHttpClient()
 
@@ -83,6 +83,7 @@ class IProovManager private constructor(
                         }
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                            onUiUpdate?.invoke(errorMsg)
                         }
                         return@use
                     }
@@ -110,6 +111,7 @@ class IProovManager private constructor(
                             }
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                                onUiUpdate?.invoke(errorMsg)
                             }
                             return@use
                         }
@@ -119,12 +121,13 @@ class IProovManager private constructor(
                             // Step 3: Get verification token from backend
                             getVerificationToken()
                             withContext(Dispatchers.Main) {
-                                onUiUpdate?.invoke()
+                                onUiUpdate?.invoke(null)
                             }
                         } else {
                             val errorMsg = enrollJson.optString("error", "Photo enrollment failed")
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                                onUiUpdate?.invoke(errorMsg)
                             }
                         }
                     }
@@ -132,7 +135,13 @@ class IProovManager private constructor(
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
+                    val errorMsg = if (ex.localizedMessage.contains("failed to connect")) {
+                        "Error: could not connect to Neuvote"
+                    } else {
+                        "Photo enroll error: ${ex.localizedMessage}"
+                    }
+                    Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                    onUiUpdate?.invoke(errorMsg)
                 }
             }
         }

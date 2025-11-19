@@ -62,6 +62,7 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
         }
 
         binding.verifyBtn.setOnClickListener {
+            binding.errorMessage.visibility = View.GONE
             val code = codeBoxes.joinToString(separator = "") { it.text?.toString() ?: "" }
             Log.d(TAG, "Confirm button clicked. Code: $code")
 
@@ -69,15 +70,19 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                 this,
                 code,
                 com.regula.backend.processing.IProovManager.getInstanceOrNull()
-            ) { success ->
+            ) { success, errorMsg ->
                 if (success) {
                     Log.d(TAG, "Registration completed successfully")
                     Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
                     binding.verifyBtn.isEnabled = false
+                    binding.errorMessage.visibility = View.GONE
                     NavigationHelper.navigateToRegistrationAuthorized(this)
                 } else {
                     Log.d(TAG, "Registration failed")
-                    Toast.makeText(this, getString(R.string.registration_failed), Toast.LENGTH_LONG).show()
+                    val errorText = errorMsg ?: getString(R.string.registration_failed)
+                    Toast.makeText(this, errorText, Toast.LENGTH_LONG).show()
+                    binding.errorMessage.text = errorText
+                    binding.errorMessage.visibility = View.VISIBLE
                 }
             }
         }
