@@ -188,7 +188,7 @@ class NeuvoteManager private constructor(
                 if (response.isSuccessful) {
                     // Parse voterIdentifier from response (off main thread)
                     responseBody = response.body?.string()
-                    Log.d(TAG, "Server response from /mfa/verify/email: $responseBody")
+                    Log.d(TAG, "Server response from /mfa/verify/email_or_sms: $responseBody")
                     try {
                         val json = org.json.JSONObject(responseBody ?: "")
                         val data = json.optJSONObject("data")
@@ -206,44 +206,7 @@ class NeuvoteManager private constructor(
                             Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
                             return@runOnUiThread
                         }
-                        if (iProovManager != null) {
-                            val verifyToken = iProovManager.getLastIProovToken() ?: ""
-                            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
-                            iProovManager.validateVerification(
-                                verifyToken,
-                                biometricsId ?: "",
-                                onResult = { verificationResponse ->
-                                    Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    var faceImage: String? = null
-                                    try {
-                                        val json = org.json.JSONObject(verificationResponse ?: "")
-                                        faceImage = json.optString("frame")
-                                        Log.d(TAG, "Successfully parsed frame image")
-                                    } catch (e: Exception) {
-                                        Log.e(TAG, "Failed to parse frame image: " + e.message)
-                                    }
-                                    registerWithAbis(
-                                        context = context,
-                                        biometricsId = biometricsId ?: "",
-                                        firstName = firstName,
-                                        lastName = surname,
-                                        dateOfBirth = dateOfBirth,
-                                        sex = sex,
-                                        faceImage = faceImage,
-                                        voterIdentifier = voterIdentifier,
-                                        onFinalResult = onFinalResult
-                                    )
-                                },
-                                onError = { errorMsg ->
-                                    dismissDialog();
-                                    Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                                    Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
-                                }
-                            )
-                        } else {
-                            dismissDialog();
-                            Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
-                        }
+                        validateIProovVerification(context, voterIdentifier, iProovManager, onFinalResult)
                     } else {
                         dismissDialog();
                         Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
@@ -251,6 +214,47 @@ class NeuvoteManager private constructor(
                 }
             }
         })
+    }
+
+    fun validateIProovVerification(context: Context, voterIdentifier: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
+        if (iProovManager != null) {
+            val verifyToken = iProovManager.getLastIProovToken() ?: ""
+            Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
+            iProovManager.validateVerification(
+                verifyToken,
+                biometricsId ?: "",
+                onResult = { verificationResponse ->
+                    Log.d(TAG, "Backend /iproov/validate-verification completed")
+                    var faceImage: String? = null
+                    try {
+                        val json = org.json.JSONObject(verificationResponse ?: "")
+                        faceImage = json.optString("frame")
+                        Log.d(TAG, "Successfully parsed frame image")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to parse frame image: " + e.message)
+                    }
+                    registerWithAbis(
+                        context = context,
+                        biometricsId = biometricsId ?: "",
+                        firstName = firstName,
+                        lastName = surname,
+                        dateOfBirth = dateOfBirth,
+                        sex = sex,
+                        faceImage = faceImage,
+                        voterIdentifier = voterIdentifier,
+                        onFinalResult = onFinalResult
+                    )
+                },
+                onError = { errorMsg ->
+                    dismissDialog();
+                    Log.e(TAG, "Backend validate-verification error: $errorMsg")
+                    Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+                }
+            )
+        } else {
+            dismissDialog();
+            Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+        }
     }
     
     fun registerWithAbis(
