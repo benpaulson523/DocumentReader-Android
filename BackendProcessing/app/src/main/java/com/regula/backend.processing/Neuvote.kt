@@ -178,38 +178,48 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Network error: Registration failed", Toast.LENGTH_LONG).show()
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 var voterIdentifier = ""
                 var parseError: String? = null
-                var responseBody: String?
+                var responseBody: String? = null
+                responseBody = response.body?.string()
+                Log.d(TAG, "Server response from /mfa/verify/email_or_sms: $responseBody")
+                var errorMsg: String? = null
                 if (response.isSuccessful) {
-                    // Parse voterIdentifier from response (off main thread)
-                    responseBody = response.body?.string()
-                    Log.d(TAG, "Server response from /mfa/verify/email_or_sms: $responseBody")
                     try {
                         val json = org.json.JSONObject(responseBody ?: "")
                         val data = json.optJSONObject("data")
                         voterIdentifier = data?.optString("voterIdentifier", "") ?: ""
                         Log.d(TAG, "voterIdentifier: $voterIdentifier")
+                        if (voterIdentifier.isEmpty()) {
+                            errorMsg = "No voter identifier returned."
+                        }
                     } catch (e: Exception) {
                         parseError = e.message
-                        Log.e(TAG, "Failed to parse voterIdentifier: " + e.message)
+                        errorMsg = "Failed to parse voterIdentifier: ${e.message}"
+                        Log.e(TAG, errorMsg ?: "Parse error")
+                    }
+                } else {
+                    // Try to parse error message from server
+                    try {
+                        val json = org.json.JSONObject(responseBody ?: "")
+                        errorMsg = json.optString("error")
+                        if (errorMsg.isNullOrEmpty()) {
+                            errorMsg = json.optString("message")
+                        }
+                    } catch (e: Exception) {
+                        errorMsg = "Unknown server error"
                     }
                 }
                 (context as? Activity)?.runOnUiThread {
-                    if (response.isSuccessful) {
-                        if (parseError != null) {
-                            dismissDialog();
-                            Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
-                            return@runOnUiThread
-                        }
+                    if (response.isSuccessful && errorMsg == null) {
                         validateIProovVerification(context, voterIdentifier, iProovManager, onFinalResult)
                     } else {
                         dismissDialog();
-                        Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Registration failed: ${errorMsg ?: "Unknown error"}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -226,12 +236,36 @@ class NeuvoteManager private constructor(
                 onResult = { verificationResponse ->
                     Log.d(TAG, "Backend /iproov/validate-verification completed")
                     var faceImage: String? = null
+                    var errorMsg: String? = null
                     try {
                         val json = org.json.JSONObject(verificationResponse ?: "")
+                        val passed = json.optBoolean("passed", false)
+                        val frameAvailable = json.optBoolean("frame_available", false)
                         faceImage = json.optString("frame")
+                        val assuranceType = json.optString("assurance_type")
+                        val signals = json.optJSONObject("signals")
+                        val token = json.optString("token")
+                        val type = json.optString("type")
+                        // Optionally log signals for diagnostics
+                        Log.d(TAG, "iProov signals: $signals, assuranceType: $assuranceType, type: $type")
+                        if (!passed) {
+                            errorMsg = "Verification failed: passed=false"
+                        } else if (!frameAvailable) {
+                            errorMsg = "Verification failed: frame not available"
+                        } else if (faceImage.isNullOrEmpty()) {
+                            errorMsg = "No face image returned from iProov."
+                        }
                         Log.d(TAG, "Successfully parsed frame image")
                     } catch (e: Exception) {
-                        Log.e(TAG, "Failed to parse frame image: " + e.message)
+                        errorMsg = "Failed to parse iProov response: ${e.message}"
+                        Log.e(TAG, errorMsg ?: "Parse error")
+                    }
+                    if (errorMsg != null) {
+                        (context as? Activity)?.runOnUiThread {
+                            dismissDialog();
+                            Toast.makeText(context, "iProov verification failed: $errorMsg", Toast.LENGTH_LONG).show()
+                        }
+                        return@validateVerification
                     }
                     registerWithAbis(
                         context = context,
@@ -248,12 +282,12 @@ class NeuvoteManager private constructor(
                 onError = { errorMsg ->
                     dismissDialog();
                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                    Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "iProov verification failed: $errorMsg", Toast.LENGTH_LONG).show()
                 }
             )
         } else {
             dismissDialog();
-            Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Registration failed: iProovManager not available", Toast.LENGTH_LONG).show()
         }
     }
     
@@ -289,7 +323,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    Toast.makeText(context, "ABIS registration failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Network error: ABIS registration failed", Toast.LENGTH_LONG).show()
                     onFinalResult?.invoke(false)
                 }
                 Log.e(TAG, "Failed to register with ABIS: " + e.message)
@@ -297,12 +331,26 @@ class NeuvoteManager private constructor(
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from ABIS enroll: $responseBody")
+                var errorMsg: String? = null
+                var serverResult: String? = null
+                try {
+                    val json = org.json.JSONObject(responseBody ?: "")
+                    serverResult = json.optString("serverResult")
+                    if (serverResult != "Success") {
+                        errorMsg = serverResult.ifEmpty { json.optString("error") }
+                        if (errorMsg.isNullOrEmpty()) {
+                            errorMsg = json.optString("message")
+                        }
+                    }
+                } catch (e: Exception) {
+                    errorMsg = "Failed to parse ABIS response: ${e.message}"
+                }
                 (context as? Activity)?.runOnUiThread {
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful && (errorMsg == null || serverResult == "Success")) {
                         updateAbisID(context, voterIdentifier, biometricsId, onFinalResult)
                     } else {
                         dismissDialog();
-                        Toast.makeText(context, "ABIS registration failed", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "ABIS registration failed: ${errorMsg ?: "Unknown error"}", Toast.LENGTH_LONG).show()
                         onFinalResult?.invoke(false)
                     }
                 }

@@ -74,6 +74,18 @@ class IProovManager private constructor(
                 client.newCall(tokenRequest).execute().use { tokenResponse ->
                     val tokenResponseBody = tokenResponse.body!!.string()
                     Log.d(TAG, "Backend $Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN response: $tokenResponseBody")
+                    if (!tokenResponse.isSuccessful) {
+                        val errorMsg = try {
+                            val json = org.json.JSONObject(tokenResponseBody)
+                            json.optString("error", json.optString("message", "Failed to get enrollment token"))
+                        } catch (e: Exception) {
+                            "Failed to get enrollment token"
+                        }
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                        }
+                        return@use
+                    }
                     val token = org.json.JSONObject(tokenResponseBody).getString("token")
                     // Step 2: Upload photo to backend
                     val enrollRequestBody = okhttp3.MultipartBody.Builder()
@@ -89,6 +101,18 @@ class IProovManager private constructor(
                     client.newCall(enrollRequest).execute().use { enrollResponse ->
                         val result = enrollResponse.body!!.string()
                         Log.d(TAG, "Backend /iproov/enroll-photo response: $result")
+                        if (!enrollResponse.isSuccessful) {
+                            val errorMsg = try {
+                                val json = org.json.JSONObject(result)
+                                json.optString("error", json.optString("message", "Photo enrollment failed"))
+                            } catch (e: Exception) {
+                                "Photo enrollment failed"
+                            }
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                            }
+                            return@use
+                        }
                         val enrollJson = org.json.JSONObject(result)
                         val enrollSuccess = enrollJson.optBoolean("success", true)
                         if (enrollSuccess) {
@@ -97,13 +121,18 @@ class IProovManager private constructor(
                             withContext(Dispatchers.Main) {
                                 onUiUpdate?.invoke()
                             }
+                        } else {
+                            val errorMsg = enrollJson.optString("error", "Photo enrollment failed")
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Photo enroll error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Photo enroll error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -124,12 +153,24 @@ class IProovManager private constructor(
                 client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
                     val verifyTokenBody = verifyTokenResponse.body!!.string()
                     Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
+                    if (!verifyTokenResponse.isSuccessful) {
+                        val errorMsg = try {
+                            val json = org.json.JSONObject(verifyTokenBody)
+                            json.optString("error", json.optString("message", "Failed to get verification token"))
+                        } catch (e: Exception) {
+                            "Failed to get verification token"
+                        }
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                        }
+                        return@use
+                    }
                     lastIProovToken = org.json.JSONObject(verifyTokenBody).getString("token")
                 }
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Verify token error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Verify token error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -218,6 +259,18 @@ class IProovManager private constructor(
                     .build()
                 client.newCall(request).execute().use { response ->
                     val responseBody = response.body!!.string()
+                    if (!response.isSuccessful) {
+                        val errorMsg = try {
+                            val json = org.json.JSONObject(responseBody)
+                            json.optString("error", json.optString("message", "Verification validation failed"))
+                        } catch (e: Exception) {
+                            "Verification validation failed"
+                        }
+                        withContext(Dispatchers.Main) {
+                            onError(errorMsg)
+                        }
+                        return@use
+                    }
                     withContext(Dispatchers.Main) {
                         onResult(responseBody)
                     }
