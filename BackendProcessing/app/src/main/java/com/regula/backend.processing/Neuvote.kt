@@ -133,9 +133,7 @@ class NeuvoteManager private constructor(
 
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean) -> Unit)? = null) {
         showDialog("Registering...")
-        
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
-
         val addressJson = org.json.JSONObject().apply {
             put("streetAddress", streetAddress ?: "")
             put("city", city ?: "")
@@ -214,13 +212,27 @@ class NeuvoteManager private constructor(
                             iProovManager.validateVerification(
                                 verifyToken,
                                 biometricsId ?: "",
-                                firstName ?: "",
-                                surname ?: "",
-                                dateOfBirth ?: "",
-                                sex ?: "",
-                                onResult = { _ ->
+                                onResult = { verificationResponse ->
                                     Log.d(TAG, "Backend /iproov/validate-verification completed")
-                                    updateAbisID(context, voterIdentifier, biometricsId ?: "", onFinalResult)
+                                    var faceImage: String? = null
+                                    try {
+                                        val json = org.json.JSONObject(verificationResponse ?: "")
+                                        faceImage = json.optString("frame")
+                                        Log.d(TAG, "Successfully parsed frame image")
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Failed to parse frame image: " + e.message)
+                                    }
+                                    registerWithAbis(
+                                        context = context,
+                                        biometricsId = biometricsId ?: "",
+                                        firstName = firstName,
+                                        lastName = surname,
+                                        dateOfBirth = dateOfBirth,
+                                        sex = sex,
+                                        faceImage = faceImage,
+                                        voterIdentifier = voterIdentifier,
+                                        onFinalResult = onFinalResult
+                                    )
                                 },
                                 onError = { errorMsg ->
                                     dismissDialog();
@@ -235,6 +247,59 @@ class NeuvoteManager private constructor(
                     } else {
                         dismissDialog();
                         Toast.makeText(context, "Registration failed", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+    
+    fun registerWithAbis(
+        context: Context,
+        biometricsId: String,
+        firstName: String?,
+        lastName: String?,
+        dateOfBirth: String?,
+        sex: String?,
+        faceImage: String?,
+        voterIdentifier: String,
+        onFinalResult: ((Boolean) -> Unit)? = null
+    ) {
+        val payload = org.json.JSONObject().apply {
+            put("userId", biometricsId)
+            put("firstName", firstName ?: "")
+            put("lastName", lastName ?: "")
+            put("dateOfBirth", dateOfBirth ?: "")
+            put("sex", sex ?: "")
+            put("faceImage", faceImage ?: "")
+        }
+        val client = okhttp3.OkHttpClient()
+        val requestBody = okhttp3.RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            payload.toString()
+        )
+        val request = okhttp3.Request.Builder()
+            .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_ABIS_ENROLL_VOTER)
+            .post(requestBody)
+            .build()
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                (context as? Activity)?.runOnUiThread {
+                    dismissDialog();
+                    Toast.makeText(context, "ABIS registration failed", Toast.LENGTH_LONG).show()
+                    onFinalResult?.invoke(false)
+                }
+                Log.e(TAG, "Failed to register with ABIS: " + e.message)
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val responseBody = response.body?.string()
+                Log.d(TAG, "Server response from ABIS enroll: $responseBody")
+                (context as? Activity)?.runOnUiThread {
+                    if (response.isSuccessful) {
+                        updateAbisID(context, voterIdentifier, biometricsId, onFinalResult)
+                    } else {
+                        dismissDialog();
+                        Toast.makeText(context, "ABIS registration failed", Toast.LENGTH_LONG).show()
+                        onFinalResult?.invoke(false)
                     }
                 }
             }

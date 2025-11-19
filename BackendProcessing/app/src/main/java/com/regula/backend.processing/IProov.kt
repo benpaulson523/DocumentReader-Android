@@ -202,10 +202,6 @@ class IProovManager private constructor(
     fun validateVerification(
         verifyToken: String,
         userId: String,
-        firstName: String,
-        lastName: String,
-        dateOfBirth: String,
-        sex: String,
         onResult: (String) -> Unit,
         onError: (String) -> Unit
     ) {
@@ -215,10 +211,6 @@ class IProovManager private constructor(
                 val payload = org.json.JSONObject().apply {
                     put("token", verifyToken)
                     put("userId", userId)
-                    put("firstName", firstName)
-                    put("lastName", lastName)
-                    put("dateOfBirth", dateOfBirth)
-                    put("sex", sex)
                 }
                 val request = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_VALIDATE_VERIFICATION)

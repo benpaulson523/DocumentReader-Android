@@ -52,6 +52,9 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
+        val biometricsId = generateMnemonicUUID()
+        neuvoteManager.setBiometricsId(biometricsId)
+        
         regulaScanner = RegulaScanner.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
@@ -62,18 +65,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             onFinalize = { results -> docScanned(results) },
             onFailure = { docScanningFailed() }
         )
-        
-        val biometricsId = generateMnemonicUUID()
-        neuvoteManager.setBiometricsId(biometricsId)
 
         iProovManager = IProovManager.getInstance(
             context = this,
             biometricsId = neuvoteManager.getBiometricsId()
         )
-
-        binding.continueBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationLiveness(this)
-        }
 
         binding.retryBtn.setOnClickListener {
             regulaScanner.showScanner(
@@ -81,6 +77,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                 onFinalize = { results -> docScanned(results) },
                 onFailure = { docScanningFailed() }
             )
+        }
+
+        binding.continueBtn.setOnClickListener {
+            NavigationHelper.navigateToRegistrationLiveness(this)
         }
     }
 
@@ -98,32 +98,6 @@ class RegistrationScanDocActivity : AppCompatActivity() {
 
         binding.idUploadIcon.visibility = View.VISIBLE
         binding.title.visibility = View.VISIBLE
-
-        if (neuvoteManager.getReadChip()) {
-            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
-                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
-                if (documentImage != null) {
-                    processDocumentImage(documentImage)
-                }
-                else {
-                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
-                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
-                if (documentImage != null) {
-                    processDocumentImage(documentImage)
-                }
-                else {
-                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
-            }
-        }
 
         val surnameField = results?.getTextFieldByType(eVisualFieldType.FT_SURNAME)
         val surname = surnameField?.value ?: ""
@@ -172,6 +146,32 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         val postalCode = postalCodeField?.value ?: ""
         neuvoteManager.setPostalCode(postalCode)
         Log.d(TAG, "Postal code: $postalCode")
+
+        if (neuvoteManager.getReadChip()) {
+            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
+                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
+                if (documentImage != null) {
+                    processDocumentImage(documentImage)
+                }
+                else {
+                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
+                var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
+                if (documentImage != null) {
+                    processDocumentImage(documentImage)
+                }
+                else {
+                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     fun processDocumentImage(documentImage: Bitmap) {
