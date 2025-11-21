@@ -46,3 +46,29 @@ fun generateRegistrationCode(): String {
     val part4 = randomLetters(5)
     return "$part1-$part2-$part3-$part4"
 }
+
+fun generateQRCodeBitmap(text: String): android.graphics.Bitmap? {
+    try {
+        val size = 400 // pixels
+        val hints = mapOf<com.google.zxing.EncodeHintType, Any>(
+            com.google.zxing.EncodeHintType.MARGIN to 1
+        )
+        val bitMatrix = com.google.zxing.qrcode.QRCodeWriter().encode(
+            text,
+            com.google.zxing.BarcodeFormat.QR_CODE,
+            size,
+            size,
+            hints
+        )
+        val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.RGB_565)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                bmp.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            }
+        }
+        return bmp
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return null
+}

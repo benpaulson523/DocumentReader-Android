@@ -11,6 +11,10 @@ import com.regula.backend.processing.databinding.ActivityRegistrationAuthorizedB
 import androidx.appcompat.app.AlertDialog
 import androidx.activity.OnBackPressedCallback
 
+import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+
 class RegistrationAuthorizedActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "RegistrationAuthorizedActivity"
@@ -34,8 +38,17 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
 
-        binding.registrationCode.setText(neuvoteManager.getRegistrationCode())
+        val registrationCode = neuvoteManager.getRegistrationCode()
+        binding.registrationCode.setText(registrationCode)
         binding.nameValue.setText(neuvoteManager.getFullName())
+
+        // Generate QR code and set to ImageView
+        registrationCode?.let {
+            val qrBitmap = generateQRCodeBitmap(it)
+            if (qrBitmap != null) {
+                binding.qrCodeImage.setImageBitmap(qrBitmap)
+            }
+        }
 
         binding.doneBtn.setOnClickListener {
             finishAffinity()
