@@ -96,7 +96,7 @@
     <Button
         android:id="@+id/doneBtn"
         android:layout_width="0dp"
-        android:layout_height="52dp"
+        android:layout_height="56dp"
         android:text="DONE"
         style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
@@ -104,7 +104,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:paddingTop="7dp"
-        android:layout_marginBottom="14dp"
+        android:layout_marginBottom="34dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
 

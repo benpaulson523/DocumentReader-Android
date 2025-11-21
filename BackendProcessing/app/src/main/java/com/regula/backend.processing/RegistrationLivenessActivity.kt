@@ -53,7 +53,7 @@ class RegistrationLivenessActivity : AppCompatActivity() {
         if (title == "Success") {
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
-            Toast.makeText(this, "Liveness check passed", Toast.LENGTH_LONG).show()
+            showToast(this, "Liveness check passed")
             if (neuvoteManager.hasAddress()) {
                 Log.d(TAG, "Address is populated")
                 NavigationHelper.navigateToRegistrationData(this)
@@ -62,7 +62,7 @@ class RegistrationLivenessActivity : AppCompatActivity() {
                 NavigationHelper.navigateToRegistrationEnterAddress(this)
             }
         } else {
-            Toast.makeText(this, "Facial scan failed: $resultMessage", Toast.LENGTH_LONG).show()
+            showToast(this, "Facial scan failed: $resultMessage")
             resultTv.text = "Facial scan failed: " + (resultMessage ?: "Unknown error")
             resultTv.visibility = View.VISIBLE
             iProovManager.getVerificationToken()

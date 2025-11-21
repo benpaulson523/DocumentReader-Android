@@ -58,14 +58,14 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    Toast.makeText(this@RegistrationAuthorizedActivity, "Unable to return to previous screen", Toast.LENGTH_LONG).show()
+                    showToast(this@RegistrationAuthorizedActivity, "Unable to return to previous screen")
                 }
             }
         )
     }
 
     override fun onBackPressed() {
-        Toast.makeText(this, "Unable to return to previous screen", Toast.LENGTH_LONG).show()
+        showToast(this, "Unable to return to previous screen")
     }
 
     override fun setContentView(view: View?) {

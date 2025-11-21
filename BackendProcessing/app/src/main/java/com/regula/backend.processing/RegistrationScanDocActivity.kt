@@ -166,10 +166,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     processDocumentImage(documentImage)
                 }
                 else {
-                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                    showToast(this, "Failed to retrieve document image")
                 }
             } else {
-                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+                showToast(this, "Failed to capture document image")
             }
         } else {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
@@ -178,10 +178,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     processDocumentImage(documentImage)
                 }
                 else {
-                    Toast.makeText(this, "Failed to retrieve document image", Toast.LENGTH_LONG).show()
+                    showToast(this, "Failed to retrieve document image")
                 }
             } else {
-                Toast.makeText(this, "Failed to capture document image", Toast.LENGTH_LONG).show()
+                showToast(this, "Failed to capture document image")
             }
         }
     }
@@ -197,13 +197,13 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         // Enroll the photo with iProov, pass callback for UI update
         iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
             if (errorMsg == null) {
-                Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
+                showToast(this, "Upload complete")
                 binding.errorMessage.visibility = View.GONE
                 binding.continueBtn.setText("CONTINUE")
                 binding.title.setText("Your document has been uploaded.")
                 passed = true
             } else {
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+                showToast(this, errorMsg)
                 binding.errorMessage.text = errorMsg
                 binding.errorMessage.visibility = View.VISIBLE
                 binding.continueBtn.setText("RETRY SCAN")

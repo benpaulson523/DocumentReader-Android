@@ -61,15 +61,11 @@ class RegulaScanner private constructor(
             if (result) {
                 isInitialized = true
                 if (DocumentReader.Instance().availableScenarios.size == 0) {
-                    Toast.makeText(
-                        context,
-                        "Available scenarios list is empty",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showToast(context, "Available scenarios list is empty")
                 }
             } else {
                 Log.d(TAG, "Exception during initialization1")
-                Toast.makeText(context, "Init failed: ${error?.message}", Toast.LENGTH_LONG).show()
+                showToast(context, "Init failed: ${error?.message}")
                 return@IDocumentReaderInitCompletion
             }
         }
@@ -92,11 +88,7 @@ class RegulaScanner private constructor(
             } catch (ex: Exception) {
                 Log.d(TAG, "Exception during initialization2")
                 ex.printStackTrace()
-                Toast.makeText(
-                    context,
-                    "init error: " + ex.localizedMessage,
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast(context, "Init error: " + ex.localizedMessage)
             }
         }
     }
@@ -124,16 +116,15 @@ class RegulaScanner private constructor(
         } else {
             if (action == DocReaderAction.CANCEL) {
                 Log.d(TAG, "IDocumentReaderCompletion CANCEL")
-                Toast.makeText(context, "Scanning was cancelled", Toast.LENGTH_LONG)
-                    .show()
+                showToast(context, "Scanning was cancelled")
                 onFailure()
             } else if (action == DocReaderAction.ERROR) {
                 Log.d(TAG, "IDocumentReaderCompletion ERROR")
-                Toast.makeText(context, "Scanning error:${error?.message}", Toast.LENGTH_LONG).show()
+                showToast(context, "Scanning error:${error?.message}")
                 onFailure()
             } else if (action == DocReaderAction.TIMEOUT) {
                 Log.d(TAG, "IDocumentReaderCompletion TIMEOUT")
-                Toast.makeText(context, "Scanning timed out", Toast.LENGTH_LONG).show()
+                showToast(context, "Scanning timed out")
                 onFailure()
             }
         }

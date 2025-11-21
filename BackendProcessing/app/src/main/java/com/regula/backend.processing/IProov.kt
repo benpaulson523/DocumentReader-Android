@@ -82,7 +82,7 @@ class IProovManager private constructor(
                             "Failed to get enrollment token"
                         }
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                            showToast(context, errorMsg)
                             onUiUpdate?.invoke(errorMsg)
                         }
                         return@use
@@ -110,7 +110,7 @@ class IProovManager private constructor(
                                 "Photo enrollment failed"
                             }
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                                showToast(context, errorMsg)
                                 onUiUpdate?.invoke(errorMsg)
                             }
                             return@use
@@ -126,7 +126,7 @@ class IProovManager private constructor(
                         } else {
                             val errorMsg = enrollJson.optString("error", "Photo enrollment failed")
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                                showToast(context, errorMsg)
                                 onUiUpdate?.invoke(errorMsg)
                             }
                         }
@@ -140,7 +140,7 @@ class IProovManager private constructor(
                     } else {
                         "Photo enroll error: ${ex.localizedMessage}"
                     }
-                    Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                    showToast(context, errorMsg)
                     onUiUpdate?.invoke(errorMsg)
                 }
             }
@@ -170,7 +170,7 @@ class IProovManager private constructor(
                             "Failed to get verification token"
                         }
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                            showToast(context, errorMsg)
                         }
                         return@use
                     }
@@ -179,7 +179,7 @@ class IProovManager private constructor(
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Verify token error: ${ex.localizedMessage}", Toast.LENGTH_LONG).show()
+                    showToast(context, "Verify token error: ${ex.localizedMessage}")
                 }
             }
         }

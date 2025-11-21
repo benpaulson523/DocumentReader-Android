@@ -84,7 +84,7 @@ class NeuvoteManager private constructor(
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    Toast.makeText(context, "Failed to send email", Toast.LENGTH_LONG).show()
+                    showToast(context, "Failed to send email")
                     onResponse(false)
                 }
             }
@@ -119,7 +119,7 @@ class NeuvoteManager private constructor(
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    Toast.makeText(context, "Failed to send text", Toast.LENGTH_LONG).show()
+                    showToast(context, "Failed to send text")
                     onResponse(false)
                 }
             }
@@ -178,7 +178,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    Toast.makeText(context, "Network error: Registration failed", Toast.LENGTH_LONG).show()
+                    showToast(context, "Network error: Registration failed")
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
@@ -230,7 +230,7 @@ class NeuvoteManager private constructor(
                 (context as? Activity)?.runOnUiThread {
                     if (invalidCode) {
                         dismissDialog();
-                        Toast.makeText(context, "Error: invalid code", Toast.LENGTH_LONG).show()
+                        showToast(context, "Error: invalid code")
                         onFinalResult?.invoke(false, "Error: invalid code")
                     } else if (response.isSuccessful && errorMsg == null) {
                         validateIProovVerification(context, voterIdentifier, iProovManager) { success ->
@@ -239,7 +239,7 @@ class NeuvoteManager private constructor(
                     } else {
                         dismissDialog();
                         val failMsg = "Registration failed: ${errorMsg ?: "Unknown error"}"
-                        Toast.makeText(context, failMsg, Toast.LENGTH_LONG).show()
+                        showToast(context, failMsg)
                         onFinalResult?.invoke(false, failMsg)
                     }
                 }
@@ -284,7 +284,7 @@ class NeuvoteManager private constructor(
                     if (errorMsg != null) {
                         (context as? Activity)?.runOnUiThread {
                             dismissDialog();
-                            Toast.makeText(context, "iProov verification failed: $errorMsg", Toast.LENGTH_LONG).show()
+                            showToast(context, "iProov verification failed: $errorMsg")
                         }
                         return@validateVerification
                     }
@@ -303,12 +303,12 @@ class NeuvoteManager private constructor(
                 onError = { errorMsg ->
                     dismissDialog();
                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                    Toast.makeText(context, "iProov verification failed: $errorMsg", Toast.LENGTH_LONG).show()
+                    showToast(context, "iProov verification failed: $errorMsg")
                 }
             )
         } else {
             dismissDialog();
-            Toast.makeText(context, "Registration failed: iProovManager not available", Toast.LENGTH_LONG).show()
+            showToast(context, "Registration failed: iProovManager not available")
         }
     }
     
@@ -344,7 +344,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    Toast.makeText(context, "Network error: ABIS registration failed", Toast.LENGTH_LONG).show()
+                    showToast(context, "Network error: ABIS registration failed")
                     onFinalResult?.invoke(false)
                 }
                 Log.e(TAG, "Failed to register with ABIS: " + e.message)
@@ -371,7 +371,7 @@ class NeuvoteManager private constructor(
                         updateAbisID(context, voterIdentifier, registrationCode, onFinalResult)
                     } else {
                         dismissDialog();
-                        Toast.makeText(context, "ABIS registration failed: ${errorMsg ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                        showToast(context, "ABIS registration failed: ${errorMsg ?: "Unknown error"}")
                         onFinalResult?.invoke(false)
                     }
                 }
@@ -398,7 +398,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    Toast.makeText(context, "Setting ABIS ID failed", Toast.LENGTH_LONG).show()
+                    showToast(context, "Setting ABIS ID failed")
                 }
                 Log.e(TAG, "Failed to update ABIS ID: " + e.message)
             }
@@ -411,12 +411,12 @@ class NeuvoteManager private constructor(
                             onFinalResult?.invoke(success)
                             dismissDialog();
                             if (!success) {
-                                Toast.makeText(context, context.getString(R.string.registration_failed), Toast.LENGTH_LONG).show()
+                                showToast(context, context.getString(R.string.registration_failed))
                             }
                         }
                     } else {
                         dismissDialog();
-                        Toast.makeText(context, "Setting ABIS ID failed", Toast.LENGTH_LONG).show()
+                        showToast(context, "Setting ABIS ID failed")
                     }
                 }
             }

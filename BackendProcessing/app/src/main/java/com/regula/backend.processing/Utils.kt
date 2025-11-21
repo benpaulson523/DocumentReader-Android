@@ -1,5 +1,11 @@
 package com.regula.backend.processing
 
+import android.content.Context
+import android.widget.Toast
+import android.widget.ImageView
+import android.widget.TextView
+import android.view.LayoutInflater
+
 fun formatDateOfBirth(dob: String): String {
     val regexList = listOf(
         Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{4})$"),
@@ -71,4 +77,18 @@ fun generateQRCodeBitmap(text: String): android.graphics.Bitmap? {
         e.printStackTrace()
     }
     return null
+}
+
+fun showToast(context: Context, text: String) {
+    val inflater = LayoutInflater.from(context)
+    val layout = inflater.inflate(R.layout.custom_toast, null)
+    val toastText = layout.findViewById<TextView>(R.id.toastText)
+    val toastIcon = layout.findViewById<ImageView>(R.id.toastIcon)
+    toastText.text = text
+    toastIcon.setImageResource(R.mipmap.ic_launcher)
+    val toast = Toast(context)
+    toast.duration = Toast.LENGTH_LONG
+    toast.view = layout
+    toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, 280)
+    toast.show()
 }

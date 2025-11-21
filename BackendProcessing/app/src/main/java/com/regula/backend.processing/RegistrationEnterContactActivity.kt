@@ -67,11 +67,11 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && ((selectedIndex == 0) || (selectedIndex == 2))) {
-                Toast.makeText(this, getString(R.string.invalid_email_address), Toast.LENGTH_LONG).show()
+                showToast(this, getString(R.string.invalid_email_address))
             } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
                         (phone.filter { it.isDigit() }.length < 8)) &&
                         ((selectedIndex == 0) || (selectedIndex == 2))) {
-                Toast.makeText(this, getString(R.string.invalid_phone_number), Toast.LENGTH_LONG).show()
+                showToast(this, getString(R.string.invalid_phone_number))
             } else {
                 neuvoteManager.setEmail(email)
                 neuvoteManager.setPhone(phone)
@@ -88,7 +88,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                             Log.d(TAG, "Verification email sent successfully")
                             NavigationHelper.navigateToRegistrationVerifyContact(this)
                         } else {
-                            Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                            showToast(this, getString(R.string.verification_email_failed))
                         }
                     }
                 } else if (selectedIndex == 1) {
@@ -101,7 +101,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                             Log.d(TAG, "Verification text sent successfully")
                             NavigationHelper.navigateToRegistrationVerifyContact(this)
                         } else {
-                            Toast.makeText(this, getString(R.string.verification_text_failed), Toast.LENGTH_LONG).show()
+                            showToast(this, getString(R.string.verification_text_failed))
                         }
                     }
                 } else {
@@ -113,7 +113,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                         if (success) {
                             Log.d(TAG, "Verification email sent successfully")
                         } else {
-                            Toast.makeText(this, getString(R.string.verification_email_failed), Toast.LENGTH_LONG).show()
+                            showToast(this, getString(R.string.verification_email_failed))
                         }
                     }
                     neuvoteManager.sendVerificationText(
@@ -124,7 +124,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                             Log.d(TAG, "Verification text sent successfully")
                             NavigationHelper.navigateToRegistrationVerifyContact(this)
                         } else {
-                            Toast.makeText(this, getString(R.string.verification_text_failed), Toast.LENGTH_LONG).show()
+                            showToast(this, getString(R.string.verification_text_failed))
                         }
                     }
                 }

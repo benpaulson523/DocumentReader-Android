@@ -73,14 +73,14 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
             ) { success, errorMsg ->
                 if (success) {
                     Log.d(TAG, "Registration completed successfully")
-                    Toast.makeText(this, getString(R.string.registration_received), Toast.LENGTH_LONG).show()
+                    showToast(this, getString(R.string.registration_received))
                     binding.verifyBtn.isEnabled = false
                     binding.errorMessage.visibility = View.GONE
                     NavigationHelper.navigateToRegistrationAuthorized(this)
                 } else {
                     Log.d(TAG, "Registration failed")
                     val errorText = errorMsg ?: getString(R.string.registration_failed)
-                    Toast.makeText(this, errorText, Toast.LENGTH_LONG).show()
+                    showToast(this, errorText)
                     binding.errorMessage.text = errorText
                     binding.errorMessage.visibility = View.VISIBLE
                 }
