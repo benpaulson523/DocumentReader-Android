@@ -19,7 +19,7 @@ import android.view.View
 
 class IProovManager private constructor(
     private val context: Context,
-    private val biometricsId: String?
+    private val registrationCode: String?
 ) {
     companion object {
         private const val TAG = "IProovManager"
@@ -30,12 +30,12 @@ class IProovManager private constructor(
         @JvmStatic
         fun getInstance(
             context: Context,
-            biometricsId: String?
+            registrationCode: String?
         ): IProovManager {
             return instance ?: synchronized(this) {
                 instance ?: IProovManager(
                     context,
-                    biometricsId
+                    registrationCode
                 ).also { instance = it }
             }
         }
@@ -65,7 +65,7 @@ class IProovManager private constructor(
             try {
                 // Step 1: Get enrollment token from backend
                 val tokenPayload = org.json.JSONObject().apply {
-                    put("userId", biometricsId)
+                    put("userId", registrationCode)
                 }
                 val tokenRequest = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN)
@@ -153,7 +153,7 @@ class IProovManager private constructor(
         uiScope.launch(Dispatchers.IO) {
             try {
                 val verifyPayload = org.json.JSONObject().apply {
-                    put("userId", biometricsId)
+                    put("userId", registrationCode)
                 }
                 val verifyTokenRequest = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN)

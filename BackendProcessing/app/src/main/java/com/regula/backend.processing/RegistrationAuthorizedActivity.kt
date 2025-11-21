@@ -34,7 +34,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
 
-        binding.biometricsId.setText(neuvoteManager.getBiometricsId())
+        binding.registrationCode.setText(neuvoteManager.getRegistrationCode())
         binding.nameValue.setText(neuvoteManager.getFullName())
 
         binding.doneBtn.setOnClickListener {

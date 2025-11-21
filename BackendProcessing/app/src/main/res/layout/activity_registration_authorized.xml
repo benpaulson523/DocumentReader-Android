@@ -73,7 +73,7 @@
         android:layout_marginEnd="24dp" />
 
     <TextView
-        android:id="@+id/biometricsId"
+        android:id="@+id/registrationCode"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="?attr/colorSecondary"

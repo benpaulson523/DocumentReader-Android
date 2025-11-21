@@ -35,7 +35,7 @@ fun formatDateOfBirth(dob: String): String {
     return dob
 }
 
-fun generateMnemonicUUID(): String {
+fun generateRegistrationCode(): String {
     fun randomLetters(length: Int): String {
         val chars = ('A'..'Z')
         return (1..length).map { chars.random() }.joinToString("")

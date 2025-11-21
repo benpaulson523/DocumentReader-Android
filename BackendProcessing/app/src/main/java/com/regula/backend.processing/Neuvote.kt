@@ -20,7 +20,7 @@ class NeuvoteManager private constructor(
     private var surname: String? = null
     private var dateOfBirth: String? = null
     private var sex: String? = null
-    private var biometricsId: String? = null
+    private var registrationCode: String? = null
     private var email: String? = null
     private var phone: String? = null
     private var streetAddress: String? = null
@@ -69,7 +69,7 @@ class NeuvoteManager private constructor(
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
         val jsonObj = org.json.JSONObject().apply {
             put("email", email)
-            put("mnemonicUuid", biometricsId)
+            put("mnemonicUuid", registrationCode)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -104,7 +104,7 @@ class NeuvoteManager private constructor(
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_SMS
         val jsonObj = org.json.JSONObject().apply {
             put("phone", phone)
-            put("mnemonicUuid", biometricsId)
+            put("mnemonicUuid", registrationCode)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -149,7 +149,7 @@ class NeuvoteManager private constructor(
             put("dateOfBirth", dateOfBirth ?: "")
             put("email", email ?: "")
             put("phone", phone ?: "")
-            put("mnemonicUuid", biometricsId ?: "")
+            put("mnemonicUuid", registrationCode ?: "")
             put("address", addressJson)
             put("electionOptIns", electionOptIns)
             put("verificationCode", verificationCode)
@@ -253,7 +253,7 @@ class NeuvoteManager private constructor(
             Log.d(TAG, "Sending verifyToken $verifyToken to validate-verification")
             iProovManager.validateVerification(
                 verifyToken,
-                biometricsId ?: "",
+                registrationCode ?: "",
                 onResult = { verificationResponse ->
                     Log.d(TAG, "Backend /iproov/validate-verification completed")
                     var faceImage: String? = null
@@ -290,7 +290,7 @@ class NeuvoteManager private constructor(
                     }
                     registerWithAbis(
                         context = context,
-                        biometricsId = biometricsId ?: "",
+                        registrationCode = registrationCode ?: "",
                         firstName = firstName,
                         lastName = surname,
                         dateOfBirth = dateOfBirth,
@@ -314,7 +314,7 @@ class NeuvoteManager private constructor(
     
     fun registerWithAbis(
         context: Context,
-        biometricsId: String,
+        registrationCode: String,
         firstName: String?,
         lastName: String?,
         dateOfBirth: String?,
@@ -324,7 +324,7 @@ class NeuvoteManager private constructor(
         onFinalResult: ((Boolean) -> Unit)? = null
     ) {
         val payload = org.json.JSONObject().apply {
-            put("userId", biometricsId)
+            put("userId", registrationCode)
             put("firstName", firstName ?: "")
             put("lastName", lastName ?: "")
             put("dateOfBirth", dateOfBirth ?: "")
@@ -368,7 +368,7 @@ class NeuvoteManager private constructor(
                 }
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful && (errorMsg == null || serverResult == "Success")) {
-                        updateAbisID(context, voterIdentifier, biometricsId, onFinalResult)
+                        updateAbisID(context, voterIdentifier, registrationCode, onFinalResult)
                     } else {
                         dismissDialog();
                         Toast.makeText(context, "ABIS registration failed: ${errorMsg ?: "Unknown error"}", Toast.LENGTH_LONG).show()
@@ -379,10 +379,10 @@ class NeuvoteManager private constructor(
         })
     }
 
-    fun updateAbisID(context: Context, voterIdentifier: String, biometricsId: String, onFinalResult: ((Boolean) -> Unit)? = null) {
+    fun updateAbisID(context: Context, voterIdentifier: String, registrationCode: String, onFinalResult: ((Boolean) -> Unit)? = null) {
         val url = getNeuvoteServerUrl() + "/voters/" + voterIdentifier + "/abis-id"
         val jsonObj = org.json.JSONObject().apply {
-            put("abisID", biometricsId)
+            put("abisID", registrationCode)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -407,7 +407,7 @@ class NeuvoteManager private constructor(
                 Log.d(TAG, "Server response from /$voterIdentifier/abis-id: $responseBody")
                 (context as? Activity)?.runOnUiThread {
                     if (response.isSuccessful) {
-                        updateAbisFacialScanFlag(context, biometricsId) { success ->
+                        updateAbisFacialScanFlag(context, registrationCode) { success ->
                             onFinalResult?.invoke(success)
                             dismissDialog();
                             if (!success) {
@@ -497,11 +497,11 @@ class NeuvoteManager private constructor(
         return sex
     }
 
-    fun setBiometricsId(value: String?) {
-        biometricsId = value
+    fun setRegistrationCode(value: String?) {
+        registrationCode = value
     }
-    fun getBiometricsId(): String? {
-        return biometricsId
+    fun getRegistrationCode(): String? {
+        return registrationCode
     }
 
     fun setEmail(value: String?) {

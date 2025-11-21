@@ -37,6 +37,8 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     private lateinit var regulaScanner: RegulaScanner
     private lateinit var iProovManager: IProovManager
     private lateinit var neuvoteManager: NeuvoteManager
+    private var failed: Boolean = false
+    private var passed: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationScanDocActivity screen")
@@ -52,26 +54,16 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        val biometricsId = generateMnemonicUUID()
-        neuvoteManager.setBiometricsId(biometricsId)
+        val registrationCode = generateRegistrationCode()
+        neuvoteManager.setRegistrationCode(registrationCode)
         
         regulaScanner = RegulaScanner.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        regulaScanner.showScanner(
-            neuvoteManager.getReadChip(),
-            onFinalize = { results -> docScanned(results) },
-            onFailure = { docScanningFailed() }
-        )
-
-        iProovManager = IProovManager.getInstance(
-            context = this,
-            biometricsId = neuvoteManager.getBiometricsId()
-        )
-
-        binding.retryBtn.setOnClickListener {
+        
+        if (!passed) {
             regulaScanner.showScanner(
                 neuvoteManager.getReadChip(),
                 onFinalize = { results -> docScanned(results) },
@@ -79,22 +71,42 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             )
         }
 
+        iProovManager = IProovManager.getInstance(
+            context = this,
+            registrationCode = neuvoteManager.getRegistrationCode()
+        )
+
         binding.continueBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationLiveness(this)
+            if (failed) {
+                regulaScanner.showScanner(
+                    neuvoteManager.getReadChip(),
+                    onFinalize = { results -> docScanned(results) },
+                    onFailure = { docScanningFailed() }
+                )
+            } else if (passed) {
+                NavigationHelper.navigateToRegistrationLiveness(this)
+            } else {
+                Log.d(TAG, "continueBtn should not be enabled if neither failed nor passed")
+            }
         }
     }
 
     private fun docScanningFailed() {
         Log.d(TAG, "docScanningFailed")
+        failed = true
 
         binding.errorMessage.visibility = View.VISIBLE
-        binding.retryBtn.visibility = View.VISIBLE
+        binding.continueBtn.setText("RETRY SCAN")
+        binding.continueBtn.isEnabled = true
     }
 
     private fun docScanned(results: DocumentReaderResults?) {
         Log.d(TAG, "docScanned")
+        failed = false
+        binding.continueBtn.setText("CONTINUE")
+        binding.continueBtn.isEnabled = false
+
         binding.errorMessage.visibility = View.GONE
-        binding.retryBtn.visibility = View.GONE
 
         binding.idUploadIcon.visibility = View.VISIBLE
         binding.title.visibility = View.VISIBLE
@@ -186,13 +198,18 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
             if (errorMsg == null) {
                 Toast.makeText(this, "Upload complete", Toast.LENGTH_LONG).show()
-                binding.continueBtn.isEnabled = true
                 binding.errorMessage.visibility = View.GONE
+                binding.continueBtn.setText("CONTINUE")
+                binding.title.setText("Your document has been uploaded.")
+                passed = true
             } else {
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
                 binding.errorMessage.text = errorMsg
                 binding.errorMessage.visibility = View.VISIBLE
+                binding.continueBtn.setText("RETRY SCAN")
+                failed = true
             }
+            binding.continueBtn.isEnabled = true
         }
     }
 
