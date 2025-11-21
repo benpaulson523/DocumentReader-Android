@@ -7,4 +7,8 @@
         android:fontStyle="normal"
         android:fontWeight="700"
         android:font="@font/poppins_bold" />
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="600"
+        android:font="@font/poppins_semibold" />
 </font-family>

@@ -43,16 +43,6 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             iProovManager.launchFacialScanSession()
             binding.beginBtn.isEnabled = false
         }
-
-        binding.continueBtn.setOnClickListener {
-            if (neuvoteManager.hasAddress()) {
-                Log.d(TAG, "Address is populated")
-                NavigationHelper.navigateToRegistrationData(this)
-            } else {
-                Log.d(TAG, "Need to obtain address")
-                NavigationHelper.navigateToRegistrationEnterAddress(this)
-            }
-        }
     }
     
     private fun onResult(title: String?, resultMessage: String?) {
@@ -64,10 +54,16 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
             Toast.makeText(this, "Liveness check passed", Toast.LENGTH_LONG).show()
-            binding.continueBtn.isEnabled = true
+            if (neuvoteManager.hasAddress()) {
+                Log.d(TAG, "Address is populated")
+                NavigationHelper.navigateToRegistrationData(this)
+            } else {
+                Log.d(TAG, "Need to obtain address")
+                NavigationHelper.navigateToRegistrationEnterAddress(this)
+            }
         } else {
-            Toast.makeText(this, "Facial scan failed", Toast.LENGTH_LONG).show()
-            resultTv.text = resultMessage ?: "Unknown error"
+            Toast.makeText(this, "Facial scan failed: $resultMessage", Toast.LENGTH_LONG).show()
+            resultTv.text = "Facial scan failed: " + (resultMessage ?: "Unknown error")
             resultTv.visibility = View.VISIBLE
             iProovManager.getVerificationToken()
             binding.beginBtn.isEnabled = true

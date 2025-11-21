@@ -21,7 +21,7 @@
         android:text="One final step!"
         android:textColor="?attr/colorSecondary"
         style="@style/AppTextXXLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="72dp"
@@ -34,7 +34,7 @@
         android:text="We will send a verification code to you. Select where you would like the code to be sent."
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:text="Send to my email address (Email)"
             style="@style/AppTextMedium"
-            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
             android:buttonTint="@color/philippines_blue"
             android:textColor="@android:color/black" />
         <RadioButton
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             android:text="Send to my phone (SMS)"
             style="@style/AppTextMedium"
-            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
             android:buttonTint="@color/philippines_blue"
             android:textColor="@android:color/black" />
         <!--<RadioButton
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:text="Send to both"
             style="@style/AppTextMedium"
-            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
             android:buttonTint="@color/philippines_blue"
             android:textColor="@android:color/black" />-->
     </RadioGroup>
@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         android:inputType="textEmailAddress"
         android:background="@drawable/edittext_rounded"
         app:layout_constraintTop_toBottomOf="@id/emailLabel"
@@ -123,7 +123,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         android:inputType="phone"
         android:background="@drawable/edittext_rounded"
         app:layout_constraintTop_toBottomOf="@id/phoneLabel"
@@ -134,14 +134,18 @@
 
     <Button
         android:id="@+id/sendBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
         android:text="SEND CODE"
         android:enabled="false"
+        style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
+        android:paddingTop="7dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,32 +13,31 @@
         android:layout_height="match_parent"
         android:scaleType="fitXY"
         android:src="@drawable/otherscreensbackground" />
+        
+    <ImageView
+        android:id="@+id/facialScanIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/facialscanicon"
+        android:layout_marginTop="72dp" 
+        android:layout_marginStart="24dp" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Registration requires a live facial scan. Ensure good lighting and a clear view of your face."
+        android:text="Registration requires a live facial scan. Make sure your face is clearly visible and well-lit."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        android:fontFamily="@font/poppins_semibold"
+        app:layout_constraintTop_toBottomOf="@id/facialScanIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="18dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
-
-    <Button
-        android:id="@+id/beginBtn"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:text="BEGIN SCAN"
-        android:backgroundTint="?attr/colorSecondary"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="36dp"  />
 
     <TextView
         android:id="@+id/resultMessageTv"
@@ -46,23 +45,26 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/holo_red_dark"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/beginBtn"
+        app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp" />
-
+        
     <Button
-        android:id="@+id/continueBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="CONTINUE"
-        android:enabled="false"
+        android:id="@+id/beginBtn"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:text="BEGIN SCAN"
+        style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
+        android:paddingTop="7dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

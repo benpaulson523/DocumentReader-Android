@@ -36,18 +36,13 @@ fun formatDateOfBirth(dob: String): String {
 }
 
 fun generateMnemonicUUID(): String {
-    val adjectives = listOf(
-        "quick", "bright", "silent", "brave", "calm", "eager", "gentle", "happy", "jolly", "kind", "lucky", "merry", "nice", "proud", "silly", "witty",
-        "bold", "clever", "daring", "fierce", "graceful", "humble", "keen", "loyal", "noble", "playful", "quirky", "radiant", "serene", "spirited", "sturdy", "swift",
-        "thoughtful", "vivid", "zesty", "charming", "diligent", "fearless", "glad", "honest", "inventive", "jovial", "modest", "optimistic", "patient", "resourceful", "sincere", "trusty"
-    )
-    val nouns = listOf(
-        "lion", "tiger", "bear", "fox", "wolf", "eagle", "owl", "shark", "panda", "zebra", "koala", "otter", "rabbit", "deer", "falcon",
-        "badger", "buffalo", "cheetah", "dolphin", "ferret", "giraffe", "jackal", "lemur", "lynx", "moose", "narwhal", "penguin", "raccoon",
-        "seal", "swan", "toucan", "vulture", "yak", "antelope", "camel", "goat", "iguana", "jaguar", "kangaroo", "lemur", "mole"
-    )
-    val adj = adjectives.random()
-    val noun = nouns.random()
-    val uuid = java.util.UUID.randomUUID().toString().substring(0, 8)
-    return "$adj-$noun-$uuid"
+    fun randomLetters(length: Int): String {
+        val chars = ('A'..'Z')
+        return (1..length).map { chars.random() }.joinToString("")
+    }
+    val part1 = randomLetters(3)
+    val part2 = randomLetters(4)
+    val part3 = randomLetters(5)
+    val part4 = randomLetters(5)
+    return "$part1-$part2-$part3-$part4"
 }

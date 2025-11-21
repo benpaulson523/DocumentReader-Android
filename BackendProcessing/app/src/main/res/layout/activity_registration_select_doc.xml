@@ -22,7 +22,7 @@
         android:text="Select the type of document you wish to scan."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="72dp" 
         app:layout_constraintStart_toStartOf="parent"
@@ -32,20 +32,24 @@
 
     <LinearLayout
         android:id="@+id/buttonGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:gravity="center"
-        android:padding="18dp">
+        android:layout_marginTop="24dp" 
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center" >
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPassport"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Passport"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
             android:textColor="@android:color/black"
             android:textAllCaps="false"
             app:cornerRadius="4dp"
@@ -58,6 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Driver License"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
             android:textColor="@android:color/black"
             android:textAllCaps="false"
             app:cornerRadius="4dp"
@@ -70,6 +76,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Government ID"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
             android:textColor="@android:color/black"
             android:textAllCaps="false"
             app:cornerRadius="4dp"
@@ -77,16 +85,20 @@
             app:strokeColor="@color/philippines_blue"
             app:strokeWidth="2dp" />
     </LinearLayout>
-
+        
     <Button
         android:id="@+id/continueBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
         android:text="CONTINUE"
+        style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
+        android:paddingTop="7dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

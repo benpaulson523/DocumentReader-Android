@@ -37,7 +37,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         binding.biometricsId.setText(neuvoteManager.getBiometricsId())
         binding.nameValue.setText(neuvoteManager.getFullName())
 
-        binding.exitBtn.setOnClickListener {
+        binding.doneBtn.setOnClickListener {
             finishAffinity()
         }
 

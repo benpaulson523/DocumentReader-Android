@@ -31,7 +31,7 @@
         android:text="Verified"
         android:textColor="@color/green"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
         app:layout_constraintTop_toBottomOf="@id/resolvedIcon"
         app:layout_constraintStart_toStartOf="@id/resolvedIcon"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +55,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
         app:layout_constraintTop_toBottomOf="@id/nameLabel"
         app:layout_constraintStart_toStartOf="@id/nameLabel"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -78,7 +78,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
         app:layout_constraintTop_toBottomOf="@id/dobLabel"
         app:layout_constraintStart_toStartOf="@id/dobLabel"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -101,20 +101,24 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
         app:layout_constraintTop_toBottomOf="@id/addressLabel"
         app:layout_constraintStart_toStartOf="@id/addressLabel"
         app:layout_constraintEnd_toEndOf="parent" />
-
+        
     <Button
         android:id="@+id/confirmBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
         android:text="CONFIRM"
+        style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
+        android:paddingTop="7dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

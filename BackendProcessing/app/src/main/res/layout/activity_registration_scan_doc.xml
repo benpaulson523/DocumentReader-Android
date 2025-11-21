@@ -28,8 +28,8 @@
         
     <ImageView
         android:id="@+id/idUploadIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:src="@drawable/iduploadicon"
@@ -44,7 +44,7 @@
         android:text="Uploading your document, it may take a few minutes depending on the network status."
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
         android:text="The document scanning has failed. Please try again."
         android:textColor="@android:color/holo_red_dark"
         style="@style/AppTextLarge"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
         android:visibility="gone"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/title"
@@ -68,17 +68,21 @@
         android:layout_marginTop="72dp" 
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
-
+        
     <Button
         android:id="@+id/continueBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
         android:text="CONTINUE"
         android:enabled="false"
+        style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp" />
+        android:paddingTop="7dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
