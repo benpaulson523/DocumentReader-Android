@@ -9,6 +9,7 @@ import android.content.Context
 import android.widget.EditText
 import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
+import android.graphics.Bitmap
 
 class NeuvoteManager private constructor(
     var context: Context,
@@ -30,6 +31,7 @@ class NeuvoteManager private constructor(
     private var postalCode: String? = null
     private var readChip: Boolean = false
     private var verifyMethod: String? = null
+    private var officialDocumentScan: Bitmap? = null
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -134,27 +136,6 @@ class NeuvoteManager private constructor(
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean, String?) -> Unit)? = null) {
         showDialog(context.getString(R.string.registering))
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
-        val addressJson = org.json.JSONObject().apply {
-            put("streetAddress", streetAddress ?: "")
-            put("city", city ?: "")
-            put("province", jurisdiction ?: "")
-            put("postalCode", postalCode ?: "")
-            put("unitNumberPOBox", unitNumber)
-        }
-        val jsonObj = org.json.JSONObject().apply {
-            put("votingChannel", "online")
-            put("firstName", firstName ?: "")
-            put("middleName", middleName ?: "")
-            put("lastName", surname ?: "")
-            put("dateOfBirth", dateOfBirth ?: "")
-            put("email", email ?: "")
-            put("phone", phone ?: "")
-            put("mnemonicUuid", registrationCode ?: "")
-            put("address", addressJson)
-            put("electionOptIns", electionOptIns)
-            put("verificationCode", verificationCode)
-        }
-        Log.d(TAG, "validateVerification data: $jsonObj")
 
         var url = getNeuvoteServerUrl()
         if (verifyMethod == "email") {
@@ -163,13 +144,39 @@ class NeuvoteManager private constructor(
             url += Constants.ENDPOINT_REGISTRATION_MFA_VERIFY_SMS
         }
 
-        val jsonBody = jsonObj.toString()
-
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
+        val multipartBuilder = okhttp3.MultipartBody.Builder().setType(okhttp3.MultipartBody.FORM)
+
+        // Add all fields as separate form fields
+        multipartBuilder.addFormDataPart("votingChannel", "online")
+        multipartBuilder.addFormDataPart("firstName", firstName ?: "")
+        multipartBuilder.addFormDataPart("middleName", middleName ?: "")
+        multipartBuilder.addFormDataPart("lastName", surname ?: "")
+        multipartBuilder.addFormDataPart("dateOfBirth", dateOfBirth ?: "")
+        multipartBuilder.addFormDataPart("email", email ?: "")
+        multipartBuilder.addFormDataPart("phone", phone ?: "")
+        multipartBuilder.addFormDataPart("mnemonicUuid", registrationCode ?: "")
+        multipartBuilder.addFormDataPart("electionOptIns", electionOptIns)
+        multipartBuilder.addFormDataPart("verificationCode", verificationCode)
+        // Address fields
+        multipartBuilder.addFormDataPart("address[streetAddress]", streetAddress ?: "")
+        multipartBuilder.addFormDataPart("address[city]", city ?: "")
+        multipartBuilder.addFormDataPart("address[province]", jurisdiction ?: "")
+        multipartBuilder.addFormDataPart("address[postalCode]", postalCode ?: "")
+        multipartBuilder.addFormDataPart("address[unitNumberPOBox]", unitNumber ?: "")
+
+        // Add officialDocumentScan as photoIDs if available
+        officialDocumentScan?.let { bitmap ->
+            val stream = java.io.ByteArrayOutputStream()
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, stream)
+            val photoBytes = stream.toByteArray()
+            multipartBuilder.addFormDataPart(
+                "photoIDs",
+                "document.jpg",
+                okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes)
+            )
+        }
+        val requestBody = multipartBuilder.build()
         val request = okhttp3.Request.Builder()
             .url(url)
             .post(requestBody)
@@ -579,5 +586,12 @@ class NeuvoteManager private constructor(
     }
     fun getVerifyMethod(): String? {
         return verifyMethod
+    }
+
+    fun setOfficialDocumentScan(value: Bitmap?) {
+        officialDocumentScan = value
+    }
+    fun getOfficialDocumentScan(): Bitmap? {
+        return officialDocumentScan
     }
 }

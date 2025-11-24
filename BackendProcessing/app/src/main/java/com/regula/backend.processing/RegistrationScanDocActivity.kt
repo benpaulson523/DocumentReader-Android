@@ -142,6 +142,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         neuvoteManager.setStreetAddress(streetAddress)
         Log.d(TAG, "Street address: $streetAddress")
         
+        val unitNumberField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_FLAT)
+        val unitNumber = unitNumberField?.value ?: ""
+        neuvoteManager.setUnitNumber(unitNumber)
+        Log.d(TAG, "Unit number: $unitNumber")
+        
         val cityField = results?.getTextFieldByType(eVisualFieldType.FT_ADDRESS_CITY)
         val city = cityField?.value ?: ""
         neuvoteManager.setCity(city)
@@ -162,6 +167,18 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         } else {
             handlePhoto(false, results)
         }
+
+        saveFullScan(results)
+    }
+
+    fun saveFullScan(results: DocumentReaderResults?) {
+        val documentImageWhite: Bitmap? = results?.getGraphicFieldImageByType(
+            eGraphicFieldType.GF_DOCUMENT_IMAGE,
+            eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
+            0, // page index
+        )
+
+        neuvoteManager.setOfficialDocumentScan(documentImageWhite)
     }
 
     fun handlePhoto(chip: Boolean, results: DocumentReaderResults?) {
@@ -169,7 +186,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
                 if (documentImage != null) {
-                    processDocumentImage(documentImage)
+                    enrollPhoto(documentImage)
                 }
                 else {
                     handlePhoto(false, results)
@@ -187,7 +204,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
                 if (documentImage != null) {
-                    processDocumentImage(documentImage)
+                    enrollPhoto(documentImage)
                 }
                 else {
                     binding.errorMessage.text = getString(R.string.failed_retrieve_document_image)
@@ -208,7 +225,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         }
     }
 
-    fun processDocumentImage(documentImage: Bitmap) {
+    fun enrollPhoto(documentImage: Bitmap) {
 
         binding.idUploadIcon.visibility = View.VISIBLE
         binding.uploadingMsg.visibility = View.VISIBLE
