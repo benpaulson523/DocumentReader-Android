@@ -95,6 +95,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         Log.d(TAG, "docScanningFailed")
         failed = true
 
+        binding.errorMessage.text = "The document scanning has failed. Please try again."
         binding.errorMessage.visibility = View.VISIBLE
         binding.continueBtn.setText("RETRY SCAN")
         binding.continueBtn.isEnabled = true
@@ -107,9 +108,6 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         binding.continueBtn.isEnabled = false
 
         binding.errorMessage.visibility = View.GONE
-
-        binding.idUploadIcon.visibility = View.VISIBLE
-        binding.title.visibility = View.VISIBLE
 
         val surnameField = results?.getTextFieldByType(eVisualFieldType.FT_SURNAME)
         val surname = surnameField?.value ?: ""
@@ -160,33 +158,61 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         Log.d(TAG, "Postal code: $postalCode")
 
         if (neuvoteManager.getReadChip()) {
+            handlePhoto(true, results)
+        } else {
+            handlePhoto(false, results)
+        }
+    }
+
+    fun handlePhoto(chip: Boolean, results: DocumentReaderResults?) {
+        if (chip) {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
                 if (documentImage != null) {
                     processDocumentImage(documentImage)
                 }
                 else {
-                    showToast(this, "Failed to retrieve document image")
+                    handlePhoto(false, results)
                 }
             } else {
+                binding.errorMessage.text = "Failed to capture document image.  Ensure that all document numbers are visible when scanning."
+                binding.errorMessage.visibility = View.VISIBLE
+                binding.continueBtn.setText("RETRY SCAN")
+                failed = true
                 showToast(this, "Failed to capture document image")
+                binding.continueBtn.isEnabled = true
             }
-        } else {
+        }
+        else {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
                 if (documentImage != null) {
                     processDocumentImage(documentImage)
                 }
                 else {
+                    binding.errorMessage.text = "Failed to retrieve document image"
+                    binding.errorMessage.visibility = View.VISIBLE
+                    binding.continueBtn.setText("RETRY SCAN")
+                    failed = true
                     showToast(this, "Failed to retrieve document image")
+                    binding.continueBtn.isEnabled = true
                 }
             } else {
+                binding.errorMessage.text = "Failed to capture document image"
+                binding.errorMessage.visibility = View.VISIBLE
+                binding.continueBtn.setText("RETRY SCAN")
+                failed = true
                 showToast(this, "Failed to capture document image")
+                binding.continueBtn.isEnabled = true
             }
         }
     }
 
     fun processDocumentImage(documentImage: Bitmap) {
+
+        binding.idUploadIcon.visibility = View.VISIBLE
+        binding.uploadingMsg.visibility = View.VISIBLE
+
         val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
         var scaledDocumentImage = Bitmap.createScaledBitmap(
             documentImage,
@@ -200,9 +226,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                 showToast(this, "Upload complete")
                 binding.errorMessage.visibility = View.GONE
                 binding.continueBtn.setText("CONTINUE")
-                binding.title.setText("Your document has been uploaded.")
+                binding.uploadingMsg.setText("Your document has been uploaded.")
                 passed = true
             } else {
+                binding.idUploadIcon.visibility = View.GONE
+                binding.uploadingMsg.visibility = View.GONE
                 showToast(this, errorMsg)
                 binding.errorMessage.text = errorMsg
                 binding.errorMessage.visibility = View.VISIBLE

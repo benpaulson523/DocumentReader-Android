@@ -14,4 +14,5 @@
     <string name="registration_failed">Registration failed</string>
     <string name="invalid_email_address">Invalid email address</string>
     <string name="invalid_phone_number">Invalid phone number</string>
+    <string name="unable_to_return">Unable to return to previous screen</string>
 </resources>

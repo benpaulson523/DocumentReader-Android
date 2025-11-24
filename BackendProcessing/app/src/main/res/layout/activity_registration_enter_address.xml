@@ -24,7 +24,7 @@
         android:fontFamily="@font/poppins_semibold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="64dp"
         android:layout_marginStart="24dp" />
 
     <TextView
@@ -33,17 +33,17 @@
         android:layout_height="wrap_content"
         android:text="Street Address:"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="@id/title"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/streetValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         android:fontFamily="@font/poppins_semibold"
         android:inputType="textPostalAddress"
         android:background="@drawable/edittext_rounded"
@@ -59,17 +59,17 @@
         android:layout_height="wrap_content"
         android:text="Apartment/Unit #:"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/streetValue"
         app:layout_constraintStart_toStartOf="@id/streetValue"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="14dp" />
 
     <EditText
         android:id="@+id/unitNumberValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         android:fontFamily="@font/poppins_semibold"
         android:inputType="text"
         android:background="@drawable/edittext_rounded"
@@ -85,17 +85,17 @@
         android:layout_height="wrap_content"
         android:text="City:"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/unitNumberValue"
         app:layout_constraintStart_toStartOf="@id/unitNumberValue"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="14dp" />
 
     <EditText
         android:id="@+id/cityValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         android:fontFamily="@font/poppins_semibold"
         android:inputType="textCapWords"
         android:background="@drawable/edittext_rounded"
@@ -111,17 +111,17 @@
         android:layout_height="wrap_content"
         android:text="Province/State:"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/cityValue"
         app:layout_constraintStart_toStartOf="@id/cityValue"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="14dp" />
 
     <EditText
         android:id="@+id/provinceValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         android:fontFamily="@font/poppins_semibold"
         android:inputType="textCapWords"
         android:background="@drawable/edittext_rounded"
@@ -137,17 +137,17 @@
         android:layout_height="wrap_content"
         android:text="Postal Code:"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/provinceValue"
         app:layout_constraintStart_toStartOf="@id/provinceValue"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="14dp" />
 
     <EditText
         android:id="@+id/postalValue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
+        style="@style/AppTextMediumLarge"
         android:fontFamily="@font/poppins_semibold"
         android:inputType="textPostalAddress"
         android:background="@drawable/edittext_rounded"

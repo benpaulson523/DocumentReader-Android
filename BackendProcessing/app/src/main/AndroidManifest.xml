@@ -27,30 +27,39 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationStartActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationSelectDocActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationScanDocActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationLivenessActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationDataActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationEnterAddressActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationEnterContactActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationVerifyContactActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.regula.backend.processing.RegistrationAuthorizedActivity"
