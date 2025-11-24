@@ -84,7 +84,7 @@ class NeuvoteManager private constructor(
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    showToast(context, "Failed to send email")
+                    showToast(context, context.getString(R.string.verification_email_failed))
                     onResponse(false)
                 }
             }
@@ -119,7 +119,7 @@ class NeuvoteManager private constructor(
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
-                    showToast(context, "Failed to send text")
+                    showToast(context, context.getString(R.string.verification_text_failed))
                     onResponse(false)
                 }
             }
@@ -132,7 +132,7 @@ class NeuvoteManager private constructor(
     }
 
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean, String?) -> Unit)? = null) {
-        showDialog("Registering...")
+        showDialog(context.getString(R.string.registering))
         val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
         val addressJson = org.json.JSONObject().apply {
             put("streetAddress", streetAddress ?: "")
@@ -178,7 +178,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    showToast(context, "Network error: Registration failed")
+                    showToast(context, context.getString(R.string.registration_failed))
                 }
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
@@ -230,15 +230,15 @@ class NeuvoteManager private constructor(
                 (context as? Activity)?.runOnUiThread {
                     if (invalidCode) {
                         dismissDialog();
-                        showToast(context, "Error: invalid code")
-                        onFinalResult?.invoke(false, "Error: invalid code")
+                        showToast(context, context.getString(R.string.error) + ": " + context.getString(R.string.verification_failed_msg))
+                        onFinalResult?.invoke(false, context.getString(R.string.error) + ": " + context.getString(R.string.verification_failed_msg))
                     } else if (response.isSuccessful && errorMsg == null) {
                         validateIProovVerification(context, voterIdentifier, iProovManager) { success ->
                             onFinalResult?.invoke(success, null)
                         }
                     } else {
                         dismissDialog();
-                        val failMsg = "Registration failed: ${errorMsg ?: "Unknown error"}"
+                        val failMsg = context.getString(R.string.registration_failed) + ": " + (errorMsg ?: context.getString(R.string.unknown_error))
                         showToast(context, failMsg)
                         onFinalResult?.invoke(false, failMsg)
                     }
@@ -284,7 +284,7 @@ class NeuvoteManager private constructor(
                     if (errorMsg != null) {
                         (context as? Activity)?.runOnUiThread {
                             dismissDialog();
-                            showToast(context, "iProov verification failed: $errorMsg")
+                            showToast(context, context.getString(R.string.verification_failed_msg) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
                         }
                         return@validateVerification
                     }
@@ -303,12 +303,12 @@ class NeuvoteManager private constructor(
                 onError = { errorMsg ->
                     dismissDialog();
                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                    showToast(context, "iProov verification failed: $errorMsg")
+                    showToast(context, context.getString(R.string.verification_failed_msg) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
                 }
             )
         } else {
             dismissDialog();
-            showToast(context, "Registration failed: iProovManager not available")
+            showToast(context, context.getString(R.string.registration_failed) + ": " + context.getString(R.string.unknown_error))
         }
     }
     
@@ -344,7 +344,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    showToast(context, "Network error: ABIS registration failed")
+                    showToast(context, context.getString(R.string.registration_failed))
                     onFinalResult?.invoke(false)
                 }
                 Log.e(TAG, "Failed to register with ABIS: " + e.message)
@@ -371,7 +371,7 @@ class NeuvoteManager private constructor(
                         updateAbisID(context, voterIdentifier, registrationCode, onFinalResult)
                     } else {
                         dismissDialog();
-                        showToast(context, "ABIS registration failed: ${errorMsg ?: "Unknown error"}")
+                        showToast(context, context.getString(R.string.registration_failed) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
                         onFinalResult?.invoke(false)
                     }
                 }
@@ -398,7 +398,7 @@ class NeuvoteManager private constructor(
             override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                 (context as? Activity)?.runOnUiThread {
                     dismissDialog();
-                    showToast(context, "Setting ABIS ID failed")
+                    showToast(context, context.getString(R.string.registration_failed))
                 }
                 Log.e(TAG, "Failed to update ABIS ID: " + e.message)
             }
@@ -416,7 +416,7 @@ class NeuvoteManager private constructor(
                         }
                     } else {
                         dismissDialog();
-                        showToast(context, "Setting ABIS ID failed")
+                        showToast(context, context.getString(R.string.registration_failed))
                     }
                 }
             }

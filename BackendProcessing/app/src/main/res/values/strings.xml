@@ -19,7 +19,6 @@
     <string name="confirm">Confirm</string>
     <string name="start">Start</string>
     <string name="continueString">Continue</string>
-    <string name="send">Send</string>
     <string name="done">Done</string>
     <string name="settings">Settings</string>
     <string name="address_label">Address</string>
@@ -86,5 +85,13 @@
     <string name="neuvote_server_address_label">Neuvote Server Address</string>
     <string name="neuvote_server_port_label">Neuvote Server Port</string>
     <string name="register">Register</string>
+    <string name="registering">Registering...</string>
     <string name="verify">Verify</string>
+    <string name="enrollment_token_failed">Failed to get enrollment token</string>
+    <string name="photo_enrollment_failed">Photo enrollment failed</string>
+    <string name="could_not_connect_neuvote">Could not connect to Neuvote</string>
+    <string name="photo_enroll_error">Photo enroll error</string>
+    <string name="verification_token_failed">Failed to get verification token</string>
+    <string name="verify_token_error">Verify token error</string>
+    <string name="verification_validation_failed">Verification validation failed</string>
 </resources>

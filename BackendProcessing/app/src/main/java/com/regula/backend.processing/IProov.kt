@@ -77,9 +77,9 @@ class IProovManager private constructor(
                     if (!tokenResponse.isSuccessful) {
                         val errorMsg = try {
                             val json = org.json.JSONObject(tokenResponseBody)
-                            json.optString("error", json.optString("message", "Failed to get enrollment token"))
+                            json.optString("error", json.optString("message", context.getString(R.string.enrollment_token_failed)))
                         } catch (e: Exception) {
-                            "Failed to get enrollment token"
+                            context.getString(R.string.enrollment_token_failed)
                         }
                         withContext(Dispatchers.Main) {
                             showToast(context, errorMsg)
@@ -105,9 +105,9 @@ class IProovManager private constructor(
                         if (!enrollResponse.isSuccessful) {
                             val errorMsg = try {
                                 val json = org.json.JSONObject(result)
-                                json.optString("error", json.optString("message", "Photo enrollment failed"))
+                                json.optString("error", json.optString("message", context.getString(R.string.photo_enrollment_failed)))
                             } catch (e: Exception) {
-                                "Photo enrollment failed"
+                                context.getString(R.string.photo_enrollment_failed)
                             }
                             withContext(Dispatchers.Main) {
                                 showToast(context, errorMsg)
@@ -124,7 +124,7 @@ class IProovManager private constructor(
                                 onUiUpdate?.invoke(null)
                             }
                         } else {
-                            val errorMsg = enrollJson.optString("error", "Photo enrollment failed")
+                            val errorMsg = enrollJson.optString("error", context.getString(R.string.photo_enrollment_failed))
                             withContext(Dispatchers.Main) {
                                 showToast(context, errorMsg)
                                 onUiUpdate?.invoke(errorMsg)
@@ -136,9 +136,9 @@ class IProovManager private constructor(
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
                     val errorMsg = if (ex.localizedMessage.contains("failed to connect")) {
-                        "Error: could not connect to Neuvote"
+                        context.getString(R.string.error) + ": " + context.getString(R.string.could_not_connect_neuvote)
                     } else {
-                        "Photo enroll error: ${ex.localizedMessage}"
+                        context.getString(R.string.photo_enroll_error) + ": " + (ex.localizedMessage ?: context.getString(R.string.unknown_error))
                     }
                     showToast(context, errorMsg)
                     onUiUpdate?.invoke(errorMsg)
@@ -165,9 +165,9 @@ class IProovManager private constructor(
                     if (!verifyTokenResponse.isSuccessful) {
                         val errorMsg = try {
                             val json = org.json.JSONObject(verifyTokenBody)
-                            json.optString("error", json.optString("message", "Failed to get verification token"))
+                            json.optString("error", json.optString("message", context.getString(R.string.verification_token_failed)))
                         } catch (e: Exception) {
-                            "Failed to get verification token"
+                            context.getString(R.string.verification_token_failed)
                         }
                         withContext(Dispatchers.Main) {
                             showToast(context, errorMsg)
@@ -179,7 +179,7 @@ class IProovManager private constructor(
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    showToast(context, "Verify token error: ${ex.localizedMessage}")
+                    showToast(context, context.getString(R.string.verify_token_error) + ": " + (ex.localizedMessage ?: context.getString(R.string.unknown_error)))
                 }
             }
         }
@@ -271,9 +271,9 @@ class IProovManager private constructor(
                     if (!response.isSuccessful) {
                         val errorMsg = try {
                             val json = org.json.JSONObject(responseBody)
-                            json.optString("error", json.optString("message", "Verification validation failed"))
+                            json.optString("error", json.optString("message", context.getString(R.string.verification_validation_failed)))
                         } catch (e: Exception) {
-                            "Verification validation failed"
+                            context.getString(R.string.verification_validation_failed)
                         }
                         withContext(Dispatchers.Main) {
                             onError(errorMsg)
@@ -286,7 +286,7 @@ class IProovManager private constructor(
                 }
             } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
-                    onError(ex.localizedMessage ?: "Unknown error")
+                    onError(ex.localizedMessage ?: context.getString(R.string.unknown_error))
                 }
             }
         }
