@@ -12,6 +12,7 @@ import com.regula.documentreader.api.completions.IDocumentReaderInitCompletion
 import com.regula.documentreader.api.completions.rfid.IRfidReaderCompletion
 import com.regula.documentreader.api.config.ScannerConfig
 import com.regula.documentreader.api.enums.DocReaderAction
+import com.regula.documentreader.api.enums.DocReaderOrientation
 import com.regula.documentreader.api.enums.Scenario
 import com.regula.documentreader.api.enums.eGraphicFieldType
 import com.regula.documentreader.api.enums.eVisualFieldType
@@ -81,6 +82,7 @@ class RegulaScanner private constructor(
                 if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
                     handler.post {
                         val docReaderConfig = DocReaderConfig(license)
+                        DocumentReader.Instance().functionality().edit().setOrientation(DocReaderOrientation.PORTRAIT).apply()
                         DocumentReader.Instance()
                             .initializeReader(activity, docReaderConfig, initCompletionWithCallback)
                     }
