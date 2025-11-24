@@ -42,7 +42,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                 Log.d(TAG, "Radio button selected, Method index: $selectedIndex")
             }
         }
-        // set passport as selected by default
+        // set email as selected by default
         buttons[0].performClick()
 
         // Enable sendBtn when both email and phone are non-empty

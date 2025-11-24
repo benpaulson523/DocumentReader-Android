@@ -50,10 +50,10 @@ class RegistrationLivenessActivity : AppCompatActivity() {
 
         val resultTv = binding.resultMessageTv
 
-        if (title == "Success") {
+        if (title == getString(R.string.success)) {
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
-            showToast(this, "Liveness check passed")
+            showToast(this, getString(R.string.liveness_check_passed))
             if (neuvoteManager.hasAddress()) {
                 Log.d(TAG, "Address is populated")
                 NavigationHelper.navigateToRegistrationData(this)
@@ -62,8 +62,8 @@ class RegistrationLivenessActivity : AppCompatActivity() {
                 NavigationHelper.navigateToRegistrationEnterAddress(this)
             }
         } else {
-            showToast(this, "Facial scan failed: $resultMessage")
-            resultTv.text = "Facial scan failed: " + (resultMessage ?: "Unknown error")
+            showToast(this, getString(R.string.facial_scan_failed, resultMessage ?: getString(R.string.unknown_error)))
+            resultTv.text = getString(R.string.facial_scan_failed, resultMessage ?: getString(R.string.unknown_error))
             resultTv.visibility = View.VISIBLE
             iProovManager.getVerificationToken()
             binding.beginBtn.isEnabled = true

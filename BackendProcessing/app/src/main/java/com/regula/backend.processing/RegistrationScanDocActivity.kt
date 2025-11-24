@@ -95,16 +95,16 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         Log.d(TAG, "docScanningFailed")
         failed = true
 
-        binding.errorMessage.text = "The document scanning has failed. Please try again."
+        binding.errorMessage.text = getString(R.string.document_scanning_failed)
         binding.errorMessage.visibility = View.VISIBLE
-        binding.continueBtn.setText("RETRY SCAN")
+        binding.continueBtn.setText(R.string.retry_scan)
         binding.continueBtn.isEnabled = true
     }
 
     private fun docScanned(results: DocumentReaderResults?) {
         Log.d(TAG, "docScanned")
         failed = false
-        binding.continueBtn.setText("CONTINUE")
+        binding.continueBtn.setText(R.string.continueString)
         binding.continueBtn.isEnabled = false
 
         binding.errorMessage.visibility = View.GONE
@@ -175,11 +175,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     handlePhoto(false, results)
                 }
             } else {
-                binding.errorMessage.text = "Failed to capture document image.  Ensure that all document numbers are visible when scanning."
+                binding.errorMessage.text = getString(R.string.failed_capture_document_image)
                 binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText("RETRY SCAN")
+                binding.continueBtn.setText(R.string.retry_scan)
                 failed = true
-                showToast(this, "Failed to capture document image")
+                showToast(this, getString(R.string.failed_capture_document_image))
                 binding.continueBtn.isEnabled = true
             }
         }
@@ -190,19 +190,19 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     processDocumentImage(documentImage)
                 }
                 else {
-                    binding.errorMessage.text = "Failed to retrieve document image"
+                    binding.errorMessage.text = getString(R.string.failed_retrieve_document_image)
                     binding.errorMessage.visibility = View.VISIBLE
-                    binding.continueBtn.setText("RETRY SCAN")
+                    binding.continueBtn.setText(R.string.retry_scan)
                     failed = true
-                    showToast(this, "Failed to retrieve document image")
+                    showToast(this, getString(R.string.failed_retrieve_document_image))
                     binding.continueBtn.isEnabled = true
                 }
             } else {
-                binding.errorMessage.text = "Failed to capture document image"
+                binding.errorMessage.text = getString(R.string.failed_capture_document_image)
                 binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText("RETRY SCAN")
+                binding.continueBtn.setText(R.string.retry_scan)
                 failed = true
-                showToast(this, "Failed to capture document image")
+                showToast(this, getString(R.string.failed_capture_document_image))
                 binding.continueBtn.isEnabled = true
             }
         }
@@ -223,10 +223,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         // Enroll the photo with iProov, pass callback for UI update
         iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
             if (errorMsg == null) {
-                showToast(this, "Upload complete")
+                showToast(this, getString(R.string.upload_complete))
                 binding.errorMessage.visibility = View.GONE
-                binding.continueBtn.setText("CONTINUE")
-                binding.uploadingMsg.setText("Your document has been uploaded.")
+                binding.continueBtn.setText(R.string.continueString)
+                binding.uploadingMsg.setText(R.string.document_uploaded)
                 passed = true
             } else {
                 binding.idUploadIcon.visibility = View.GONE
@@ -234,7 +234,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                 showToast(this, errorMsg)
                 binding.errorMessage.text = errorMsg
                 binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText("RETRY SCAN")
+                binding.continueBtn.setText(R.string.retry_scan)
                 failed = true
             }
             binding.continueBtn.isEnabled = true
