@@ -18,7 +18,7 @@
         android:id="@+id/thankYouMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Thank You"
+        android:text="@string/thank_you"
         android:textColor="@android:color/black"
         style="@style/AppTextXXLarge"
         app:layout_constraintTop_toTopOf="parent"
@@ -46,7 +46,7 @@
         android:id="@+id/registeredMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Your registration has been received. Please present the below code when you visit the commission office."
+        android:text="@string/registration_received_message"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         android:fontFamily="@font/poppins_semibold"
@@ -61,7 +61,7 @@
         android:id="@+id/registrationCodeLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Registration code:"
+        android:text="@string/registration_code_label"
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         android:fontFamily="@font/poppins_semibold"
@@ -91,13 +91,13 @@
         app:layout_constraintTop_toBottomOf="@id/registrationCode"
         app:layout_constraintStart_toStartOf="@id/registrationCode"
         android:layout_marginTop="16dp"
-        android:contentDescription="QR code" />
+        android:contentDescription="@string/qr_code_content_description" />
 
     <Button
         android:id="@+id/doneBtn"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:text="DONE"
+        android:text="@string/done"
         style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"

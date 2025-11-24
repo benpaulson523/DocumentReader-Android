@@ -30,7 +30,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Registration requires scanning an official ID."
+        android:text="@string/registration_requires_id"
         android:textColor="@android:color/black"
         style="@style/AppTextXLarge"
         android:fontFamily="@font/poppins_semibold"
@@ -46,7 +46,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Acceptable Official ID:"
+        android:text="@string/acceptable_id_subtitle"
         android:textColor="@android:color/black"
         style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@+id/title"
@@ -68,7 +68,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="•  Valid Passport"
+            android:text="@string/bullet_valid_passport"
             android:textColor="@android:color/black"
             style="@style/AppTextMediumLarge"
             android:layout_marginBottom="4dp" />
@@ -76,7 +76,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="•  Valid Government ID"
+            android:text="@string/bullet_valid_government_id"
             android:textColor="@android:color/black"
             style="@style/AppTextMediumLarge"
             android:layout_marginBottom="4dp" />
@@ -84,7 +84,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="•  Valid Driver License"
+            android:text="@string/bullet_valid_driver_license"
             android:textColor="@android:color/black"
             style="@style/AppTextMediumLarge" />
     </LinearLayout>
@@ -94,7 +94,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Keep your ID ready and click start"
+        android:text="@string/keep_id_ready_helper"
         android:textColor="@android:color/black"
         style="@style/AppTextMediumLarge"
         app:layout_constraintTop_toBottomOf="@id/bullets"
@@ -105,7 +105,7 @@
         android:id="@+id/startBtn"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:text="START"
+        android:text="@string/start"
         style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
