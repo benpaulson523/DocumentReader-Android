@@ -62,7 +62,7 @@ class RegulaScanner private constructor(
             if (result) {
                 isInitialized = true
                 if (DocumentReader.Instance().availableScenarios.size == 0) {
-                    showToast(context, "Available scenarios list is empty")
+                    showToast(context, "Init failed: available scenarios list is empty")
                 }
             } else {
                 Log.d(TAG, "Exception during initialization1")
@@ -118,15 +118,12 @@ class RegulaScanner private constructor(
         } else {
             if (action == DocReaderAction.CANCEL) {
                 Log.d(TAG, "IDocumentReaderCompletion CANCEL")
-                showToast(context, "Scanning was cancelled")
                 onFailure()
             } else if (action == DocReaderAction.ERROR) {
                 Log.d(TAG, "IDocumentReaderCompletion ERROR")
-                showToast(context, "Scanning error:${error?.message}")
                 onFailure()
             } else if (action == DocReaderAction.TIMEOUT) {
                 Log.d(TAG, "IDocumentReaderCompletion TIMEOUT")
-                showToast(context, "Scanning timed out")
                 onFailure()
             }
         }

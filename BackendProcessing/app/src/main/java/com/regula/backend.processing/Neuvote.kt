@@ -32,6 +32,7 @@ class NeuvoteManager private constructor(
     private var readChip: Boolean = false
     private var verifyMethod: String? = null
     private var officialDocumentScan: Bitmap? = null
+    private var photo: Bitmap? = null
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -593,5 +594,12 @@ class NeuvoteManager private constructor(
     }
     fun getOfficialDocumentScan(): Bitmap? {
         return officialDocumentScan
+    }
+
+    fun setPhoto(value: Bitmap?) {
+        photo = value
+    }
+    fun getPhoto(): Bitmap? {
+        return photo
     }
 }

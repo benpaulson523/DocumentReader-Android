@@ -18,24 +18,24 @@ import android.app.Activity
 import android.view.View
 
 class IProovManager private constructor(
-    private val context: Context,
-    private val registrationCode: String?
+    private val context: Context
 ) {
     companion object {
         private const val TAG = "IProovManager"
+        
+        private var enrolled: Boolean = false
+        private var registrationCode: String? = null
 
         @Volatile
         private var instance: IProovManager? = null
 
         @JvmStatic
         fun getInstance(
-            context: Context,
-            registrationCode: String?
+            context: Context
         ): IProovManager {
             return instance ?: synchronized(this) {
                 instance ?: IProovManager(
-                    context,
-                    registrationCode
+                    context
                 ).also { instance = it }
             }
         }
@@ -290,5 +290,16 @@ class IProovManager private constructor(
                 }
             }
         }
+    }
+    
+    fun setEnrolled(value: Boolean) {
+        enrolled = value
+    }
+    fun getEnrolled(): Boolean {
+        return enrolled
+    }
+    
+    fun setRegistrationCode(value: String) {
+        registrationCode = value
     }
 }

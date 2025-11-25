@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegistrationSelectSupportDocActivity"
+    android:tag="content">
+    
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/otherscreensbackground" />
+
+    <!-- Title/lead text -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/select_doc_type_instruction"
+        android:textColor="@android:color/black"
+        style="@style/AppTextXLarge"
+        android:fontFamily="@font/poppins_semibold"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="72dp" 
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+    <LinearLayout
+        android:id="@+id/buttonGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" 
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center" >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUtilityBill"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/utility_bill"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
+            android:textColor="@android:color/black"
+            android:textAllCaps="false"
+            app:cornerRadius="4dp"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCarInsurance"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/car_insurance"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
+            android:textColor="@android:color/black"
+            android:textAllCaps="false"
+            app:cornerRadius="4dp"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTaxReceipt"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/tax_receipt"
+            style="@style/AppTextMedium"
+            android:paddingTop="7dp"
+            android:textColor="@android:color/black"
+            android:textAllCaps="false"
+            app:cornerRadius="4dp"
+            app:backgroundTint="@color/white"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp" />
+    </LinearLayout>
+        
+    <Button
+        android:id="@+id/continueBtn"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="@string/continueString"
+        style="@style/AppTextMedium"
+        android:backgroundTint="?attr/colorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingTop="7dp"
+        android:layout_marginBottom="34dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

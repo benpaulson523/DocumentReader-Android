@@ -79,7 +79,7 @@ fun generateQRCodeBitmap(text: String): android.graphics.Bitmap? {
     return null
 }
 
-fun showToast(context: Context, text: String) {
+fun showToast(context: Context, text: String, yOffset: Int? = null) {
     val inflater = LayoutInflater.from(context)
     val layout = inflater.inflate(R.layout.custom_toast, null)
     val toastText = layout.findViewById<TextView>(R.id.toastText)
@@ -89,6 +89,7 @@ fun showToast(context: Context, text: String) {
     val toast = Toast(context)
     toast.duration = Toast.LENGTH_LONG
     toast.view = layout
-    toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, 280)
+    val y = yOffset ?: 280
+    toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, y)
     toast.show()
 }

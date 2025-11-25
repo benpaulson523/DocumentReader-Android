@@ -40,6 +40,11 @@ object NavigationHelper {
         activity.startActivity(intent)
     }
 
+    fun navigateToRegistrationSelectSupportDoc(activity: Activity) {
+        val intent = Intent(activity, RegistrationSelectSupportDocActivity::class.java)
+        activity.startActivity(intent)
+    }
+
     fun navigateToRegistrationEnterContact(activity: Activity) {
         val intent = Intent(activity, RegistrationEnterContactActivity::class.java)
         activity.startActivity(intent)

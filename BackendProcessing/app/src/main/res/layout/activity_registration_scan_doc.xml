@@ -21,8 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:src="@drawable/iduploadicon"
-        android:visibility="gone"
-        android:layout_marginTop="72dp" 
+        android:layout_marginTop="42dp" 
         android:layout_marginStart="24dp" />
 
     <TextView
@@ -31,7 +30,7 @@
         android:layout_height="wrap_content"
         android:text="@string/uploading_document_msg"
         android:textColor="@android:color/black"
-        style="@style/AppTextXLarge"
+        style="@style/AppTextLarge"
         android:fontFamily="@font/poppins_semibold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
@@ -50,27 +49,77 @@
         android:fontFamily="@font/poppins_semibold"
         android:visibility="gone"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/uploadingMsg"
+        app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="72dp" 
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+    <ImageView
+        android:id="@+id/fullDocumentImageView"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/idUploadIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="110dp" 
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+    <TextView
+        android:id="@+id/instructionMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/document_scan_instruction"
+        android:textColor="@android:color/black"
+        style="@style/AppTextMedium"
+        android:fontFamily="@font/poppins_semibold"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/bottomButtonGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp" />
         
-    <Button
-        android:id="@+id/continueBtn"
+    <LinearLayout
+        android:id="@+id/bottomButtonGroup"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:text="@string/continueString"
-        android:enabled="false"
-        style="@style/AppTextMedium"
-        android:backgroundTint="?attr/colorSecondary"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingTop="7dp"
         android:layout_marginBottom="34dp"
         android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp" />
+        android:layout_marginEnd="24dp">
+        <Button
+            android:id="@+id/retakeBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/retake_scan"
+            android:textColor="@color/philippines_blue"
+            android:enabled="false"
+            style="@style/AppTextMedium"
+            android:backgroundTint="@color/white"
+            android:layout_marginEnd="6dp"
+            android:paddingTop="7dp"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp" />
+        <Button
+            android:id="@+id/continueBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/continueString"
+            android:enabled="false"
+            style="@style/AppTextMedium"
+            android:backgroundTint="?attr/colorSecondary"
+            android:layout_marginStart="6dp"
+            android:paddingTop="7dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -37,8 +37,6 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     private lateinit var regulaScanner: RegulaScanner
     private lateinit var iProovManager: IProovManager
     private lateinit var neuvoteManager: NeuvoteManager
-    private var failed: Boolean = false
-    private var passed: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationScanDocActivity screen")
@@ -54,58 +52,66 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        val registrationCode = generateRegistrationCode()
-        neuvoteManager.setRegistrationCode(registrationCode)
         
         regulaScanner = RegulaScanner.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        
-        if (!passed) {
-            regulaScanner.showScanner(
-                neuvoteManager.getReadChip(),
-                onFinalize = { results -> docScanned(results) },
-                onFailure = { docScanningFailed() }
-            )
-        }
 
         iProovManager = IProovManager.getInstance(
-            context = this,
-            registrationCode = neuvoteManager.getRegistrationCode()
+            context = this
         )
+        
+        if (!iProovManager.getEnrolled()) {
+            val registrationCode = generateRegistrationCode()
+            neuvoteManager.setRegistrationCode(registrationCode)
+            iProovManager.setRegistrationCode(registrationCode)
+            startScanner()
+        } else {
+            binding.uploadingMsg.setText(R.string.document_uploaded)
+            binding.uploadingMsg.visibility = View.VISIBLE
+            binding.fullDocumentImageView.setImageBitmap(neuvoteManager.getOfficialDocumentScan())
+            binding.fullDocumentImageView.visibility = View.VISIBLE
+            binding.continueBtn.setText(getString(R.string.continueString))
+            binding.continueBtn.isEnabled = true
+            binding.retakeBtn.visibility = View.GONE
+            binding.instructionMessage.visibility = View.GONE
+        }
+
+        binding.retakeBtn.setOnClickListener {
+            startScanner()
+        }
 
         binding.continueBtn.setOnClickListener {
-            if (failed) {
-                regulaScanner.showScanner(
-                    neuvoteManager.getReadChip(),
-                    onFinalize = { results -> docScanned(results) },
-                    onFailure = { docScanningFailed() }
-                )
-            } else if (passed) {
+            if (iProovManager.getEnrolled()) {
                 NavigationHelper.navigateToRegistrationLiveness(this)
             } else {
-                Log.d(TAG, "continueBtn should not be enabled if neither failed nor passed")
+                enrollPhoto()
             }
         }
     }
 
+    private fun startScanner() {
+        binding.retakeBtn.isEnabled = true
+        binding.fullDocumentImageView.visibility = View.GONE
+        binding.continueBtn.isEnabled = false
+        binding.uploadingMsg.visibility = View.GONE
+        regulaScanner.showScanner(
+            neuvoteManager.getReadChip(),
+            onFinalize = { results -> docScanned(results) },
+            onFailure = { docScanningFailed() }
+        )
+    }
+
     private fun docScanningFailed() {
         Log.d(TAG, "docScanningFailed")
-        failed = true
 
-        binding.errorMessage.text = getString(R.string.document_scanning_failed)
-        binding.errorMessage.visibility = View.VISIBLE
-        binding.continueBtn.setText(R.string.retry_scan)
-        binding.continueBtn.isEnabled = true
+        handleFailure(getString(R.string.document_scanning_failed), null)
     }
 
     private fun docScanned(results: DocumentReaderResults?) {
         Log.d(TAG, "docScanned")
-        failed = false
-        binding.continueBtn.setText(R.string.continueString)
-        binding.continueBtn.isEnabled = false
 
         binding.errorMessage.visibility = View.GONE
 
@@ -172,13 +178,21 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     }
 
     fun saveFullScan(results: DocumentReaderResults?) {
-        val documentImageWhite: Bitmap? = results?.getGraphicFieldImageByType(
+        val fullDocumentImage: Bitmap? = results?.getGraphicFieldImageByType(
             eGraphicFieldType.GF_DOCUMENT_IMAGE,
             eRPRM_ResultType.RPRM_RESULT_TYPE_RAW_IMAGE,
             0, // page index
         )
 
-        neuvoteManager.setOfficialDocumentScan(documentImageWhite)
+        neuvoteManager.setOfficialDocumentScan(fullDocumentImage)
+
+        // Display the image in the UI
+        if (fullDocumentImage != null) {
+            binding.fullDocumentImageView.setImageBitmap(fullDocumentImage)
+            binding.fullDocumentImageView.visibility = View.VISIBLE
+        } else {
+            binding.fullDocumentImageView.visibility = View.GONE
+        }
     }
 
     fun handlePhoto(chip: Boolean, results: DocumentReaderResults?) {
@@ -186,76 +200,83 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
                 if (documentImage != null) {
-                    enrollPhoto(documentImage)
+                    neuvoteManager.setPhoto(documentImage)
+                    binding.continueBtn.isEnabled = true
+                    binding.continueBtn.setText("Upload")
+                    binding.uploadingMsg.setText("Document successfully scanned")
+                    binding.uploadingMsg.visibility = View.VISIBLE
                 }
                 else {
                     handlePhoto(false, results)
                 }
             } else {
-                binding.errorMessage.text = getString(R.string.failed_capture_document_image)
-                binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText(R.string.retry_scan)
-                failed = true
-                showToast(this, getString(R.string.failed_capture_document_image))
-                binding.continueBtn.isEnabled = true
+                handleFailure(getString(R.string.failed_capture_document_image_chip), getString(R.string.failed_capture_document_image_short))
             }
         }
         else {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
                 if (documentImage != null) {
-                    enrollPhoto(documentImage)
+                    neuvoteManager.setPhoto(documentImage)
+                    binding.continueBtn.isEnabled = true
+                    binding.continueBtn.setText("Upload")
+                    binding.uploadingMsg.setText("Document successfully scanned")
+                    binding.uploadingMsg.visibility = View.VISIBLE
                 }
                 else {
-                    binding.errorMessage.text = getString(R.string.failed_retrieve_document_image)
-                    binding.errorMessage.visibility = View.VISIBLE
-                    binding.continueBtn.setText(R.string.retry_scan)
-                    failed = true
-                    showToast(this, getString(R.string.failed_retrieve_document_image))
-                    binding.continueBtn.isEnabled = true
+                    handleFailure(getString(R.string.failed_retrieve_document_image), null)
                 }
             } else {
-                binding.errorMessage.text = getString(R.string.failed_capture_document_image)
-                binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText(R.string.retry_scan)
-                failed = true
-                showToast(this, getString(R.string.failed_capture_document_image))
-                binding.continueBtn.isEnabled = true
+                handleFailure(getString(R.string.failed_capture_document_image_short), null)
             }
         }
     }
 
-    fun enrollPhoto(documentImage: Bitmap) {
+    fun enrollPhoto() {
 
-        binding.idUploadIcon.visibility = View.VISIBLE
         binding.uploadingMsg.visibility = View.VISIBLE
+        binding.uploadingMsg.setText(getString(R.string.uploading_document_msg))
 
-        val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
-        var scaledDocumentImage = Bitmap.createScaledBitmap(
-            documentImage,
-            (480 * aspectRatio).toInt(), 480, false
-        )
+        val documentImage: Bitmap? = neuvoteManager.getPhoto()
 
-        Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
-        // Enroll the photo with iProov, pass callback for UI update
-        iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
-            if (errorMsg == null) {
-                showToast(this, getString(R.string.upload_complete))
-                binding.errorMessage.visibility = View.GONE
-                binding.continueBtn.setText(R.string.continueString)
-                binding.uploadingMsg.setText(R.string.document_uploaded)
-                passed = true
-            } else {
-                binding.idUploadIcon.visibility = View.GONE
-                binding.uploadingMsg.visibility = View.GONE
-                showToast(this, errorMsg)
-                binding.errorMessage.text = errorMsg
-                binding.errorMessage.visibility = View.VISIBLE
-                binding.continueBtn.setText(R.string.retry_scan)
-                failed = true
+        if (documentImage != null) {
+            val aspectRatio = documentImage.width.toDouble() / documentImage.height.toDouble()
+
+            var scaledDocumentImage = Bitmap.createScaledBitmap(
+                documentImage,
+                (480 * aspectRatio).toInt(), 480, false
+            )
+
+            Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
+            // Enroll the photo with iProov, pass callback for UI update
+            iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
+                if (errorMsg == null) {
+                    binding.errorMessage.visibility = View.GONE
+                    binding.uploadingMsg.setText(R.string.document_uploaded)
+                    binding.continueBtn.setText(getString(R.string.continueString))
+                    binding.continueBtn.isEnabled = true
+                    binding.retakeBtn.visibility = View.GONE
+                    binding.instructionMessage.visibility = View.GONE
+                    iProovManager.setEnrolled(true)
+                    showToast(this, getString(R.string.upload_complete))
+                } else {
+                    handleFailure(errorMsg, null)
+                }
             }
-            binding.continueBtn.isEnabled = true
+        } else {
+            handleFailure(getString(R.string.unknown_error), null)
         }
+    }
+
+    private fun handleFailure(errorMessage: String, toastMessage: String?) {
+        binding.uploadingMsg.visibility = View.GONE
+        if (toastMessage != null) {
+            showToast(this, toastMessage, 460)
+        } else {
+            showToast(this, errorMessage, 460)
+        }
+        binding.errorMessage.text = errorMessage
+        binding.errorMessage.visibility = View.VISIBLE
     }
 
     override fun setContentView(view: View?) {

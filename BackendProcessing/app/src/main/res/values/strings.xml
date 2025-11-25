@@ -37,7 +37,8 @@
     <string name="unknown_error">Unknown error</string>
     <string name="document_scanning_failed">Document scanning failed. Please try again.</string>
     <string name="retry_scan">Retry scan</string>
-    <string name="failed_capture_document_image">Failed to capture document image. Ensure all document numbers are visible when scanning. Please try again.</string>
+    <string name="failed_capture_document_image_chip">Failed to read document chip. Ensure all document numbers are visible when scanning. Please try again.</string>
+    <string name="failed_capture_document_image_short">Failed to capture document image. Please try again.</string>
     <string name="failed_retrieve_document_image">Failed to retrieve document image. Please try again.</string>
     <string name="upload_complete">Upload complete</string>
     <string name="document_uploaded">Document uploaded successfully</string>
@@ -94,4 +95,9 @@
     <string name="verification_token_failed">Failed to get verification token</string>
     <string name="verify_token_error">Verify token error</string>
     <string name="verification_validation_failed">Verification validation failed</string>
+    <string name="utility_bill">Utility Bill</string>
+    <string name="car_insurance">Car Insurance</string>
+    <string name="tax_receipt">Tax Receipt</string>
+    <string name="document_scan_instruction">Make sure that all data on your document is fully visible, glare-free, and not blurred.</string>
+    <string name="retake_scan">Retake</string>
 </resources>
