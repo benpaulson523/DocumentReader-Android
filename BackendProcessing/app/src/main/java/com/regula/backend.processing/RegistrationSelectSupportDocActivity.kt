@@ -51,10 +51,6 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
         buttons[0].performClick()
 
         binding.continueBtn.setOnClickListener {
-            neuvoteManager.setReadChip(selectedIndex == 0)
-
-            val readChip = neuvoteManager.getReadChip()
-            Log.d(TAG, "Reading chip: $readChip")
             NavigationHelper.navigateToRegistrationScanDoc(this)
         }
     }

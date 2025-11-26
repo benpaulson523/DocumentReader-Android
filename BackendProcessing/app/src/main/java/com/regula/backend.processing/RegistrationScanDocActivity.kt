@@ -73,6 +73,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             binding.uploadingMsg.visibility = View.VISIBLE
             binding.fullDocumentImageView.setImageBitmap(neuvoteManager.getOfficialDocumentScan())
             binding.fullDocumentImageView.visibility = View.VISIBLE
+            binding.fullDocumentBorderView.visibility = View.VISIBLE
             binding.continueBtn.setText(getString(R.string.continueString))
             binding.continueBtn.isEnabled = true
             binding.retakeBtn.visibility = View.GONE
@@ -95,6 +96,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     private fun startScanner() {
         binding.retakeBtn.isEnabled = true
         binding.fullDocumentImageView.visibility = View.GONE
+        binding.fullDocumentBorderView.visibility = View.GONE
         binding.continueBtn.isEnabled = false
         binding.uploadingMsg.visibility = View.GONE
         regulaScanner.showScanner(
@@ -190,8 +192,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         if (fullDocumentImage != null) {
             binding.fullDocumentImageView.setImageBitmap(fullDocumentImage)
             binding.fullDocumentImageView.visibility = View.VISIBLE
+            binding.fullDocumentBorderView.visibility = View.VISIBLE
         } else {
             binding.fullDocumentImageView.visibility = View.GONE
+            binding.fullDocumentBorderView.visibility = View.GONE
         }
     }
 
