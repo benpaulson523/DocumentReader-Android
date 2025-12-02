@@ -66,7 +66,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                 phone = "+1$phone"
             }
 
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && ((selectedIndex == 0) || (selectedIndex == 2))) {
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 showToast(this, getString(R.string.invalid_email_address))
             } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
                         (phone.filter { it.isDigit() }.length < 8)) &&

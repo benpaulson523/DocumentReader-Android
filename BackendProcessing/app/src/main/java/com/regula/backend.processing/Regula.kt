@@ -56,7 +56,7 @@ class RegulaScanner private constructor(
         }
     }
 
-    fun initializeReader() {
+    fun initializeReader(locate: Boolean) {
         val initCompletionWithCallback = IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
@@ -131,6 +131,7 @@ class RegulaScanner private constructor(
 
     fun showScanner(
         readChip: Boolean,
+        locateScenario: Boolean,
         onFinalize: (DocumentReaderResults?) -> Unit,
         onFailure: () -> Unit
     ) {
@@ -142,26 +143,31 @@ class RegulaScanner private constructor(
                 override fun run() {
                     if (isInitialized) {
                         dismissDialog()
-                        startScannerInternal(readChip, onFinalize, onFailure)
+                        startScannerInternal(readChip, locateScenario, onFinalize, onFailure)
                     } else {
                         handler.postDelayed(this, 500)
                     }
                 }
             }, 500)
         } else {
-            startScannerInternal(readChip, onFinalize, onFailure)
+            startScannerInternal(readChip, locateScenario, onFinalize, onFailure)
         }
     }
 
     private fun startScannerInternal(
         readChip: Boolean,
+        locateScenario: Boolean,
         onFinalize: (DocumentReaderResults?) -> Unit,
         onFailure: () -> Unit
     ) {
         val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
         DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
         DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
-        val scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
+
+        var scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
+        if (locateScenario) {
+            scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_LOCATE).build()
+        }
         DocumentReader.Instance().startScanner(context, scannerConfig, getCompletion(readChip, onFinalize, onFailure))
     }
 }

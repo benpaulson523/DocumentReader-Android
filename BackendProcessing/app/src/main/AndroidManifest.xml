@@ -54,6 +54,10 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name="com.regula.backend.processing.RegistrationSelectSupportDocActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name="com.regula.backend.processing.RegistrationScanSupportDocActivity"
             android:screenOrientation="portrait"
             android:exported="false" />

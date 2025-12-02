@@ -16,8 +16,6 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationSelectSupportDocBinding
     private var loadingDialog: AlertDialog? = null
-    private lateinit var neuvoteManager: NeuvoteManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationSelectSupportDocActivity screen")
 
@@ -25,12 +23,6 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
         binding = ActivityRegistrationSelectSupportDocBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        
-        neuvoteManager = NeuvoteManager.getInstance(
-            context = this,
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
 
         val buttons = listOf(binding.btnUtilityBill, binding.btnCarInsurance, binding.btnTaxReceipt)
         var selectedIndex = 0 // Default to utility bill
@@ -51,7 +43,7 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
         buttons[0].performClick()
 
         binding.continueBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationScanDoc(this)
+            NavigationHelper.navigateToRegistrationScanSupportDoc(this)
         }
     }
 

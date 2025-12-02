@@ -26,6 +26,7 @@ import com.regula.documentreader.api.params.DocReaderConfig
 import com.regula.documentreader.api.results.DocumentReaderResults
 import com.regula.documentreader.api.results.TransactionInfo
 import com.regula.documentreader.api.enums.eRPRM_ResultType
+import com.regula.documentreader.api.results.DocumentReaderDocumentType
 
 class RegistrationScanDocActivity : AppCompatActivity() {
     companion object {
@@ -101,6 +102,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         binding.uploadingMsg.visibility = View.GONE
         regulaScanner.showScanner(
             neuvoteManager.getReadChip(),
+            false,
             onFinalize = { results -> docScanned(results) },
             onFailure = { docScanningFailed() }
         )
@@ -169,6 +171,10 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         val postalCode = postalCodeField?.value ?: ""
         neuvoteManager.setPostalCode(postalCode)
         Log.d(TAG, "Postal code: $postalCode")
+
+        val countryName = results?.documentType?.firstOrNull()?.dCountryName?.uppercase()
+        neuvoteManager.setCountry(countryName)
+        Log.d(TAG, "Country: $countryName")
 
         if (neuvoteManager.getReadChip()) {
             handlePhoto(true, results)
@@ -252,19 +258,21 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             )
 
             Log.d(TAG, "Calling enrollDocumentPhotoWithIProov")
+            binding.continueBtn.isEnabled = false
             // Enroll the photo with iProov, pass callback for UI update
             iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
                 if (errorMsg == null) {
                     binding.errorMessage.visibility = View.GONE
                     binding.uploadingMsg.setText(R.string.document_uploaded)
                     binding.continueBtn.setText(getString(R.string.continueString))
-                    binding.continueBtn.isEnabled = true
                     binding.retakeBtn.visibility = View.GONE
                     binding.instructionMessage.visibility = View.GONE
+                    binding.continueBtn.isEnabled = true
                     iProovManager.setEnrolled(true)
                     showToast(this, getString(R.string.upload_complete))
                 } else {
                     handleFailure(errorMsg, null)
+                    binding.continueBtn.isEnabled = true
                 }
             }
         } else {

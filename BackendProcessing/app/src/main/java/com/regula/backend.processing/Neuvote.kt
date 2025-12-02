@@ -29,10 +29,12 @@ class NeuvoteManager private constructor(
     private var city: String? = null
     private var jurisdiction: String? = null
     private var postalCode: String? = null
+    private var country: String? = null
     private var readChip: Boolean = false
     private var verifyMethod: String? = null
     private var officialDocumentScan: Bitmap? = null
     private var photo: Bitmap? = null
+    private var supportDocumentScan: Bitmap? = null
 
     companion object {
         private const val TAG = "NeuvoteManager"
@@ -72,7 +74,6 @@ class NeuvoteManager private constructor(
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_EMAIL
         val jsonObj = org.json.JSONObject().apply {
             put("email", email)
-            put("mnemonicUuid", registrationCode)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -107,7 +108,6 @@ class NeuvoteManager private constructor(
         val url = getNeuvoteServerUrl() + Constants.ENDPOINT_REGISTRATION_MFA_INITIATE_SMS
         val jsonObj = org.json.JSONObject().apply {
             put("phone", phone)
-            put("mnemonicUuid", registrationCode)
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
@@ -136,7 +136,6 @@ class NeuvoteManager private constructor(
 
     fun completeRegistration(context: Context, verificationCode: String, iProovManager: IProovManager?, onFinalResult: ((Boolean, String?) -> Unit)? = null) {
         showDialog(context.getString(R.string.registering))
-        val electionOptIns = "confirmEligibleVoteInPSB,confirmEligibleVoteInCSLF"
 
         var url = getNeuvoteServerUrl()
         if (verifyMethod == "email") {
@@ -156,8 +155,7 @@ class NeuvoteManager private constructor(
         multipartBuilder.addFormDataPart("dateOfBirth", dateOfBirth ?: "")
         multipartBuilder.addFormDataPart("email", email ?: "")
         multipartBuilder.addFormDataPart("phone", phone ?: "")
-        multipartBuilder.addFormDataPart("mnemonicUuid", registrationCode ?: "")
-        multipartBuilder.addFormDataPart("electionOptIns", electionOptIns)
+        multipartBuilder.addFormDataPart("registrationCode", registrationCode ?: "")
         multipartBuilder.addFormDataPart("verificationCode", verificationCode)
         // Address fields
         multipartBuilder.addFormDataPart("address[streetAddress]", streetAddress ?: "")
@@ -165,6 +163,7 @@ class NeuvoteManager private constructor(
         multipartBuilder.addFormDataPart("address[province]", jurisdiction ?: "")
         multipartBuilder.addFormDataPart("address[postalCode]", postalCode ?: "")
         multipartBuilder.addFormDataPart("address[unitNumberPOBox]", unitNumber ?: "")
+        multipartBuilder.addFormDataPart("address[country]", country ?: "")
 
         // Add officialDocumentScan as photoIDs if available
         officialDocumentScan?.let { bitmap ->
@@ -173,7 +172,18 @@ class NeuvoteManager private constructor(
             val photoBytes = stream.toByteArray()
             multipartBuilder.addFormDataPart(
                 "photoIDs",
-                "document.jpg",
+                "officialDocument.jpg",
+                okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes)
+            )
+        }
+        // Add supportDocumentScan as photoIDs if available
+        supportDocumentScan?.let { bitmap ->
+            val stream = java.io.ByteArrayOutputStream()
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, stream)
+            val photoBytes = stream.toByteArray()
+            multipartBuilder.addFormDataPart(
+                "photoIDs",
+                "supportDocument.jpg",
                 okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes)
             )
         }
@@ -561,11 +571,18 @@ class NeuvoteManager private constructor(
         return postalCode
     }
 
+    fun setCountry(value: String?) {
+        country = value
+    }
+    fun getCountry(): String? {
+        return country
+    }
+
     fun getFullAddress(): String {
         if ((unitNumber != null) && (unitNumber != "")) {
-            return streetAddress + " #" + unitNumber + "\n" + city + ", " + jurisdiction + " " + postalCode
+            return streetAddress + " #" + unitNumber + "\n" + city + ", " + jurisdiction + " " + postalCode + "\n" + country
         }
-        return streetAddress + "\n" + city + ", " + jurisdiction + " " + postalCode
+        return streetAddress + "\n" + city + ", " + jurisdiction + " " + postalCode + "\n" + country
     }
 
     fun hasAddress(): Boolean {
@@ -601,5 +618,12 @@ class NeuvoteManager private constructor(
     }
     fun getPhoto(): Bitmap? {
         return photo
+    }
+
+    fun setSupportDocumentScan(value: Bitmap?) {
+        supportDocumentScan = value
+    }
+    fun getSupportDocumentScan(): Bitmap? {
+        return supportDocumentScan
     }
 }
