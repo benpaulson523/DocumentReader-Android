@@ -15,8 +15,9 @@ object SettingsManager {
     fun init(context: Context) {
         if (!initialized) {
             val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            serverAddress = prefs.getString(KEY_SERVER_ADDRESS, "")
-            serverPort = prefs.getString(KEY_SERVER_PORT, "")
+            // Use saved preference if present, otherwise fall back to compile-time defaults in Constants
+            serverAddress = prefs.getString(KEY_SERVER_ADDRESS, Constants.NEUVOTE_SERVER_ADDRESS)
+            serverPort = prefs.getString(KEY_SERVER_PORT, Constants.NEUVOTE_SERVER_PORT)
             initialized = true
         }
     }

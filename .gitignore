@@ -3,3 +3,4 @@ build/
 BackendProcessing/app/src/main/assets/Regula/db.dat
 /BackendProcessing/iProov-android
 /BackendProcessing/iproov-client
+BackendProcessing/keystore.properties
