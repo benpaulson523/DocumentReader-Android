@@ -23,6 +23,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationAuthorizedBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var iProovManager: IProovManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationAuthorizedActivity screen")
@@ -51,6 +52,16 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         }
 
         binding.doneBtn.setOnClickListener {
+            // Clear any in-memory session state before closing so reopening starts fresh
+            try {
+                neuvoteManager.reset()
+                iProovManager = IProovManager.getInstance(
+                    context = this
+                )
+                iProovManager.reset()
+            } catch (t: Exception) {
+                Log.w(TAG, "Failed to reset before exit", t)
+            }
             finishAffinity()
         }
 

@@ -626,4 +626,30 @@ class NeuvoteManager private constructor(
     fun getSupportDocumentScan(): Bitmap? {
         return supportDocumentScan
     }
+
+    /**
+     * Reset all stored registration/session data so a fresh session starts next launch.
+     */
+    fun reset() {
+        firstName = null
+        middleName = null
+        surname = null
+        dateOfBirth = null
+        sex = null
+        registrationCode = null
+        email = null
+        phone = null
+        streetAddress = null
+        unitNumber = null
+        city = null
+        jurisdiction = null
+        postalCode = null
+        readChip = false
+        verifyMethod = null
+        officialDocumentScan = null
+        photo = null
+        supportDocumentScan = null
+        country = null
+        instance = null
+    }
 }

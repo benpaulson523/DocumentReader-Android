@@ -302,4 +302,13 @@ class IProovManager private constructor(
     fun setRegistrationCode(value: String) {
         registrationCode = value
     }
+    
+    /**
+     * Reset all stored registration/session data so a fresh session starts next launch.
+     */
+    fun reset() {
+        enrolled = false
+        registrationCode = null
+        instance = null
+    }
 }
