@@ -37,7 +37,7 @@
     <string name="unknown_error">Unknown error</string>
     <string name="document_scanning_failed">Document scanning failed. Please try again.</string>
     <string name="retry_scan">Retry scan</string>
-    <string name="failed_capture_document_image_chip">Failed to read document chip. Ensure all document numbers are visible when scanning. Please try again.</string>
+    <string name="failed_capture_document_image_chip">Failed to read document chip. Please try again or proceed using visual capture.</string>
     <string name="failed_capture_document_image_short">Failed to capture document image. Please try again.</string>
     <string name="failed_retrieve_document_image">Failed to retrieve document image. Please try again.</string>
     <string name="upload_complete">Upload complete</string>

@@ -129,6 +129,12 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         val (firstName, middleName) = if (firstNameRaw.contains(",")) {
             val parts = firstNameRaw.split(",", limit = 2).map { it.trim() }
             Pair(parts[0], parts.getOrNull(1) ?: "")
+        } else if (firstNameRaw.contains(" ")) {
+            // No comma but contains space(s): treat first token as first name, rest as middle name
+            val idx = firstNameRaw.indexOf(' ')
+            val first = firstNameRaw.substring(0, idx).trim()
+            val middle = firstNameRaw.substring(idx + 1).trim()
+            Pair(first, middle)
         } else {
             Pair(firstNameRaw, "")
         }
@@ -177,9 +183,9 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         Log.d(TAG, "Country: $countryName")
 
         if (neuvoteManager.getReadChip()) {
-            handlePhoto(true, results)
+            handlePhoto(true, results, false)
         } else {
-            handlePhoto(false, results)
+            handlePhoto(false, results, false)
         }
 
         saveFullScan(results)
@@ -205,7 +211,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         }
     }
 
-    fun handlePhoto(chip: Boolean, results: DocumentReaderResults?) {
+    fun handlePhoto(chip: Boolean, results: DocumentReaderResults?, fallback: Boolean) {
         if (chip) {
             if (results?.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA) != null) {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
@@ -217,10 +223,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     binding.uploadingMsg.visibility = View.VISIBLE
                 }
                 else {
-                    handlePhoto(false, results)
+                    handlePhoto(false, results, true)
                 }
             } else {
                 handleFailure(getString(R.string.failed_capture_document_image_chip), getString(R.string.failed_capture_document_image_short))
+                handlePhoto(false, results, true)
             }
         }
         else {
@@ -230,8 +237,11 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     neuvoteManager.setPhoto(documentImage)
                     binding.continueBtn.isEnabled = true
                     binding.continueBtn.setText("Upload")
-                    binding.uploadingMsg.setText("Document successfully scanned")
-                    binding.uploadingMsg.visibility = View.VISIBLE
+
+                    if (!fallback) {
+                        binding.uploadingMsg.setText("Document successfully scanned")
+                        binding.uploadingMsg.visibility = View.VISIBLE
+                    }
                 }
                 else {
                     handleFailure(getString(R.string.failed_retrieve_document_image), null)
@@ -244,6 +254,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
 
     fun enrollPhoto() {
 
+        binding.errorMessage.visibility = View.GONE
         binding.uploadingMsg.visibility = View.VISIBLE
         binding.uploadingMsg.setText(getString(R.string.uploading_document_msg))
 
@@ -262,7 +273,6 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             // Enroll the photo with iProov, pass callback for UI update
             iProovManager.enrollDocumentPhotoWithIProov(scaledDocumentImage) { errorMsg ->
                 if (errorMsg == null) {
-                    binding.errorMessage.visibility = View.GONE
                     binding.uploadingMsg.setText(R.string.document_uploaded)
                     binding.continueBtn.setText(getString(R.string.continueString))
                     binding.retakeBtn.visibility = View.GONE

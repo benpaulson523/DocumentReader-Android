@@ -103,15 +103,32 @@ class RegulaScanner private constructor(
         if (action == DocReaderAction.COMPLETE) {
             Log.d(TAG, "IDocumentReaderCompletion COMPLETE")
             if (readChip) {
-                DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
-                    override fun onCompleted(
-                        rfidAction: Int,
-                        documentReaderResults: DocumentReaderResults?,
-                        e: DocumentReaderException?
-                    ) {
-                        onFinalize(documentReaderResults)
+                    // Start RFID reader with a 30 second timeout. If onCompleted isn't called within
+                    // the timeout, stop the RFID reader and call onFailure so caller can handle it.
+                    val mainHandler = Handler(Looper.getMainLooper())
+                    val timeoutHandler = Handler(Looper.getMainLooper())
+                    val timeoutRunnable = Runnable {
+                        Log.w(TAG, "RFID read timeout reached, stopping RFID reader")
+                        DocumentReader.Instance().stopRFIDReader(context)
+                        mainHandler.post { onFinalize(results) }
                     }
-                })
+
+                    // Schedule the timeout
+                    timeoutHandler.postDelayed(timeoutRunnable, 30_000)
+
+                    DocumentReader.Instance().startRFIDReader(context, object : IRfidReaderCompletion() {
+                        override fun onCompleted(
+                            rfidAction: Int,
+                            documentReaderResults: DocumentReaderResults?,
+                            e: DocumentReaderException?
+                        ) {
+                            // Cancel timeout since callback has been invoked
+                            timeoutHandler.removeCallbacks(timeoutRunnable)
+
+                            // Successful RFID read — run finalizer on main thread
+                            mainHandler.post { onFinalize(documentReaderResults) }
+                        }
+                    })
             } else {
                 onFinalize(results)
             }

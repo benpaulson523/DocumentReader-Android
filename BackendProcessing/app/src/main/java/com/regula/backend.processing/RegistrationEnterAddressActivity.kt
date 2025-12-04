@@ -58,11 +58,11 @@ class RegistrationEnterAddressActivity : AppCompatActivity() {
             val province = binding.provinceValue.text?.toString() ?: ""
             val postal = binding.postalValue.text?.toString() ?: ""
 
-            neuvoteManager.setStreetAddress(street)
-            neuvoteManager.setUnitNumber(unitNumber)
-            neuvoteManager.setCity(city)
-            neuvoteManager.setJurisdiction(province)
-            neuvoteManager.setPostalCode(postal)
+            neuvoteManager.setStreetAddress(street.uppercase())
+            neuvoteManager.setUnitNumber(unitNumber.uppercase())
+            neuvoteManager.setCity(city.uppercase())
+            neuvoteManager.setJurisdiction(province.uppercase())
+            neuvoteManager.setPostalCode(postal.uppercase())
 
             Log.d(TAG, "Address saved: $street, Apt/Unit: $unitNumber, $city, $province, $postal")
             NavigationHelper.navigateToRegistrationSelectSupportDoc(this)
