@@ -22,6 +22,7 @@ class NeuvoteManager private constructor(
     private var dateOfBirth: String? = null
     private var sex: String? = null
     private var registrationCode: String? = null
+    private var registrationQRCode: Bitmap? = null
     private var email: String? = null
     private var phone: String? = null
     private var streetAddress: String? = null
@@ -219,6 +220,21 @@ class NeuvoteManager private constructor(
                         Log.d(TAG, "voterIdentifier: $voterIdentifier")
                         if (voterIdentifier.isEmpty()) {
                             errorMsg = "No voter identifier returned."
+                        }
+
+                        // Decode registrationQRCode if present
+                        val qrBase64 = data?.optString("registrationQRCode", null)
+                        if (!qrBase64.isNullOrEmpty()) {
+                            try {
+                                val qrBytes = android.util.Base64.decode(qrBase64, android.util.Base64.DEFAULT)
+                                val qrBitmap = android.graphics.BitmapFactory.decodeByteArray(qrBytes, 0, qrBytes.size)
+                                setRegistrationQRCode(qrBitmap)
+                                Log.d(TAG, "Decoded and saved registrationQRCode bitmap from server response.")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Failed to decode registrationQRCode: ${e.message}")
+                            }
+                        } else {
+                            Log.e(TAG, "registrationQRCode not received")
                         }
                     } catch (e: Exception) {
                         parseError = e.message
@@ -524,6 +540,13 @@ class NeuvoteManager private constructor(
     }
     fun getRegistrationCode(): String? {
         return registrationCode
+    }
+
+    fun setRegistrationQRCode(value: Bitmap?) {
+        registrationQRCode = value
+    }
+    fun getRegistrationQRCode(): Bitmap? {
+        return registrationQRCode
     }
 
     fun setEmail(value: String?) {
