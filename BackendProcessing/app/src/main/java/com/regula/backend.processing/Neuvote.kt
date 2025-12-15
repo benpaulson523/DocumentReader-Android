@@ -62,7 +62,11 @@ class NeuvoteManager private constructor(
         fun getNeuvoteServerUrl(): String {
             val address = SettingsManager.getServerAddress()
             val port = SettingsManager.getServerPort()
-            return "http://$address:$port"
+
+            if (port != "") {
+                return "$address:$port"
+            }
+            return "$address"
         }
     }
 

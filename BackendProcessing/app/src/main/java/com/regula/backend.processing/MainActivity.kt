@@ -54,9 +54,9 @@ class MainActivity : AppCompatActivity() {
         // Initialize settings manager
         SettingsManager.init(this)
 
-        /*binding.settingsButton.setOnClickListener {
+        binding.settingsButton.setOnClickListener {
             NavigationHelper.navigateToSettings(this)
-        }*/
+        }
 
         binding.registerBtn.setOnClickListener {
             NavigationHelper.navigateToRegistrationStart(this)
