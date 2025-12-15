@@ -1,5 +1,7 @@
 package com.regula.backend.processing
 object Constants {
+    //const val SETTINGS_PASSWORD = "v9J#2kLm!7qPz4sT@8wX"
+    const val SETTINGS_PASSWORD = "p1"
     const val ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN = "/iproov/create-enrollment-token"
     const val ENDPOINT_IPROOV_ENROLL_PHOTO = "/iproov/enroll-photo"
     const val ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN = "/iproov/create-verify-token"

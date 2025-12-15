@@ -55,7 +55,26 @@ class MainActivity : AppCompatActivity() {
         SettingsManager.init(this)
 
         binding.settingsButton.setOnClickListener {
-            NavigationHelper.navigateToSettings(this)
+            // Prompt for password before navigating to settings
+            val passwordDialog = AlertDialog.Builder(this)
+            passwordDialog.setTitle("Enter Password")
+            val input = EditText(this)
+            input.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            passwordDialog.setView(input)
+            passwordDialog.setCancelable(false)
+            passwordDialog.setPositiveButton("OK") { dialog, _ ->
+                val entered = input.text.toString()
+                if (entered == Constants.SETTINGS_PASSWORD) {
+                    NavigationHelper.navigateToSettings(this)
+                } else {
+                    Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            passwordDialog.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            passwordDialog.show()
         }
 
         binding.registerBtn.setOnClickListener {
