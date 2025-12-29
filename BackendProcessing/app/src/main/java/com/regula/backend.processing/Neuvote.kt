@@ -158,6 +158,7 @@ class NeuvoteManager private constructor(
         multipartBuilder.addFormDataPart("middleName", middleName ?: "")
         multipartBuilder.addFormDataPart("lastName", surname ?: "")
         multipartBuilder.addFormDataPart("dateOfBirth", dateOfBirth ?: "")
+        multipartBuilder.addFormDataPart("sex", sex ?: "")
         multipartBuilder.addFormDataPart("email", email ?: "")
         multipartBuilder.addFormDataPart("phone", phone ?: "")
         multipartBuilder.addFormDataPart("registrationCode", registrationCode ?: "")
