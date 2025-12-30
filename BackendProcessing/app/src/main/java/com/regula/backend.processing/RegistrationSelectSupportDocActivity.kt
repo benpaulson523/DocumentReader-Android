@@ -25,9 +25,8 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
         setContentView(view)
 
         val buttons = listOf(binding.btnUtilityBill, binding.btnCarInsurance, binding.btnTaxReceipt)
-        var selectedIndex = 0 // Default to utility bill
         
-        buttons.forEachIndexed { index, button ->
+        buttons.forEachIndexed { _, button ->
             button.setOnClickListener {
                 buttons.forEach {
                     it.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(this, R.color.white)))
@@ -35,7 +34,6 @@ class RegistrationSelectSupportDocActivity : AppCompatActivity() {
                 }
                 button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(this, R.color.philippines_blue)))
                 button.setTextColor(androidx.core.content.ContextCompat.getColor(this, android.R.color.white))
-                selectedIndex = index
             }
         }
 

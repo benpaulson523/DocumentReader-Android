@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        regulaScanner.initializeReader(false)
+        regulaScanner.initializeReader()
     }
 
     override fun setContentView(view: View?) {

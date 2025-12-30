@@ -56,7 +56,7 @@ class RegulaScanner private constructor(
         }
     }
 
-    fun initializeReader(locate: Boolean) {
+    fun initializeReader() {
         val initCompletionWithCallback = IDocumentReaderInitCompletion { result: Boolean, error: DocumentReaderException? ->
             dismissDialog()
             if (result) {
@@ -99,7 +99,7 @@ class RegulaScanner private constructor(
         readChip: Boolean,
         onFinalize: (DocumentReaderResults?) -> Unit,
         onFailure: () -> Unit
-    ) = IDocumentReaderCompletion { action, results, error ->
+    ) = IDocumentReaderCompletion { action, results, _ ->
         if (action == DocReaderAction.COMPLETE) {
             Log.d(TAG, "IDocumentReaderCompletion COMPLETE")
             if (readChip) {

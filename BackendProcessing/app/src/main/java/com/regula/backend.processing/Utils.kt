@@ -53,6 +53,7 @@ fun generateRegistrationCode(): String {
     return "$part1-$part2-$part3-$part4"
 }
 
+@Suppress("DEPRECATION")
 fun showToast(context: Context, text: String, yOffset: Int? = null) {
     val inflater = LayoutInflater.from(context)
     val layout = inflater.inflate(R.layout.custom_toast, null)
@@ -62,8 +63,8 @@ fun showToast(context: Context, text: String, yOffset: Int? = null) {
     toastIcon.setImageResource(R.mipmap.ic_launcher)
     val toast = Toast(context)
     toast.duration = Toast.LENGTH_LONG
-    toast.view = layout
-    val y = yOffset ?: 280
-    toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, y)
+    // Use addView for custom layout to avoid deprecated setter
+    toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, yOffset ?: 280)
+    toast.setView(layout)
     toast.show()
 }
