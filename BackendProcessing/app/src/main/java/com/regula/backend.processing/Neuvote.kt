@@ -1,7 +1,6 @@
 package com.regula.backend.processing
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.widget.TextView
 import android.view.View
 import android.util.Log
@@ -9,6 +8,7 @@ import android.content.Context
 import android.widget.EditText
 import android.widget.Toast
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import android.graphics.Bitmap
 
 class NeuvoteManager private constructor(
@@ -82,10 +82,7 @@ class NeuvoteManager private constructor(
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = okhttp3.Request.Builder()
             .url(url)
             .post(requestBody)
@@ -116,10 +113,7 @@ class NeuvoteManager private constructor(
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = okhttp3.Request.Builder()
             .url(url)
             .post(requestBody)
@@ -179,7 +173,7 @@ class NeuvoteManager private constructor(
             multipartBuilder.addFormDataPart(
                 "photoIDs",
                 "officialDocument.jpg",
-                okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes)
+                photoBytes.toRequestBody("image/jpeg".toMediaType())
             )
         }
         // Add supportDocumentScan as photoIDs if available
@@ -190,7 +184,7 @@ class NeuvoteManager private constructor(
             multipartBuilder.addFormDataPart(
                 "photoIDs",
                 "supportDocument.jpg",
-                okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes)
+                photoBytes.toRequestBody("image/jpeg".toMediaType())
             )
         }
         val requestBody = multipartBuilder.build()
@@ -207,9 +201,7 @@ class NeuvoteManager private constructor(
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 var voterIdentifier = ""
-                var parseError: String? = null
-                var responseBody: String? = null
-                responseBody = response.body?.string()
+                val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from /mfa/verify/email_or_sms: $responseBody")
                 var errorMsg: String? = null
                 var invalidCode = false
@@ -224,7 +216,7 @@ class NeuvoteManager private constructor(
                         }
 
                         // Decode registrationQRCode if present
-                        val qrBase64 = data?.optString("registrationQRCode", null)
+                        val qrBase64 = data?.optString("registrationQRCode", "")
                         if (!qrBase64.isNullOrEmpty()) {
                             try {
                                 val qrBytes = android.util.Base64.decode(qrBase64, android.util.Base64.DEFAULT)
@@ -238,9 +230,9 @@ class NeuvoteManager private constructor(
                             Log.e(TAG, "registrationQRCode not received")
                         }
                     } catch (e: Exception) {
-                        parseError = e.message
-                        errorMsg = "Failed to parse voterIdentifier: ${e.message}"
-                        Log.e(TAG, errorMsg ?: "Parse error")
+                        val parseErrMsg = "Failed to parse voterIdentifier: ${e.message}"
+                        errorMsg = parseErrMsg
+                        Log.e(TAG, parseErrMsg)
                     }
                 } else {
                     // Try to parse error message from server
@@ -277,7 +269,7 @@ class NeuvoteManager private constructor(
                         }
                     } else {
                         dismissDialog();
-                        val failMsg = context.getString(R.string.registration_failed) + ": " + (errorMsg ?: context.getString(R.string.unknown_error))
+                        val failMsg = context.getString(R.string.registration_failed) + ": " + errorMsg!!
                         showToast(context, failMsg)
                         onFinalResult?.invoke(false, failMsg)
                     }
@@ -298,13 +290,12 @@ class NeuvoteManager private constructor(
                     var faceImage: String? = null
                     var errorMsg: String? = null
                     try {
-                        val json = org.json.JSONObject(verificationResponse ?: "")
+                        val json = org.json.JSONObject(verificationResponse)
                         val passed = json.optBoolean("passed", false)
                         val frameAvailable = json.optBoolean("frame_available", false)
                         faceImage = json.optString("frame")
                         val assuranceType = json.optString("assurance_type")
                         val signals = json.optJSONObject("signals")
-                        val token = json.optString("token")
                         val type = json.optString("type")
                         // Optionally log signals for diagnostics
                         Log.d(TAG, "iProov signals: $signals, assuranceType: $assuranceType, type: $type")
@@ -318,12 +309,12 @@ class NeuvoteManager private constructor(
                         Log.d(TAG, "Successfully parsed frame image")
                     } catch (e: Exception) {
                         errorMsg = "Failed to parse iProov response: ${e.message}"
-                        Log.e(TAG, errorMsg ?: "Parse error")
+                        Log.e(TAG, errorMsg)
                     }
                     if (errorMsg != null) {
                         (context as? Activity)?.runOnUiThread {
                             dismissDialog();
-                            showToast(context, context.getString(R.string.verification_failed_msg) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
+                            showToast(context, context.getString(R.string.verification_failed_msg) + ": " + errorMsg)
                         }
                         return@validateVerification
                     }
@@ -342,7 +333,7 @@ class NeuvoteManager private constructor(
                 onError = { errorMsg ->
                     dismissDialog();
                     Log.e(TAG, "Backend validate-verification error: $errorMsg")
-                    showToast(context, context.getString(R.string.verification_failed_msg) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
+                    showToast(context, context.getString(R.string.verification_failed_msg) + ": " + errorMsg)
                 }
             )
         } else {
@@ -371,10 +362,7 @@ class NeuvoteManager private constructor(
             put("faceImage", faceImage ?: "")
         }
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            payload.toString()
-        )
+        val requestBody = payload.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = okhttp3.Request.Builder()
             .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_ABIS_ENROLL_VOTER)
             .post(requestBody)
@@ -410,7 +398,7 @@ class NeuvoteManager private constructor(
                         updateAbisID(context, voterIdentifier, registrationCode, onFinalResult)
                     } else {
                         dismissDialog();
-                        showToast(context, context.getString(R.string.registration_failed) + ": " + (errorMsg ?: context.getString(R.string.unknown_error)))
+                        showToast(context, context.getString(R.string.registration_failed) + ": " + errorMsg!!)
                         onFinalResult?.invoke(false)
                     }
                 }
@@ -425,10 +413,7 @@ class NeuvoteManager private constructor(
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = okhttp3.Request.Builder()
             .url(url)
             .put(requestBody)
@@ -469,10 +454,7 @@ class NeuvoteManager private constructor(
         }
         val jsonBody = jsonObj.toString()
         val client = okhttp3.OkHttpClient()
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json; charset=utf-8".toMediaType(),
-            jsonBody
-        )
+        val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
         val request = okhttp3.Request.Builder()
             .url(url)
             .put(requestBody)
