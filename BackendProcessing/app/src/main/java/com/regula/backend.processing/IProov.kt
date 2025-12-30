@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.onSubscription
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import com.iproov.sdk.api.IProov
 import com.iproov.sdk.api.exception.SessionCannotBeStartedTwiceException
 import android.app.Activity
@@ -69,9 +70,9 @@ class IProovManager private constructor(
                 }
                 val tokenRequest = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN)
-                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), tokenPayload.toString()))
+                    .post(tokenPayload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
-                client.newCall(tokenRequest).execute().use { tokenResponse ->
+                client.newCall(tokenRequest).execute().use tokenUse@{ tokenResponse ->
                     val tokenResponseBody = tokenResponse.body!!.string()
                     Log.d(TAG, "Backend $Constants.ENDPOINT_IPROOV_CREATE_ENROLLMENT_TOKEN response: $tokenResponseBody")
                     if (!tokenResponse.isSuccessful) {
@@ -85,21 +86,21 @@ class IProovManager private constructor(
                             showToast(context, errorMsg)
                             onUiUpdate?.invoke(errorMsg)
                         }
-                        return@use
+                        return@tokenUse
                     }
                     val token = org.json.JSONObject(tokenResponseBody).getString("token")
                     // Step 2: Upload photo to backend
                     val enrollRequestBody = okhttp3.MultipartBody.Builder()
                         .setType(okhttp3.MultipartBody.FORM)
                         .addFormDataPart("image", "photo.jpg",
-                            okhttp3.RequestBody.create("image/jpeg".toMediaType(), photoBytes))
+                            photoBytes.toRequestBody("image/jpeg".toMediaType()))
                         .addFormDataPart("token", token)
                         .build()
                     val enrollRequest = okhttp3.Request.Builder()
                         .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_ENROLL_PHOTO)
                         .post(enrollRequestBody)
                         .build()
-                    client.newCall(enrollRequest).execute().use { enrollResponse ->
+                    client.newCall(enrollRequest).execute().use enrollUse@{ enrollResponse ->
                         val result = enrollResponse.body!!.string()
                         Log.d(TAG, "Backend /iproov/enroll-photo response: $result")
                         if (!enrollResponse.isSuccessful) {
@@ -113,7 +114,7 @@ class IProovManager private constructor(
                                 showToast(context, errorMsg)
                                 onUiUpdate?.invoke(errorMsg)
                             }
-                            return@use
+                            return@enrollUse
                         }
                         val enrollJson = org.json.JSONObject(result)
                         val enrollSuccess = enrollJson.optBoolean("success", true)
@@ -135,7 +136,7 @@ class IProovManager private constructor(
             } catch (ex: Exception) {
                 Log.e(TAG, "Backend API error: ${ex.localizedMessage}", ex)
                 withContext(Dispatchers.Main) {
-                    val errorMsg = if (ex.localizedMessage.contains("failed to connect")) {
+                    val errorMsg = if (ex.localizedMessage?.contains("failed to connect", ignoreCase = true) == true) {
                         context.getString(R.string.error) + ": " + context.getString(R.string.could_not_connect_neuvote)
                     } else {
                         context.getString(R.string.photo_enroll_error) + ": " + (ex.localizedMessage ?: context.getString(R.string.unknown_error))
@@ -157,9 +158,9 @@ class IProovManager private constructor(
                 }
                 val verifyTokenRequest = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_CREATE_VERIFY_TOKEN)
-                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), verifyPayload.toString()))
+                    .post(verifyPayload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
-                client.newCall(verifyTokenRequest).execute().use { verifyTokenResponse ->
+                client.newCall(verifyTokenRequest).execute().use verifyUse@{ verifyTokenResponse ->
                     val verifyTokenBody = verifyTokenResponse.body!!.string()
                     Log.d(TAG, "Backend /iproov/create-verify-token response: $verifyTokenBody")
                     if (!verifyTokenResponse.isSuccessful) {
@@ -172,7 +173,7 @@ class IProovManager private constructor(
                         withContext(Dispatchers.Main) {
                             showToast(context, errorMsg)
                         }
-                        return@use
+                        return@verifyUse
                     }
                     lastIProovToken = org.json.JSONObject(verifyTokenBody).getString("token")
                 }
@@ -264,9 +265,9 @@ class IProovManager private constructor(
                 }
                 val request = okhttp3.Request.Builder()
                     .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_IPROOV_VALIDATE_VERIFICATION)
-                    .post(okhttp3.RequestBody.create("application/json".toMediaType(), payload.toString()))
+                    .post(payload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
-                client.newCall(request).execute().use { response ->
+                client.newCall(request).execute().use validateUse@{ response ->
                     val responseBody = response.body!!.string()
                     if (!response.isSuccessful) {
                         val errorMsg = try {
@@ -278,7 +279,7 @@ class IProovManager private constructor(
                         withContext(Dispatchers.Main) {
                             onError(errorMsg)
                         }
-                        return@use
+                        return@validateUse
                     }
                     withContext(Dispatchers.Main) {
                         onResult(responseBody)
