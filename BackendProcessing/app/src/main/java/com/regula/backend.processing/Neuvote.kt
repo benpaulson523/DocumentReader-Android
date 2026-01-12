@@ -12,6 +12,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import android.graphics.Bitmap
 
 class NeuvoteManager private constructor(
+        // ...existing code...
     var context: Context,
     var showDialog: (String?) -> Unit,
     var dismissDialog: () -> Unit
@@ -530,6 +531,24 @@ class NeuvoteManager private constructor(
     }
     fun getRegistrationQRCode(): Bitmap? {
         return registrationQRCode
+    }
+
+    fun getRegistrationQRCodeString(): String? {
+        // If registrationQRCode is null, return null
+        val bmp = registrationQRCode ?: return null
+        try {
+            val width = bmp.width
+            val height = bmp.height
+            val intArray = IntArray(width * height)
+            bmp.getPixels(intArray, 0, width, 0, 0, width, height)
+            val source = com.google.zxing.RGBLuminanceSource(width, height, intArray)
+            val bitmap = com.google.zxing.BinaryBitmap(com.google.zxing.common.HybridBinarizer(source))
+            val result = com.google.zxing.qrcode.QRCodeReader().decode(bitmap)
+            return result.text
+        } catch (e: Exception) {
+            // Could not decode QR code
+            return null
+        }
     }
 
     fun setEmail(value: String?) {

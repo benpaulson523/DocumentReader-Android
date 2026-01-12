@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationScanSupportDocBinding
 import androidx.appcompat.app.AlertDialog
 import android.graphics.Bitmap
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -36,6 +40,7 @@ class RegistrationScanSupportDocActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
     private lateinit var regulaScanner: RegulaScanner
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationScanSupportDocActivity screen")
@@ -74,7 +79,22 @@ class RegistrationScanSupportDocActivity : AppCompatActivity() {
         }
 
         binding.continueBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationData(this)
+            val intent = Intent(this, RegistrationDataActivity::class.java)
+            downstreamLauncher.launch(intent)
+        }
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
         }
     }
 

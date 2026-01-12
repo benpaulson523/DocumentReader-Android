@@ -9,6 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationEnterContactBinding
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 class RegistrationEnterContactActivity : AppCompatActivity() {
     companion object {
@@ -18,6 +22,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationEnterContactBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationEnterContactActivity screen")
@@ -86,7 +91,8 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                     ) { success ->
                         if (success) {
                             Log.d(TAG, "Verification email sent successfully")
-                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                            downstreamLauncher.launch(intent)
                         } else {
                             showToast(this, getString(R.string.verification_email_failed))
                         }
@@ -99,7 +105,8 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                     ) { success ->
                         if (success) {
                             Log.d(TAG, "Verification text sent successfully")
-                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                            downstreamLauncher.launch(intent)
                         } else {
                             showToast(this, getString(R.string.verification_text_failed))
                         }
@@ -122,12 +129,27 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                     ) { success ->
                         if (success) {
                             Log.d(TAG, "Verification text sent successfully")
-                            NavigationHelper.navigateToRegistrationVerifyContact(this)
+                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                            downstreamLauncher.launch(intent)
                         } else {
                             showToast(this, getString(R.string.verification_text_failed))
                         }
                     }
                 }
+            }
+        }
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
             }
         }
     }

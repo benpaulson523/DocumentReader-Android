@@ -8,6 +8,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationStartBinding
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 class RegistrationStartActivity : AppCompatActivity() {
     companion object {
@@ -16,6 +20,7 @@ class RegistrationStartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationStartBinding
     private var loadingDialog: AlertDialog? = null
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationStartActivity screen")
@@ -26,7 +31,22 @@ class RegistrationStartActivity : AppCompatActivity() {
         setContentView(view)
 
         binding.startBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationSelectDoc(this)
+            val intent = Intent(this, RegistrationSelectDocActivity::class.java)
+            downstreamLauncher.launch(intent)
+        }
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
         }
     }
 

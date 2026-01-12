@@ -9,6 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationVerifyContactBinding
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 class RegistrationVerifyContactActivity : AppCompatActivity() {
     companion object {
@@ -18,6 +22,7 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationVerifyContactBinding
     private var loadingDialog: AlertDialog? = null
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationVerifyContactActivity screen")
@@ -76,7 +81,8 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                     showToast(this, getString(R.string.registration_received))
                     binding.verifyBtn.isEnabled = false
                     binding.errorMessage.visibility = View.GONE
-                    NavigationHelper.navigateToRegistrationAuthorized(this)
+                    val intent = Intent(this, RegistrationAuthorizedActivity::class.java)
+                    downstreamLauncher.launch(intent)
                 } else {
                     Log.d(TAG, "Registration failed")
                     val errorText = errorMsg ?: getString(R.string.registration_failed)
@@ -84,6 +90,20 @@ class RegistrationVerifyContactActivity : AppCompatActivity() {
                     binding.errorMessage.text = errorText
                     binding.errorMessage.visibility = View.VISIBLE
                 }
+            }
+        }
+
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
             }
         }
     }

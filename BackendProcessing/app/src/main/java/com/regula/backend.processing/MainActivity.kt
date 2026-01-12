@@ -1,12 +1,8 @@
 package com.regula.backend.processing
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import android.widget.TextView
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,22 +11,12 @@ import androidx.core.view.WindowInsetsCompat
 import com.regula.backend.processing.databinding.ActivityMainBinding
 
 import android.util.Log
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.json.jsonDeserializer
-import com.regula.backend.processing.IProovManager
-import com.regula.backend.processing.RegulaScanner
-import com.regula.backend.processing.formatDateOfBirth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onSubscription
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
-import okhttp3.MediaType.Companion.toMediaType
-import android.app.Activity
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -42,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
     private lateinit var regulaScanner: RegulaScanner
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened MainActivity screen")
@@ -65,7 +52,8 @@ class MainActivity : AppCompatActivity() {
             passwordDialog.setPositiveButton("OK") { dialog, _ ->
                 val entered = input.text.toString()
                 if (entered == Constants.SETTINGS_PASSWORD) {
-                    NavigationHelper.navigateToSettings(this)
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show()
                 }
@@ -78,7 +66,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.registerBtn.setOnClickListener {
-            NavigationHelper.navigateToRegistrationStart(this)
+            val intent = Intent(this, RegistrationStartActivity::class.java)
+            downstreamLauncher.launch(intent)
         }
 
         regulaScanner = RegulaScanner.getInstance(
@@ -87,6 +76,20 @@ class MainActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         regulaScanner.initializeReader()
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
+        }
     }
 
     override fun setContentView(view: View?) {

@@ -9,6 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationLivenessBinding
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 class RegistrationLivenessActivity : AppCompatActivity() {
     companion object {
@@ -19,6 +23,7 @@ class RegistrationLivenessActivity : AppCompatActivity() {
     private var loadingDialog: AlertDialog? = null
     private lateinit var iProovManager: IProovManager
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationLivenessActivity screen")
@@ -43,6 +48,20 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             iProovManager.launchFacialScanSession()
             binding.beginBtn.isEnabled = false
         }
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
+        }
     }
     
     private fun onResult(title: String?, resultMessage: String?) {
@@ -54,12 +73,14 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
             showToast(this, getString(R.string.liveness_check_passed))
-            if (neuvoteManager.hasAddress()) {
+            if (neuvoteManager.hasAddress() && false) {
                 Log.d(TAG, "Address is populated")
-                NavigationHelper.navigateToRegistrationData(this)
+                val intent = Intent(this, RegistrationDataActivity::class.java)
+                downstreamLauncher.launch(intent)
             } else {
                 Log.d(TAG, "Need to obtain address")
-                NavigationHelper.navigateToRegistrationEnterAddress(this)
+                val intent = Intent(this, RegistrationEnterAddressActivity::class.java)
+                downstreamLauncher.launch(intent)
             }
         } else {
             showToast(this, getString(R.string.facial_scan_failed, resultMessage ?: getString(R.string.unknown_error)))

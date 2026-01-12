@@ -43,8 +43,11 @@ fun formatDateOfBirth(dob: String): String {
 
 fun generateRegistrationCode(): String {
     fun randomLetters(length: Int): String {
-        val chars = ('A'..'Z')
-        return (1..length).map { chars.random() }.joinToString("")
+        val chars = ('A'..'Z').toList()
+        val secureRandom = java.security.SecureRandom()
+        return (1..length)
+            .map { chars[secureRandom.nextInt(chars.size)] }
+            .joinToString("")
     }
     val part1 = randomLetters(3)
     val part2 = randomLetters(4)

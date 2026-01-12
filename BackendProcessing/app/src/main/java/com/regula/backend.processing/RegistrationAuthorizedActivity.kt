@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationAuthorizedBinding
 import androidx.appcompat.app.AlertDialog
 import androidx.activity.OnBackPressedCallback
+import android.content.Intent
+import android.app.Activity
 
 class RegistrationAuthorizedActivity : AppCompatActivity() {
     companion object {
@@ -41,6 +43,9 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
 
         binding.qrCodeImage.setImageBitmap(neuvoteManager.getRegistrationQRCode())
 
+        val resultString = neuvoteManager.getRegistrationQRCodeString()
+        Log.i(TAG, "Returning: " + resultString)
+
         binding.doneBtn.setOnClickListener {
             // Clear any in-memory session state before closing so reopening starts fresh
             try {
@@ -52,7 +57,12 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             } catch (t: Exception) {
                 Log.w(TAG, "Failed to reset before exit", t)
             }
-            finishAffinity()
+
+            // Pass resultString back to the calling app
+            val resultIntent = Intent()
+            resultIntent.putExtra("resultString", resultString)
+            setResult(RESULT_OK, resultIntent)
+            finish()
         }
 
         // Disable back navigation using OnBackPressedDispatcher

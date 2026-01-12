@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.regula.backend.processing.databinding.ActivityRegistrationScanDocBinding
 import androidx.appcompat.app.AlertDialog
 import android.graphics.Bitmap
+import androidx.activity.result.ActivityResultLauncher
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import android.app.Activity
 
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -38,6 +42,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
     private lateinit var regulaScanner: RegulaScanner
     private lateinit var iProovManager: IProovManager
     private lateinit var neuvoteManager: NeuvoteManager
+    private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "Opened RegistrationScanDocActivity screen")
@@ -65,11 +70,14 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         )
         
         if (!iProovManager.getEnrolled()) {
+            Log.i(TAG, "not yet enrolled with iProov");
             val registrationCode = generateRegistrationCode()
+            Log.i(TAG, "registrationCode = $registrationCode");
             neuvoteManager.setRegistrationCode(registrationCode)
             iProovManager.setRegistrationCode(registrationCode)
             startScanner()
         } else {
+            Log.i(TAG, "already enrolled with iProov");
             binding.uploadingMsg.setText(R.string.document_uploaded)
             binding.uploadingMsg.visibility = View.VISIBLE
             binding.fullDocumentImageView.setImageBitmap(neuvoteManager.getOfficialDocumentScan())
@@ -87,9 +95,24 @@ class RegistrationScanDocActivity : AppCompatActivity() {
 
         binding.continueBtn.setOnClickListener {
             if (iProovManager.getEnrolled()) {
-                NavigationHelper.navigateToRegistrationLiveness(this)
+                val intent = Intent(this, RegistrationLivenessActivity::class.java)
+                downstreamLauncher.launch(intent)
             } else {
                 enrollPhoto()
+            }
+        }
+        
+        // Register the ActivityResultLauncher
+        downstreamLauncher = registerForActivityResult(StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val resultString = data?.getStringExtra("resultString")
+                Log.i(TAG, "Received result string from downstream activity: " + resultString)
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                setResult(RESULT_OK, resultIntent)
+                finish()
             }
         }
     }
