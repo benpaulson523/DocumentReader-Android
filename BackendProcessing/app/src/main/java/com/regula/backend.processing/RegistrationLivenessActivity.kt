@@ -73,7 +73,7 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
             showToast(this, getString(R.string.liveness_check_passed))
-            if (neuvoteManager.hasAddress() && false) {
+            if (neuvoteManager.hasAddress()) {
                 Log.d(TAG, "Address is populated")
                 val intent = Intent(this, RegistrationDataActivity::class.java)
                 downstreamLauncher.launch(intent)
