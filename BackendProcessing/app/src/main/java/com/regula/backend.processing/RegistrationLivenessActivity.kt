@@ -39,14 +39,29 @@ class RegistrationLivenessActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        iProovManager = IProovManager.getInstanceOrNull() ?: return
+        iProovManager = IProovManager.getInstance(
+            context = this
+        )
         iProovManager.setShowResultHandler(this::onResult)
+
+        if (iProovManager.getLivenessPassed()) {
+            binding.beginBtn.visibility = View.GONE
+            binding.continueBtn.visibility = View.VISIBLE
+            binding.title.setText("Live facial scan complete.")
+        } else {
+            binding.beginBtn.visibility = View.VISIBLE
+            binding.continueBtn.visibility = View.GONE
+        }
 
         binding.beginBtn.setOnClickListener {
             val resultTv = binding.resultMessageTv
             resultTv.visibility = View.GONE
             iProovManager.launchFacialScanSession()
             binding.beginBtn.isEnabled = false
+        }
+        
+        binding.continueBtn.setOnClickListener {
+            advanceToNextScreen()
         }
         
         // Register the ActivityResultLauncher
@@ -70,24 +85,31 @@ class RegistrationLivenessActivity : AppCompatActivity() {
         val resultTv = binding.resultMessageTv
 
         if (title == getString(R.string.success)) {
+            iProovManager.setLivenessPassed(true)
+            binding.title.setText("Live facial scan complete.")
             binding.beginBtn.visibility = View.GONE
             resultTv.visibility = View.GONE
+            binding.continueBtn.visibility = View.VISIBLE
             showToast(this, getString(R.string.liveness_check_passed))
-            if (neuvoteManager.hasAddress()) {
-                Log.d(TAG, "Address is populated")
-                val intent = Intent(this, RegistrationDataActivity::class.java)
-                downstreamLauncher.launch(intent)
-            } else {
-                Log.d(TAG, "Need to obtain address")
-                val intent = Intent(this, RegistrationEnterAddressActivity::class.java)
-                downstreamLauncher.launch(intent)
-            }
+            advanceToNextScreen()
         } else {
             showToast(this, getString(R.string.facial_scan_failed, resultMessage ?: getString(R.string.unknown_error)))
             resultTv.text = getString(R.string.facial_scan_failed, resultMessage ?: getString(R.string.unknown_error))
             resultTv.visibility = View.VISIBLE
             iProovManager.getVerificationToken()
             binding.beginBtn.isEnabled = true
+        }
+    }
+
+    private fun advanceToNextScreen() {
+        if (neuvoteManager.hasAddress()) {
+            Log.d(TAG, "Address is populated")
+            val intent = Intent(this, RegistrationDataActivity::class.java)
+            downstreamLauncher.launch(intent)
+        } else {
+            Log.d(TAG, "Need to obtain address")
+            val intent = Intent(this, RegistrationEnterAddressActivity::class.java)
+            downstreamLauncher.launch(intent)
         }
     }
 

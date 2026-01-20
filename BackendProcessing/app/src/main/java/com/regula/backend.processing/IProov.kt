@@ -26,6 +26,7 @@ class IProovManager private constructor(
         
         private var enrolled: Boolean = false
         private var registrationCode: String? = null
+        private var livenessPassed: Boolean = false
 
         @Volatile
         private var instance: IProovManager? = null
@@ -300,6 +301,13 @@ class IProovManager private constructor(
         return enrolled
     }
     
+    fun setLivenessPassed(value: Boolean) {
+        livenessPassed = value
+    }
+    fun getLivenessPassed(): Boolean {
+        return livenessPassed
+    }
+    
     fun setRegistrationCode(value: String) {
         registrationCode = value
     }
@@ -309,6 +317,7 @@ class IProovManager private constructor(
      */
     fun reset() {
         enrolled = false
+        livenessPassed = false
         registrationCode = null
         instance = null
     }
