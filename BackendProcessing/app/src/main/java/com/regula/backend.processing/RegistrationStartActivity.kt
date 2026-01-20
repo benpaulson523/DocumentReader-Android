@@ -20,6 +20,7 @@ class RegistrationStartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationStartBinding
     private var loadingDialog: AlertDialog? = null
+    private lateinit var regulaScanner: RegulaScanner
     private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,11 +30,21 @@ class RegistrationStartActivity : AppCompatActivity() {
         binding = ActivityRegistrationStartBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        
+        // Initialize settings manager
+        SettingsManager.init(this)
 
         binding.startBtn.setOnClickListener {
             val intent = Intent(this, RegistrationSelectDocActivity::class.java)
             downstreamLauncher.launch(intent)
         }
+
+        regulaScanner = RegulaScanner.getInstance(
+            context = this,
+            showDialog = { msg -> showDialog(msg) },
+            dismissDialog = { dismissDialog() }
+        )
+        regulaScanner.initializeReader()
         
         // Register the ActivityResultLauncher
         downstreamLauncher = registerForActivityResult(StartActivityForResult()
