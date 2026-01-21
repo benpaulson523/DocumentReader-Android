@@ -62,6 +62,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             resultString += "%%" + neuvoteManager.getUnitNumber()
             resultString += "%%" + neuvoteManager.getCity()
             resultString += "%%" + neuvoteManager.getJurisdiction()
+            resultString += "%%" + neuvoteManager.getPostalCode()
             resultString += "%%" + neuvoteManager.getCountry()
             resultString += "%%" + bitmapToBase64(neuvoteManager.getPhoto())
         }
