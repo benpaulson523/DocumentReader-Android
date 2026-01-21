@@ -6,6 +6,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.view.LayoutInflater
 
+import android.graphics.Bitmap
+import android.util.Base64
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.util.Log
+
 fun formatDateOfBirth(dob: String): String {
     val regexList = listOf(
         Regex("^(\\d{1,2})[.](\\d{1,2})[.](\\d{4})$"),
@@ -41,6 +50,13 @@ fun formatDateOfBirth(dob: String): String {
     return dob
 }
 
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+}
+
 fun generateRegistrationCode(): String {
     fun randomLetters(length: Int): String {
         val chars = ('A'..'Z').toList()
@@ -70,4 +86,55 @@ fun showToast(context: Context, text: String, yOffset: Int? = null) {
     toast.setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL, 0, yOffset ?: 280)
     toast.setView(layout)
     toast.show()
+}
+
+/**
+ * Generates a registration QR code as a base64 string from the provided data.
+ * @param registrationCode The registration code
+ * @param firstName The first name
+ * @param middleName The middle name
+ * @param lastName The last name
+ * @param dateOfBirth The date of birth
+ * @param sex The sex
+ * @return The QR code as a Bitmap, or null if generation fails
+ */
+fun generateRegistrationQRCode(
+    registrationCode: String? = null,
+    firstName: String? = null,
+    middleName: String? = null,
+    lastName: String? = null,
+    dateOfBirth: String? = null,
+    sex: String? = null
+): Bitmap? {
+    val qrData = "$registrationCode%%$firstName%%$middleName%%$lastName%%$dateOfBirth%%$sex"
+    Log.i("Utils", "Making a QR code from qrData: $qrData")
+    return try {
+        val size = 512
+        val bits = QRCodeWriter().encode(qrData, BarcodeFormat.QR_CODE, size, size)
+        val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                bmp.setPixel(x, y, if (bits[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            }
+        }
+        bmp
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * Converts a Bitmap to a base64-encoded PNG string (no whitespace)
+ */
+fun bitmapToBase64(bitmap: Bitmap? = null): String? {
+    return try {
+        val outputStream = java.io.ByteArrayOutputStream()
+        bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val bytes = outputStream.toByteArray()
+        Base64.encodeToString(bytes, Base64.NO_WRAP).replace("\\s".toRegex(), "")
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }

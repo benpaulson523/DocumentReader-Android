@@ -216,6 +216,7 @@ class NeuvoteManager private constructor(
                             errorMsg = "No voter identifier returned."
                         }
 
+                        /*
                         // Decode registrationQRCode if present
                         val qrBase64 = data?.optString("registrationQRCode", "")
                         if (!qrBase64.isNullOrEmpty()) {
@@ -229,7 +230,7 @@ class NeuvoteManager private constructor(
                             }
                         } else {
                             Log.e(TAG, "registrationQRCode not received")
-                        }
+                        }*/
                     } catch (e: Exception) {
                         val parseErrMsg = "Failed to parse voterIdentifier: ${e.message}"
                         errorMsg = parseErrMsg

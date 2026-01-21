@@ -38,18 +38,24 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         var selectedIndex = 0
-        
-        //val buttons = listOf(binding.btnEmail, binding.btnSms, binding.btnBoth)
-        val buttons = listOf(binding.btnEmail, binding.btnSms)
-        buttons.forEachIndexed { index, button ->
-            button.setOnClickListener {
-                selectedIndex = index
-                Log.d(TAG, "Radio button selected, Method index: $selectedIndex")
-            }
-        }
-        // set email as selected by default
-        buttons[0].performClick()
 
+        if (isInternetAvailable(this)) {
+            //val buttons = listOf(binding.btnEmail, binding.btnSms, binding.btnBoth)
+            val buttons = listOf(binding.btnEmail, binding.btnSms)
+            buttons.forEachIndexed { index, button ->
+                button.setOnClickListener {
+                    selectedIndex = index
+                    Log.d(TAG, "Radio button selected, Method index: $selectedIndex")
+                }
+            }
+            // set email as selected by default
+            buttons[0].performClick()
+        } else {
+            binding.sendBtn.setText(R.string.continueString)
+            binding.verifyInstruction.visibility = View.GONE
+            binding.confirmationMethodGroup.visibility = View.GONE
+        }
+        
         // Enable sendBtn when both email and phone are non-empty
         val watcher = object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -74,8 +80,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 showToast(this, getString(R.string.invalid_email_address))
             } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
-                        (phone.filter { it.isDigit() }.length < 8)) &&
-                        ((selectedIndex == 0) || (selectedIndex == 2))) {
+                        (phone.filter { it.isDigit() }.length < 11))) {
                 showToast(this, getString(R.string.invalid_phone_number))
             } else {
                 neuvoteManager.setEmail(email)
@@ -83,58 +88,63 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
 
                 Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
 
-                if (selectedIndex == 0) {
-                    neuvoteManager.setVerifyMethod("email")
-                    neuvoteManager.sendVerificationEmail(
-                        this,
-                        email.orEmpty()
-                    ) { success ->
-                        if (success) {
-                            Log.d(TAG, "Verification email sent successfully")
-                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
-                            downstreamLauncher.launch(intent)
-                        } else {
-                            showToast(this, getString(R.string.verification_email_failed))
+                if (isInternetAvailable(this)) {
+                    if (selectedIndex == 0) {
+                        neuvoteManager.setVerifyMethod("email")
+                        neuvoteManager.sendVerificationEmail(
+                            this,
+                            email.orEmpty()
+                        ) { success ->
+                            if (success) {
+                                Log.d(TAG, "Verification email sent successfully")
+                                val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                                downstreamLauncher.launch(intent)
+                            } else {
+                                showToast(this, getString(R.string.verification_email_failed))
+                            }
                         }
-                    }
-                } else if (selectedIndex == 1) {
-                    neuvoteManager.setVerifyMethod("sms")
-                    neuvoteManager.sendVerificationText(
-                        this,
-                        phone.orEmpty()
-                    ) { success ->
-                        if (success) {
-                            Log.d(TAG, "Verification text sent successfully")
-                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
-                            downstreamLauncher.launch(intent)
-                        } else {
-                            showToast(this, getString(R.string.verification_text_failed))
+                    } else if (selectedIndex == 1) {
+                        neuvoteManager.setVerifyMethod("sms")
+                        neuvoteManager.sendVerificationText(
+                            this,
+                            phone.orEmpty()
+                        ) { success ->
+                            if (success) {
+                                Log.d(TAG, "Verification text sent successfully")
+                                val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                                downstreamLauncher.launch(intent)
+                            } else {
+                                showToast(this, getString(R.string.verification_text_failed))
+                            }
+                        }
+                    } else {
+                        neuvoteManager.setVerifyMethod("email")
+                        neuvoteManager.sendVerificationEmail(
+                            this,
+                            email.orEmpty()
+                        ) { success ->
+                            if (success) {
+                                Log.d(TAG, "Verification email sent successfully")
+                            } else {
+                                showToast(this, getString(R.string.verification_email_failed))
+                            }
+                        }
+                        neuvoteManager.sendVerificationText(
+                            this,
+                            phone.orEmpty()
+                        ) { success ->
+                            if (success) {
+                                Log.d(TAG, "Verification text sent successfully")
+                                val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
+                                downstreamLauncher.launch(intent)
+                            } else {
+                                showToast(this, getString(R.string.verification_text_failed))
+                            }
                         }
                     }
                 } else {
-                    neuvoteManager.setVerifyMethod("email")
-                    neuvoteManager.sendVerificationEmail(
-                        this,
-                        email.orEmpty()
-                    ) { success ->
-                        if (success) {
-                            Log.d(TAG, "Verification email sent successfully")
-                        } else {
-                            showToast(this, getString(R.string.verification_email_failed))
-                        }
-                    }
-                    neuvoteManager.sendVerificationText(
-                        this,
-                        phone.orEmpty()
-                    ) { success ->
-                        if (success) {
-                            Log.d(TAG, "Verification text sent successfully")
-                            val intent = Intent(this, RegistrationVerifyContactActivity::class.java)
-                            downstreamLauncher.launch(intent)
-                        } else {
-                            showToast(this, getString(R.string.verification_text_failed))
-                        }
-                    }
+                    val intent = Intent(this, RegistrationAuthorizedActivity::class.java)
+                    downstreamLauncher.launch(intent)
                 }
             }
         }

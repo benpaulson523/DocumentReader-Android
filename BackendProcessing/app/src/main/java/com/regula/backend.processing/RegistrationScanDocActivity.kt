@@ -58,7 +58,6 @@ class RegistrationScanDocActivity : AppCompatActivity() {
             dismissDialog = { dismissDialog() }
         )
         
-        
         regulaScanner = RegulaScanner.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
@@ -94,11 +93,23 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         }
 
         binding.continueBtn.setOnClickListener {
-            if (iProovManager.getEnrolled()) {
-                val intent = Intent(this, RegistrationLivenessActivity::class.java)
-                downstreamLauncher.launch(intent)
+            if (isInternetAvailable(this)) {
+                if (iProovManager.getEnrolled()) {
+                    val intent = Intent(this, RegistrationLivenessActivity::class.java)
+                    downstreamLauncher.launch(intent)
+                } else {
+                    enrollPhoto()
+                }
             } else {
-                enrollPhoto()
+                if (neuvoteManager.hasAddress()) {
+                    Log.d(TAG, "Address is populated")
+                    val intent = Intent(this, RegistrationDataActivity::class.java)
+                    downstreamLauncher.launch(intent)
+                } else {
+                    Log.d(TAG, "Need to obtain address")
+                    val intent = Intent(this, RegistrationEnterAddressActivity::class.java)
+                    downstreamLauncher.launch(intent)
+                }
             }
         }
         
@@ -240,10 +251,15 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.RFID_RESULT_TYPE_RFID_IMAGE_DATA)
                 if (documentImage != null) {
                     neuvoteManager.setPhoto(documentImage)
-                    binding.continueBtn.isEnabled = true
-                    binding.continueBtn.setText("Upload")
                     binding.uploadingMsg.setText("Document successfully scanned")
                     binding.uploadingMsg.visibility = View.VISIBLE
+
+                    if (isInternetAvailable(this)) {
+                        binding.continueBtn.setText("Upload")
+                    } else {
+                        binding.continueBtn.setText("Continue")
+                    }
+                    binding.continueBtn.isEnabled = true
                 }
                 else {
                     handlePhoto(false, results, true)
@@ -258,8 +274,13 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                 var documentImage = results.getGraphicFieldImageByType(eGraphicFieldType.GF_PORTRAIT, eRPRM_ResultType.NONE)
                 if (documentImage != null) {
                     neuvoteManager.setPhoto(documentImage)
+
+                    if (isInternetAvailable(this)) {
+                        binding.continueBtn.setText("Upload")
+                    } else {
+                        binding.continueBtn.setText("Continue")
+                    }
                     binding.continueBtn.isEnabled = true
-                    binding.continueBtn.setText("Upload")
 
                     if (!fallback) {
                         binding.uploadingMsg.setText("Document successfully scanned")
