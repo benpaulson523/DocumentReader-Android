@@ -73,9 +73,8 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 showToast(this, getString(R.string.invalid_email_address))
-            } else if (((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
-                        (phone.filter { it.isDigit() }.length < 8)) &&
-                        ((selectedIndex == 0) || (selectedIndex == 2))) {
+            } else if ((!android.util.Patterns.PHONE.matcher(phone).matches()) ||
+                        (phone.filter { it.isDigit() }.length < 11)) {
                 showToast(this, getString(R.string.invalid_phone_number))
             } else {
                 neuvoteManager.setEmail(email)

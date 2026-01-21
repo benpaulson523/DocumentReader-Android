@@ -41,9 +41,31 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         binding.registrationCode.setText(registrationCode)
         binding.nameValue.setText(neuvoteManager.getFullName())
 
+        neuvoteManager.setRegistrationQRCode(
+            generateRegistrationQRCode(registrationCode,
+                neuvoteManager.getFirstName(),
+                neuvoteManager.getMiddleName(),
+                neuvoteManager.getSurname(),
+                neuvoteManager.getDateOfBirth(),
+                neuvoteManager.getSex()
+            )
+        )
+
         binding.qrCodeImage.setImageBitmap(neuvoteManager.getRegistrationQRCode())
 
-        val resultString = neuvoteManager.getRegistrationQRCodeString()
+        var resultString = neuvoteManager.getRegistrationQRCodeString()
+
+        if (!isInternetAvailable(this)) {
+            resultString += "%%" + neuvoteManager.getEmail()
+            resultString += "%%" + neuvoteManager.getPhone()
+            resultString += "%%" + neuvoteManager.getStreetAddress()
+            resultString += "%%" + neuvoteManager.getUnitNumber()
+            resultString += "%%" + neuvoteManager.getCity()
+            resultString += "%%" + neuvoteManager.getJurisdiction()
+            resultString += "%%" + neuvoteManager.getCountry()
+            resultString += "%%" + bitmapToBase64(neuvoteManager.getPhoto())
+        }
+        
         Log.i(TAG, "Returning: " + resultString)
 
         binding.doneBtn.setOnClickListener {

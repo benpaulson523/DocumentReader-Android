@@ -216,6 +216,7 @@ class NeuvoteManager private constructor(
                             errorMsg = "No voter identifier returned."
                         }
 
+                        /*
                         // Decode registrationQRCode if present
                         val qrBase64 = data?.optString("registrationQRCode", "")
                         if (!qrBase64.isNullOrEmpty()) {
@@ -230,6 +231,7 @@ class NeuvoteManager private constructor(
                         } else {
                             Log.e(TAG, "registrationQRCode not received")
                         }
+                        */
                     } catch (e: Exception) {
                         val parseErrMsg = "Failed to parse voterIdentifier: ${e.message}"
                         errorMsg = parseErrMsg
@@ -323,6 +325,7 @@ class NeuvoteManager private constructor(
                         context = context,
                         registrationCode = registrationCode ?: "",
                         firstName = firstName,
+                        middleName = middleName,
                         lastName = surname,
                         dateOfBirth = dateOfBirth,
                         sex = sex,
@@ -347,6 +350,7 @@ class NeuvoteManager private constructor(
         context: Context,
         registrationCode: String,
         firstName: String?,
+        middleName: String?,
         lastName: String?,
         dateOfBirth: String?,
         sex: String?,
@@ -357,6 +361,7 @@ class NeuvoteManager private constructor(
         val payload = org.json.JSONObject().apply {
             put("userId", registrationCode)
             put("firstName", firstName ?: "")
+            put("middleName", middleName ?: "")
             put("lastName", lastName ?: "")
             put("dateOfBirth", dateOfBirth ?: "")
             put("sex", sex ?: "")
