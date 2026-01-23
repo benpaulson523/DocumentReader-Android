@@ -56,6 +56,7 @@ class RegistrationDataActivity : AppCompatActivity() {
                 Log.i(TAG, "Received result string from downstream activity: " + resultString)
                 val resultIntent = Intent()
                 resultIntent.putExtra("resultString", resultString)
+                resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 setResult(RESULT_OK, resultIntent)
                 finish()
             }
