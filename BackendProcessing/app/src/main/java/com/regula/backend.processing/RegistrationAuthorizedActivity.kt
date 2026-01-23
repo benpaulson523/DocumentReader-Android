@@ -70,6 +70,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         Log.i(TAG, "Returning: " + resultString)
 
         binding.doneBtn.setOnClickListener {
+            showDialog("Processing...")
             // Clear any in-memory session state before closing so reopening starts fresh
             try {
                 neuvoteManager.reset()
@@ -85,7 +86,9 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             val resultIntent = Intent()
             resultIntent.putExtra("resultString", resultString)
             setResult(RESULT_OK, resultIntent)
-            finish()
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                finish()
+            }, 1000) // 1 second delay
         }
 
         // Disable back navigation using OnBackPressedDispatcher
