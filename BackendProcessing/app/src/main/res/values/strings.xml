@@ -47,6 +47,7 @@
     <string name="banner_date">15 Sep 2026</string>
     <string name="thank_you">Thank You</string>
     <string name="registration_received_message">Your registration has been received. Please present the below code when you visit the commission office.</string>
+    <string name="registration_recorded_message">Your registration has been recorded. The below code has been assigned to your account.</string>
     <string name="registration_code_label">Registration code:</string>
     <string name="qr_code_content_description">QR code</string>
     <string name="verified">Verified</string>
