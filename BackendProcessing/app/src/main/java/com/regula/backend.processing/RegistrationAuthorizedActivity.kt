@@ -56,7 +56,6 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         var resultString = neuvoteManager.getRegistrationQRCodeString()
 
         if (!isInternetAvailable(this)) {
-            binding.doneBtn.setText(R.string.continueString)
             resultString += "%%" + neuvoteManager.getEmail()
             resultString += "%%" + neuvoteManager.getPhone()
             resultString += "%%" + neuvoteManager.getStreetAddress()
