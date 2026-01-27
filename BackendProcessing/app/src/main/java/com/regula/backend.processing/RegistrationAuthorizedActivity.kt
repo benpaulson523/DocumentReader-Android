@@ -77,6 +77,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
                 put("country", neuvoteManager.getCountry())
                 put("photo", bitmapToBase64(neuvoteManager.getPhoto()))
                 put("officialDocument", bitmapToBase64(neuvoteManager.getOfficialDocumentScan()))
+                put("supportDocument", bitmapToBase64(neuvoteManager.getSupportDocumentScan()))
             }
             // Write JSON to a file in the app's files directory
             val dir = File(filesDir, "exports").apply { mkdirs() }
