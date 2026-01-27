@@ -22,4 +22,5 @@ object Constants {
     const val NEUVOTE_SERVER_ADDRESS = "https://api.biometrics.demo.civik.ca"                                           //https
     const val NEUVOTE_SERVER_PORT = ""
     const val BIOMETRICS_APP_PACKAGE = "com.neurotec.samples.neuvotemultibiometric"
+    const val MOBILE_CONFIG = true
 }

@@ -97,7 +97,7 @@
         android:id="@+id/doneBtn"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:text="@string/continueString"
+        android:text="@string/done"
         style="@style/AppTextMedium"
         android:backgroundTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"

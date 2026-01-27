@@ -32,6 +32,12 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        //modify button text based on mobile phone vs. tablet
+        if (!Constants.MOBILE_CONFIG) {
+            binding.doneBtn.setText(R.string.continueString)
+            binding.registeredMessage.setText(R.string.registration_recorded_message)
+        }
+
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
@@ -54,10 +60,10 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
 
         binding.qrCodeImage.setImageBitmap(neuvoteManager.getRegistrationQRCode())
 
-        var resultString = "online_registration"
+        var resultString = "mobile_config"
 
-        if (!isInternetAvailable(this)) {
-            binding.registeredMessage.setText(R.string.registration_recorded_message)
+        //modify result string behavior based on mobile phone vs. tablet
+        if (!Constants.MOBILE_CONFIG) {
 
             // Assemble data into a JSON object
             val json = org.json.JSONObject().apply {
@@ -67,18 +73,22 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
                 put("lastName", neuvoteManager.getSurname())
                 put("dateOfBirth", neuvoteManager.getDateOfBirth())
                 put("sex", neuvoteManager.getSex())
-                put("email", neuvoteManager.getEmail())
-                put("phone", neuvoteManager.getPhone())
-                put("streetAddress", neuvoteManager.getStreetAddress())
-                put("unitNumber", neuvoteManager.getUnitNumber())
-                put("city", neuvoteManager.getCity())
-                put("jurisdiction", neuvoteManager.getJurisdiction())
-                put("postalCode", neuvoteManager.getPostalCode())
-                put("country", neuvoteManager.getCountry())
-                put("photo", bitmapToBase64(neuvoteManager.getPhoto()))
-                put("officialDocument", bitmapToBase64(neuvoteManager.getOfficialDocumentScan()))
-                put("supportDocument", bitmapToBase64(neuvoteManager.getSupportDocumentScan()))
             }
+
+            if (!isInternetAvailable(this)) {
+                json.put("email", neuvoteManager.getEmail())
+                json.put("phone", neuvoteManager.getPhone())
+                json.put("streetAddress", neuvoteManager.getStreetAddress())
+                json.put("unitNumber", neuvoteManager.getUnitNumber())
+                json.put("city", neuvoteManager.getCity())
+                json.put("jurisdiction", neuvoteManager.getJurisdiction())
+                json.put("postalCode", neuvoteManager.getPostalCode())
+                json.put("country", neuvoteManager.getCountry())
+                json.put("photo", bitmapToBase64(neuvoteManager.getPhoto()))
+                json.put("officialDocument", bitmapToBase64(neuvoteManager.getOfficialDocumentScan()))
+                json.put("supportDocument", bitmapToBase64(neuvoteManager.getSupportDocumentScan()))
+            }
+
             // Write JSON to a file in the app's files directory
             val dir = File(filesDir, "exports").apply { mkdirs() }
             val outFile = File(dir, "registration_data_${System.currentTimeMillis()}.json")
@@ -102,8 +112,7 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
         Log.i(TAG, "Returning: $resultString")
 
         binding.doneBtn.setOnClickListener {
-            showDialog("Processing...")
-            // Clear any in-memory session state before closing so reopening starts fresh
+            //clear any in-memory session state before closing so reopening starts fresh
             try {
                 neuvoteManager.reset()
                 iProovManager = IProovManager.getInstance(
@@ -114,14 +123,19 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
                 Log.w(TAG, "Failed to reset before exit", t)
             }
 
-            // Pass resultString back to the calling app
-            val resultIntent = Intent()
-            resultIntent.putExtra("resultString", resultString)
-            resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            setResult(RESULT_OK, resultIntent)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                finish()
-            }, 1000) // 1 second delay
+            //modify finishing behavior based on mobile phone vs. tablet
+            if (!Constants.MOBILE_CONFIG) {
+                showDialog("Processing...")
+                val resultIntent = Intent()
+                resultIntent.putExtra("resultString", resultString)
+                resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                setResult(RESULT_OK, resultIntent)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    finish()
+                }, 1000) // 1 second delay
+            } else {
+                finishAffinity()
+            }
         }
 
         // Disable back navigation using OnBackPressedDispatcher

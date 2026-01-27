@@ -14,6 +14,8 @@ import androidx.activity.result.ActivityResultLauncher
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import android.app.Activity
+import android.util.TypedValue
+import android.view.ViewGroup
 
 import com.regula.documentreader.api.DocumentReader
 import com.regula.documentreader.api.completions.IDocumentReaderCompletion
@@ -51,6 +53,26 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         binding = ActivityRegistrationScanDocBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        //modify scan preview based on mobile phone vs. tablet
+        if (!Constants.MOBILE_CONFIG) {
+            val frameLayoutParams = binding.documentViewFrame.layoutParams
+            val heightInDp = 300
+            val heightInPx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, heightInDp.toFloat(), view.resources.displayMetrics
+            ).toInt()
+            frameLayoutParams.height = heightInPx
+            binding.documentViewFrame.layoutParams = frameLayoutParams
+
+            val borderViewParams = binding.fullDocumentBorderView.layoutParams as ViewGroup.MarginLayoutParams
+            val marginInDp = 32
+            val marginInPx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, marginInDp.toFloat(), resources.displayMetrics
+            ).toInt()
+            borderViewParams.marginStart = marginInPx
+            borderViewParams.marginEnd = marginInPx
+            binding.fullDocumentBorderView.layoutParams = borderViewParams
+        }
         
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
