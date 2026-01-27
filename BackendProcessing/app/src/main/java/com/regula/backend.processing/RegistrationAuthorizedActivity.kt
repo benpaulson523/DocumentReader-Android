@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.activity.OnBackPressedCallback
 import android.content.Intent
 import android.app.Activity
+import java.io.File
 
 class RegistrationAuthorizedActivity : AppCompatActivity() {
     companion object {
@@ -53,23 +54,55 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
 
         binding.qrCodeImage.setImageBitmap(neuvoteManager.getRegistrationQRCode())
 
-        var resultString = neuvoteManager.getRegistrationQRCodeString()
+        var resultString = "online_registration"
 
         if (!isInternetAvailable(this)) {
-            resultString += "%%" + neuvoteManager.getEmail()
-            resultString += "%%" + neuvoteManager.getPhone()
-            resultString += "%%" + neuvoteManager.getStreetAddress()
-            resultString += "%%" + neuvoteManager.getUnitNumber()
-            resultString += "%%" + neuvoteManager.getCity()
-            resultString += "%%" + neuvoteManager.getJurisdiction()
-            resultString += "%%" + neuvoteManager.getPostalCode()
-            resultString += "%%" + neuvoteManager.getCountry()
-            resultString += "%%" + bitmapToBase64(neuvoteManager.getPhoto())
+            binding.registeredMessage.setText(R.string.registration_recorded_message)
+
+            // Assemble data into a JSON object
+            val json = org.json.JSONObject().apply {
+                put("registrationCode", neuvoteManager.getRegistrationCode())
+                put("firstName", neuvoteManager.getFirstName())
+                put("middleName", neuvoteManager.getMiddleName())
+                put("lastName", neuvoteManager.getSurname())
+                put("dateOfBirth", neuvoteManager.getDateOfBirth())
+                put("sex", neuvoteManager.getSex())
+                put("email", neuvoteManager.getEmail())
+                put("phone", neuvoteManager.getPhone())
+                put("streetAddress", neuvoteManager.getStreetAddress())
+                put("unitNumber", neuvoteManager.getUnitNumber())
+                put("city", neuvoteManager.getCity())
+                put("jurisdiction", neuvoteManager.getJurisdiction())
+                put("postalCode", neuvoteManager.getPostalCode())
+                put("country", neuvoteManager.getCountry())
+                put("photo", bitmapToBase64(neuvoteManager.getPhoto()))
+                put("officialDocument", bitmapToBase64(neuvoteManager.getOfficialDocumentScan()))
+                put("supportDocument", bitmapToBase64(neuvoteManager.getSupportDocumentScan()))
+            }
+            // Write JSON to a file in the app's files directory
+            val dir = File(filesDir, "exports").apply { mkdirs() }
+            val outFile = File(dir, "registration_data_${System.currentTimeMillis()}.json")
+            outFile.writeText(json.toString())
+            Log.i(TAG, "File written to filesDir: ${outFile.absolutePath}, exists: ${outFile.exists()}")
+            // Grant URI permission to the known calling app and return a content URI
+            val contentUri = androidx.core.content.FileProvider.getUriForFile(
+                this,
+                "com.regula.backend.processing.fileprovider",
+                outFile
+            )
+            // Grant temporary read permission to the known calling app
+            grantUriPermission(
+                Constants.BIOMETRICS_APP_PACKAGE,
+                contentUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            resultString = contentUri.toString()
         }
-        
-        Log.i(TAG, "Returning: " + resultString)
+
+        Log.i(TAG, "Returning: $resultString")
 
         binding.doneBtn.setOnClickListener {
+            showDialog("Processing...")
             // Clear any in-memory session state before closing so reopening starts fresh
             try {
                 neuvoteManager.reset()
@@ -84,8 +117,11 @@ class RegistrationAuthorizedActivity : AppCompatActivity() {
             // Pass resultString back to the calling app
             val resultIntent = Intent()
             resultIntent.putExtra("resultString", resultString)
+            resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             setResult(RESULT_OK, resultIntent)
-            finish()
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                finish()
+            }, 1000) // 1 second delay
         }
 
         // Disable back navigation using OnBackPressedDispatcher

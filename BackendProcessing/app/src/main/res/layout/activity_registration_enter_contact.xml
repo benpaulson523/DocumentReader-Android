@@ -88,7 +88,8 @@
         android:textColor="@android:color/black"
         style="@style/AppTextLarge"
         app:layout_constraintTop_toBottomOf="@id/confirmationMethodGroup"
-        app:layout_constraintStart_toStartOf="@id/verifyInstruction"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp" />
 
     <EditText

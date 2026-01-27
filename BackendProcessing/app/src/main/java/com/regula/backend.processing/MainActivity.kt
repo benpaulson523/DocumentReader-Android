@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
     private var loadingDialog: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
-    private lateinit var regulaScanner: RegulaScanner
     private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,13 +68,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, RegistrationStartActivity::class.java)
             downstreamLauncher.launch(intent)
         }
-
-        regulaScanner = RegulaScanner.getInstance(
-            context = this,
-            showDialog = { msg -> showDialog(msg) },
-            dismissDialog = { dismissDialog() }
-        )
-        regulaScanner.initializeReader()
         
         // Register the ActivityResultLauncher
         downstreamLauncher = registerForActivityResult(StartActivityForResult()
@@ -86,6 +78,7 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, "Received result string from downstream activity: " + resultString)
                 val resultIntent = Intent()
                 resultIntent.putExtra("resultString", resultString)
+                resultIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 setResult(RESULT_OK, resultIntent)
                 finish()
             }

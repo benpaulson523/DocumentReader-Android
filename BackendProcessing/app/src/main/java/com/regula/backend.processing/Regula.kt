@@ -177,9 +177,14 @@ class RegulaScanner private constructor(
         onFinalize: (DocumentReaderResults?) -> Unit,
         onFailure: () -> Unit
     ) {
-        val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
         DocumentReader.Instance().functionality().edit().setDoRecordProcessingVideo(true).apply()
-        DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
+
+        val internetAvailable = isInternetAvailable(instance!!.context)
+        Log.d(TAG, "Internet connectivity: $internetAvailable")
+        if (internetAvailable) {
+            val backendProcessingConfig = BackendProcessingConfig(Constants.REGULA_BASE_URL)
+            DocumentReader.Instance().processParams().backendProcessingConfig = backendProcessingConfig
+        }
 
         var scannerConfig = ScannerConfig.Builder(Scenario.SCENARIO_FULL_PROCESS).build()
         if (locateScenario) {
