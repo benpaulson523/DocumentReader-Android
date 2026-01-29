@@ -117,21 +117,41 @@
         app:layout_constraintTop_toBottomOf="@id/emailValue"
         app:layout_constraintStart_toStartOf="@id/emailValue"
         android:layout_marginTop="16dp" />
-
-    <EditText
-        android:id="@+id/phoneValue"
+        
+    <LinearLayout
+        android:id="@+id/phoneInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        style="@style/AppTextLarge"
-        android:fontFamily="@font/poppins_semibold"
-        android:inputType="phone"
-        android:background="@drawable/edittext_rounded"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/phoneLabel"
         app:layout_constraintStart_toStartOf="@id/phoneLabel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="2dp">
+
+        <Spinner
+            android:id="@+id/countryCodeSpinner"
+            style="@style/AppTextLarge"
+            android:layout_width="78dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="0dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:paddingEnd="0dp"
+            android:spinnerMode="dropdown"
+            android:textColor="@android:color/black" />
+        <EditText
+            android:id="@+id/phoneValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            style="@style/AppTextLarge"
+            android:fontFamily="@font/poppins_semibold"
+            android:inputType="phone"
+            android:background="@drawable/edittext_rounded"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/sendBtn"

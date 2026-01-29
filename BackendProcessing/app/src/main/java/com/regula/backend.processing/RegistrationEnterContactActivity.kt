@@ -37,15 +37,47 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
             showDialog = { msg -> showDialog(msg) },
             dismissDialog = { dismissDialog() }
         )
-        var selectedIndex = 0
+
+        // Load country calling codes from string arrays and populate the spinner
+        val names = resources.getStringArray(R.array.country_names)
+        val codes = resources.getStringArray(R.array.country_calling_codes)
+        val countryCodes = names.zip(codes).sortedBy { it.first }
+
+        val spinnerAdapter = object : android.widget.ArrayAdapter<String>(
+            this,
+            R.layout.spinner_selected_item,
+            countryCodes.map { it.second } // Only code for selected view
+        ) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                // Show only the code in the selected view
+                val view = super.getView(position, convertView, parent) as android.widget.TextView
+                view.text = countryCodes[position].second
+                return view
+            }
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                // Show country (code) in dropdown
+                val inflater = layoutInflater
+                val view = inflater.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false) as android.widget.TextView
+                view.text = "${countryCodes[position].first} (${countryCodes[position].second})"
+                return view
+            }
+        }
+        binding.countryCodeSpinner.adapter = spinnerAdapter
+
+        // Set default selection to Philippines (+63) if present, else USA/Canada (+1)
+        val defaultIndex = countryCodes.indexOfFirst { it.first == "Philippines" }.
+            takeIf { it >= 0 } ?: countryCodes.indexOfFirst { it.second == "+1" }
+        if (defaultIndex >= 0) binding.countryCodeSpinner.setSelection(defaultIndex)
+
+        var selectedContactIndex = 0
 
         if (isInternetAvailable(this)) {
             //val buttons = listOf(binding.btnEmail, binding.btnSms, binding.btnBoth)
             val buttons = listOf(binding.btnEmail, binding.btnSms)
             buttons.forEachIndexed { index, button ->
                 button.setOnClickListener {
-                    selectedIndex = index
-                    Log.d(TAG, "Radio button selected, Method index: $selectedIndex")
+                    selectedContactIndex = index
+                    Log.d(TAG, "Radio button selected, Method index: $selectedContactIndex")
                 }
             }
             // set email as selected by default
@@ -72,9 +104,11 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
         binding.sendBtn.setOnClickListener {
             val email = binding.emailValue.text?.toString() ?: ""
             var phone = binding.phoneValue.text?.toString() ?: ""
-
+            // Use selected country code
+            val selectedIndex = binding.countryCodeSpinner.selectedItemPosition
+            val selectedCode = if (selectedIndex >= 0 && selectedIndex < countryCodes.size) countryCodes[selectedIndex].second else "+1"
             if (!phone.startsWith("+")) {
-                phone = "+1$phone"
+                phone = "$selectedCode$phone"
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -86,10 +120,10 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                 neuvoteManager.setEmail(email)
                 neuvoteManager.setPhone(phone)
 
-                Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedIndex")
+                Log.d(TAG, "Send code button clicked. Email: $email, Phone: $phone, Method index: $selectedContactIndex")
 
                 if (isInternetAvailable(this)) {
-                    if (selectedIndex == 0) {
+                    if (selectedContactIndex == 0) {
                         neuvoteManager.setVerifyMethod("email")
                         neuvoteManager.sendVerificationEmail(
                             this,
@@ -103,7 +137,7 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
                                 showToast(this, getString(R.string.verification_email_failed))
                             }
                         }
-                    } else if (selectedIndex == 1) {
+                    } else if (selectedContactIndex == 1) {
                         neuvoteManager.setVerifyMethod("sms")
                         neuvoteManager.sendVerificationText(
                             this,

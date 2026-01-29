@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="country_names">
+        <item>USA/Canada</item>
+        <item>UK</item>
+        <item>Australia</item>
+        <item>New Zealand</item>
+        <item>India</item>
+        <item>China</item>
+        <item>Japan</item>
+        <item>South Korea</item>
+        <item>France</item>
+        <item>Germany</item>
+        <item>Italy</item>
+        <item>Spain</item>
+        <item>Netherlands</item>
+        <item>Sweden</item>
+        <item>Switzerland</item>
+        <item>Ireland</item>
+        <item>UAE</item>
+        <item>Saudi Arabia</item>
+        <item>South Africa</item>
+        <item>Nigeria</item>
+        <item>Egypt</item>
+        <item>Kenya</item>
+        <item>Mexico</item>
+        <item>Brazil</item>
+        <item>Argentina</item>
+        <item>Chile</item>
+        <item>Colombia</item>
+        <item>Philippines</item>
+        <item>Vietnam</item>
+        <item>Thailand</item>
+        <item>Malaysia</item>
+        <item>Singapore</item>
+        <item>Indonesia</item>
+        <item>Brunei</item>
+        <item>Cambodia</item>
+        <item>Laos</item>
+        <item>Myanmar</item>
+        <item>Taiwan</item>
+        <item>Hong Kong</item>
+        <item>Guam</item>
+    </string-array>
+
+    <string-array name="country_calling_codes">
+        <item>+1</item>
+        <item>+44</item>
+        <item>+61</item>
+        <item>+64</item>
+        <item>+91</item>
+        <item>+86</item>
+        <item>+81</item>
+        <item>+82</item>
+        <item>+33</item>
+        <item>+49</item>
+        <item>+39</item>
+        <item>+34</item>
+        <item>+31</item>
+        <item>+46</item>
+        <item>+41</item>
+        <item>+353</item>
+        <item>+971</item>
+        <item>+966</item>
+        <item>+27</item>
+        <item>+234</item>
+        <item>+20</item>
+        <item>+254</item>
+        <item>+52</item>
+        <item>+55</item>
+        <item>+54</item>
+        <item>+56</item>
+        <item>+57</item>
+        <item>+63</item>
+        <item>+84</item>
+        <item>+66</item>
+        <item>+60</item>
+        <item>+65</item>
+        <item>+62</item>
+        <item>+673</item>
+        <item>+855</item>
+        <item>+856</item>
+        <item>+95</item>
+        <item>+886</item>
+        <item>+852</item>
+        <item>+1</item>
+    </string-array>
+</resources>
