@@ -132,14 +132,15 @@
         <Spinner
             android:id="@+id/countryCodeSpinner"
             style="@style/AppTextLarge"
-            android:layout_width="78dp"
+            android:layout_width="76dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="0dp"
             android:fontFamily="@font/poppins_semibold"
             android:paddingEnd="0dp"
+            android:layout_marginEnd="4dp"
             android:spinnerMode="dropdown"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:background="@drawable/spinner_button_background" />
         <EditText
             android:id="@+id/phoneValue"
             android:layout_width="0dp"

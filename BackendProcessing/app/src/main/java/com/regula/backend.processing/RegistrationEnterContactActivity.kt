@@ -32,6 +32,13 @@ class RegistrationEnterContactActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        //modify country code field width based on mobile phone vs. tablet
+        if (!Constants.MOBILE_CONFIG) {
+            val params = binding.countryCodeSpinner.layoutParams
+            params.width = (86 * resources.displayMetrics.density).toInt() // 86dp in px
+            binding.countryCodeSpinner.layoutParams = params
+        }
+
         neuvoteManager = NeuvoteManager.getInstance(
             context = this,
             showDialog = { msg -> showDialog(msg) },
