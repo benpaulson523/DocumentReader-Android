@@ -17,6 +17,7 @@
     <string name="unable_to_return">Unable to return to previous screen</string>
     <string name="save">Save</string>
     <string name="confirm">Confirm</string>
+    <string name="rescan">Rescan</string>
     <string name="start">Start</string>
     <string name="continueString">Continue</string>
     <string name="done">Done</string>

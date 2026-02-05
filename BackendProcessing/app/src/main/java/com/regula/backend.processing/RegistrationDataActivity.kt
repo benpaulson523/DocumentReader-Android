@@ -21,6 +21,7 @@ class RegistrationDataActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegistrationDataBinding
     private var loadingDialog: AlertDialog? = null
+    private lateinit var iProovManager: IProovManager
     private lateinit var neuvoteManager: NeuvoteManager
     private lateinit var downstreamLauncher: ActivityResultLauncher<Intent>
 
@@ -44,6 +45,18 @@ class RegistrationDataActivity : AppCompatActivity() {
 
         binding.confirmBtn.setOnClickListener {
             val intent = Intent(this, RegistrationEnterContactActivity::class.java)
+            downstreamLauncher.launch(intent)
+        }
+
+        binding.rescanBtn.setOnClickListener {
+            
+            iProovManager = IProovManager.getInstance(
+                context = this
+            )
+            iProovManager.reset()
+            neuvoteManager.reset()
+
+            val intent = Intent(this, RegistrationScanDocActivity::class.java)
             downstreamLauncher.launch(intent)
         }
         
