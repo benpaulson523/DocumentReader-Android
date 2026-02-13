@@ -149,6 +149,7 @@ class NeuvoteManager private constructor(
 
         // Add all fields as separate form fields
         multipartBuilder.addFormDataPart("votingChannel", "online")
+        multipartBuilder.addFormDataPart("electionOptIns", "")
         multipartBuilder.addFormDataPart("firstName", firstName ?: "")
         multipartBuilder.addFormDataPart("middleName", middleName ?: "")
         multipartBuilder.addFormDataPart("lastName", surname ?: "")

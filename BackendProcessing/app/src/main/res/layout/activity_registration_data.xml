@@ -123,9 +123,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/rescan"
+            android:textColor="@color/philippines_blue"
+            android:enabled="true"
             style="@style/AppTextMedium"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:paddingTop="7dp" />
+            android:backgroundTint="@color/white"
+            android:paddingTop="7dp"
+            app:strokeColor="@color/philippines_blue"
+            app:strokeWidth="2dp" />
         <Space
             android:layout_width="16dp"
             android:layout_height="match_parent" />

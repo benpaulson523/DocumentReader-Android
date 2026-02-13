@@ -17,7 +17,7 @@ object Constants {
     const val API_KEY = "8a22f4928c1191a8f1c21ed8b8ca4871fc5b4fb7"
     const val SECRET = "0cdeeca2ae00d68fb25e0c0aeacf63c61d3c0f44"
     //const val NEUVOTE_SERVER_ADDRESS = "http://192.168.0.228" //local
-    //const val NEUVOTE_SERVER_PORT = "8080"                    //local
+    //const val NEUVOTE_SERVER_PORT = "3001"                    //local
     //const val NEUVOTE_SERVER_ADDRESS = "http://biometrics-demo-env.eba-tphgd5hp.ca-central-1.elasticbeanstalk.com"    //http
     const val NEUVOTE_SERVER_ADDRESS = "https://api.biometrics.demo.civik.ca"                                           //https
     const val NEUVOTE_SERVER_PORT = ""
