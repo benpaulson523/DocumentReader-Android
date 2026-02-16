@@ -370,22 +370,36 @@ class NeuvoteManager private constructor(
                 val responseBody = response.body?.string()
                 Log.d(TAG, "Server response from ABIS enroll: $responseBody")
                 var errorMsg: String? = null
-                var serverResult: String? = null
+                var status: String? = null
+                var encounterId: String? = null
                 try {
                     val json = org.json.JSONObject(responseBody ?: "")
-                    serverResult = json.optString("serverResult")
-                    if (serverResult != "Success") {
-                        errorMsg = serverResult.ifEmpty { json.optString("error") }
-                        if (errorMsg.isNullOrEmpty()) {
-                            errorMsg = json.optString("message")
+                    val serverResultObj = json.optJSONObject("serverResult")
+                    if (serverResultObj != null) {
+                        status = serverResultObj.optString("status", "Failed")
+                        encounterId = serverResultObj.optString("requestId", null)
+                        Log.i(TAG, "Encounter ID: $encounterId")
+                        if (status != "Success") {
+                            errorMsg = status
                         }
+                    } else {
+                        errorMsg = "Missing serverResult object"
                     }
                 } catch (e: Exception) {
                     errorMsg = "Failed to parse ABIS response: ${e.message}"
                 }
+
+                // Save encounterId for later use
+                val encounterIdToRecord = encounterId
+
                 (context as? Activity)?.runOnUiThread {
-                    if (response.isSuccessful && (errorMsg == null || serverResult == "Success")) {
-                        updateAbisID(context, voterIdentifier, registrationCode, onFinalResult)
+                    if (response.isSuccessful && (errorMsg == null || status == "Success")) {
+                        updateAbisID(context, voterIdentifier, registrationCode) { success ->
+                            if (success && !encounterIdToRecord.isNullOrEmpty()) {
+                                recordEncounter(context, registrationCode, encounterIdToRecord)
+                            }
+                            onFinalResult?.invoke(success)
+                        }
                     } else {
                         dismissDialog();
                         showToast(context, context.getString(R.string.registration_failed) + ": " + errorMsg!!)
@@ -394,6 +408,48 @@ class NeuvoteManager private constructor(
                 }
             }
         })
+    }
+
+    /**
+     * Adds an encounter to the biometricsEncounters array for a given subjectId (abisID) using Neuvote.
+     * @param context The Android context
+     * @param subjectId The ABIS ID (abisID)
+     * @param encounterId The encounter ID to add
+     */
+    fun recordEncounter(context: Context, subjectId: String, encounterId: String?) {
+        if (encounterId.isNullOrEmpty()) {
+            Log.e(TAG, "Encounter ID is null or empty, cannot add encounter.")
+            return
+        }
+        try {
+            val body = org.json.JSONObject().apply {
+                put("abisID", subjectId)
+                put("encounterID", encounterId)
+            }
+            val client = okhttp3.OkHttpClient()
+            val requestBody = body.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+            val request = okhttp3.Request.Builder()
+                .url(NeuvoteManager.getNeuvoteServerUrl() + Constants.ENDPOINT_ADD_ENCOUNTER)
+                .post(requestBody)
+                .addHeader("Content-Type", "application/json")
+                .build()
+            client.newCall(request).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                    Log.e(TAG, "Add encounter error: ${e.message}", e)
+                }
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    val status = response.code
+                    val responseBody = response.body?.string()
+                    if (status / 100 == 2) {
+                        Log.i(TAG, "Add encounter succeeded: $responseBody")
+                    } else {
+                        Log.e(TAG, "Add encounter failed HTTP $status: $responseBody")
+                    }
+                }
+            })
+        } catch (e: Exception) {
+            Log.e(TAG, "Add encounter error: ${e.message}", e)
+        }
     }
 
     fun updateAbisID(context: Context, voterIdentifier: String, registrationCode: String, onFinalResult: ((Boolean) -> Unit)? = null) {
