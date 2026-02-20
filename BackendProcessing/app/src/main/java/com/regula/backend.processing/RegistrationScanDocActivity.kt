@@ -152,7 +152,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
         
         // Use OnBackPressedDispatcher for reliable back button handling
         // Always navigate to RegistrationSelectDocActivity on OS back button
-        onBackPressedDispatcher.addCallback(this,
+        /*onBackPressedDispatcher.addCallback(this,
             object : androidx.activity.OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     Log.i(TAG, "onBackPressed (OnBackPressedDispatcher)")
@@ -160,7 +160,7 @@ class RegistrationScanDocActivity : AppCompatActivity() {
                     downstreamLauncher.launch(intent)
                 }
             }
-        )
+        )*/
     }
 
     private fun startScanner() {
